@@ -16,4 +16,25 @@ public class User {
     private Email email;
     private String password;
     private Role role;
+
+
+    // Constructor used to register a new user with Command
+    public User(Email email, String password, Role role) {
+        this.id = UUID.randomUUID(); // optional: generated from the domain
+        this.email = email;
+        this.password = password;
+        this.role = role;
+    }
+
+    public void updateEmail(Email email) {
+        this.email = email;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
+    public void updateRole(Role role) {
+        this.role = role;
+    }
 }
