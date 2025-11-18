@@ -3,9 +3,9 @@ package com.backend.application.usecase;
 import com.backend.application.port.in.UpdateUserUseCase;
 import com.backend.application.port.in.command.UpdateUserCommand;
 import com.backend.application.port.out.UserRepositoryPort;
+import com.backend.domain.exception.UserNotFoundException;
 import com.backend.domain.model.User;
 import com.backend.domain.valueobject.Email;
-import com.backend.domain.valueobject.Role;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +18,16 @@ public class UpdateUserServiceImpl implements UpdateUserUseCase {
     @Override
     public User updateUser(UpdateUserCommand command) {
         User existingUser = userRepository.findById(command.id())
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + command.id()));
+                .orElseThrow(() -> new UserNotFoundException(command.id()));
 
-        existingUser.updateEmail(new Email(command.email()));
-        existingUser.updatePassword(command.password());
-        existingUser.updateRole(Role.valueOf(command.role()));
+        if (command.email() != null) {
+            existingUser.updateEmail(new Email(command.email()));
+        }
+
+        if (command.password() != null) {
+            existingUser.updatePassword(command.password());
+
+        }
 
         return userRepository.save(existingUser);
     }

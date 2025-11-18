@@ -3,6 +3,7 @@ package com.backend.application.usecase;
 import com.backend.application.port.in.DeleteUserUseCase;
 import com.backend.application.port.in.command.DeleteUserCommand;
 import com.backend.application.port.out.UserRepositoryPort;
+import com.backend.domain.exception.UserNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,12 @@ public class DeleteUserServiceImpl implements DeleteUserUseCase {
 
     @Override
     public void deleteUser(DeleteUserCommand command) {
+
+        // Check if user exists
+        userRepository.findById(command.id())
+                        .orElseThrow(() -> new UserNotFoundException(command.id()));
+
+        // Eliminate user
         userRepository.deleteById(command.id());
     }
 }
