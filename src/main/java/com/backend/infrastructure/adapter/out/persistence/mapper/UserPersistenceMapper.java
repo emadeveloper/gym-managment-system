@@ -10,16 +10,18 @@ import org.springframework.stereotype.Component;
 public class UserPersistenceMapper {
 
     public UserJpaEntity toEntity(User user) {
-        return UserJpaEntity.builder()
-                .id(user.getId())
-                .email(user.getEmail().value())
-                .password(user.getPassword())
-                .role(user.getRole().name())
-                .build();
+        UserJpaEntity entity = new UserJpaEntity();
+
+        entity.setId(user.getId());
+        entity.setEmail(user.getEmail().value());
+        entity.setPassword(user.getPassword());
+        entity.setRole(user.getRole().name());
+        return entity;
     }
 
     public User toDomain(UserJpaEntity entity) {
         return new User(
+                entity.getId(),
                 new Email(entity.getEmail()),
                 entity.getPassword(),
                 Role.valueOf(entity.getRole())

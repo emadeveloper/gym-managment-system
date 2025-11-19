@@ -30,6 +30,7 @@ public class RegisterUserServiceImpl implements RegisterUserUseCase {
 
         // Create entity from domain with command
         User user = new User(
+
                 emailVO,
                 command.password(),
                 Role.USER

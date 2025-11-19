@@ -34,7 +34,7 @@ public class User {
         if (email == null) {throw new InvalidEmailException("Email cannot be null");}
         if (password == null) {throw new InvalidPasswordException("Password cannot be null");}
 
-        this.id = null;
+        this.id = UUID.randomUUID();
         this.email = email;
         this.password = password;
         this.role = role;
