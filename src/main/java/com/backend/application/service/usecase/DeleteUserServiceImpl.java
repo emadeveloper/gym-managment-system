@@ -1,4 +1,4 @@
-package com.backend.application.usecase;
+package com.backend.application.service.usecase;
 
 import com.backend.application.port.in.DeleteUserUseCase;
 import com.backend.application.port.in.command.DeleteUserCommand;
@@ -18,7 +18,7 @@ public class DeleteUserServiceImpl implements DeleteUserUseCase {
 
         // Check if user exists
         userRepository.findById(command.id())
-                        .orElseThrow(() -> new UserNotFoundException(command.id()));
+                        .orElseThrow(() -> new UserNotFoundException("User with id " + command.id() + " not found"));
 
         // Eliminate user
         userRepository.deleteById(command.id());

@@ -1,4 +1,4 @@
-package com.backend.application.usecase;
+package com.backend.application.service.usecase;
 
 import com.backend.application.port.in.UpdateUserUseCase;
 import com.backend.application.port.in.command.UpdateUserCommand;
@@ -18,7 +18,7 @@ public class UpdateUserServiceImpl implements UpdateUserUseCase {
     @Override
     public User updateUser(UpdateUserCommand command) {
         User existingUser = userRepository.findById(command.id())
-                .orElseThrow(() -> new UserNotFoundException(command.id()));
+                .orElseThrow(() -> new UserNotFoundException("User with id " + command.id() + " not found."));
 
         if (command.email() != null) {
             existingUser.updateEmail(new Email(command.email()));

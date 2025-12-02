@@ -1,4 +1,4 @@
-package com.backend.application.usecase;
+package com.backend.application.service.usecase;
 
 import com.backend.application.port.in.RegisterUserUseCase;
 import com.backend.application.port.in.command.RegisterUserCommand;
@@ -10,6 +10,7 @@ import com.backend.domain.model.User;
 import com.backend.domain.valueobject.Email;
 import com.backend.domain.valueobject.Role;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,6 +19,7 @@ public class RegisterUserServiceImpl implements RegisterUserUseCase {
 
     private final UserRepositoryPort userRepository;
     private final NotificationPort notificationPort;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public User registerUser(RegisterUserCommand command) {
@@ -38,7 +40,7 @@ public class RegisterUserServiceImpl implements RegisterUserUseCase {
         // Create entity from domain with command
         User user = new User(
                 emailVO,
-                command.password(),
+                passwordEncoder.encode(command.password()),
                 Role.USER
         );
 

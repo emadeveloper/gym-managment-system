@@ -56,7 +56,7 @@ public class UserRepositoryAdapter implements UserRepositoryPort {
     @Override
     public void deleteById(UUID id) {
         if (!repository.existsById(id)) {
-            throw new UserNotFoundException(id);
+            throw new UserNotFoundException("User with id " + id + " not found.");
         }
         repository.deleteById(id);
     }

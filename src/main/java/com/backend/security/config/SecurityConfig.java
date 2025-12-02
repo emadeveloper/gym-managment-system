@@ -56,7 +56,7 @@ public class SecurityConfig {
                         .authenticated()
                 )
                 .authenticationManager(authManager(http))
-                // Add JWT filter before the username-password authentication filter
+                // Add JWT filter before the email-password authentication filter
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)

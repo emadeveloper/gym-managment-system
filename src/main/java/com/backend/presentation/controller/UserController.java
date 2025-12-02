@@ -181,7 +181,6 @@ public class UserController {
         deleteUserUseCase.deleteUser(command);
 
         return ResponseEntity.noContent().build();
-
     }
 
 }

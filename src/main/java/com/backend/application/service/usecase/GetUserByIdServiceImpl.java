@@ -1,4 +1,4 @@
-package com.backend.application.usecase;
+package com.backend.application.service.usecase;
 
 import com.backend.application.port.in.GetUserByIdUseCase;
 import com.backend.application.port.out.UserRepositoryPort;
@@ -18,6 +18,6 @@ public class GetUserByIdServiceImpl implements GetUserByIdUseCase {
     @Override
     public User getUserById(UUID id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(id));
+                .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found."));
     }
 }

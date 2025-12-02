@@ -1,4 +1,4 @@
-package com.backend.application.usecase;
+package com.backend.application.service.usecase;
 
 import com.backend.application.port.in.GetAllUsersUseCase;
 import com.backend.application.port.out.UserRepositoryPort;

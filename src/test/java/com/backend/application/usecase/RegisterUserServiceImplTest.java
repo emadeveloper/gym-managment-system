@@ -3,6 +3,7 @@ package com.backend.application.usecase;
 import com.backend.application.port.in.command.RegisterUserCommand;
 import com.backend.application.port.out.NotificationPort;
 import com.backend.application.port.out.UserRepositoryPort;
+import com.backend.application.service.usecase.RegisterUserServiceImpl;
 import com.backend.domain.exception.InvalidEmailException;
 import com.backend.domain.exception.UserAlreadyExistsException;
 import com.backend.domain.model.User;

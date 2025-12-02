@@ -2,6 +2,7 @@ package com.backend.application.usecase;
 
 import com.backend.application.port.in.command.UpdateUserCommand;
 import com.backend.application.port.out.UserRepositoryPort;
+import com.backend.application.service.usecase.UpdateUserServiceImpl;
 import com.backend.domain.exception.UserNotFoundException;
 import com.backend.domain.model.User;
 import com.backend.domain.valueobject.Email;
