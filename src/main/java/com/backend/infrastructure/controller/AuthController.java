@@ -71,10 +71,15 @@ public class AuthController {
     })
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto request) {
+    public ResponseEntity<LoginResponseDto> login(
+            @Valid
+            @RequestBody LoginRequestDto request) {
 
-        String token = loginUseCase.login(request.email(), request.password());
+        LoginResponseDto response = loginUseCase.login(
+                request.email(),
+                request.password()
+        );
 
-        return ResponseEntity.ok(new LoginResponseDto(token));
+        return ResponseEntity.ok(response);
     }
 }

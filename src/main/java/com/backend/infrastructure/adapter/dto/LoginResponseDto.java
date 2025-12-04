@@ -1,5 +1,8 @@
 package com.backend.infrastructure.adapter.dto;
 
+import com.backend.presentation.dto.UserInfoDto;
+
 public record LoginResponseDto (
-        String token
+        String token,
+        UserInfoDto user
 ){}

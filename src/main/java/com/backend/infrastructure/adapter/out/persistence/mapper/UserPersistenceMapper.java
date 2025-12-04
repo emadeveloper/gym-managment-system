@@ -15,16 +15,27 @@ public class UserPersistenceMapper {
         entity.setId(user.getId());
         entity.setEmail(user.getEmail().value());
         entity.setPassword(user.getPassword());
-        entity.setRole(user.getRole().name());
+        entity.setRole(user.getRole());
+        entity.setCreatedAt(user.getCreatedAt());
+        entity.setUpdatedAt(user.getUpdatedAt());
+        entity.setLastLoginAt(user.getLastLoginAt());
+        entity.setIsActive(user.getIsActive());
         return entity;
     }
 
     public User toDomain(UserJpaEntity entity) {
+        Email email = new Email(entity.getEmail());
+
+
         return new User(
                 entity.getId(),
-                new Email(entity.getEmail()),
+                email,
                 entity.getPassword(),
-                Role.valueOf(entity.getRole())
+                entity.getRole(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt(),
+                entity.getLastLoginAt(),
+                entity.getIsActive()
         );
     }
 
