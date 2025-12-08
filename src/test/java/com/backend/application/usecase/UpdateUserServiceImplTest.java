@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;  // ← AGREGAR
 
 import java.util.Optional;
 import java.util.UUID;
@@ -26,6 +27,9 @@ class UpdateUserServiceImplTest {
     @Mock
     private UserRepositoryPort userRepository;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @InjectMocks
     private UpdateUserServiceImpl service;
 
@@ -33,11 +37,21 @@ class UpdateUserServiceImplTest {
     void shouldUpdateUserWhenExists() {
         // ARRANGE
         UUID id = UUID.randomUUID();
-        User existingUser = new User(new Email("old@email.com"), "oldPassword", Role.USER);
-        UpdateUserCommand command = new UpdateUserCommand(id, "new@email.com", "newPassword");
+        User existingUser = new User(
+                new Email("old@email.com"),
+                "oldPassword",
+                Role.USER
+        );
+
+        UpdateUserCommand command = new UpdateUserCommand(
+                id,
+                "new@email.com",
+                "newPassword"
+        );
 
         when(userRepository.findById(id)).thenReturn(Optional.of(existingUser));
-        when(userRepository.save(any(User.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         // ACT
         User updatedUser = service.updateUser(command);
@@ -46,18 +60,21 @@ class UpdateUserServiceImplTest {
         assertNotNull(updatedUser);
         assertEquals("new@email.com", updatedUser.getEmail().value());
         assertEquals("newPassword", updatedUser.getPassword());
+        assertNotNull(updatedUser.getUpdatedAt());
 
         verify(userRepository, times(1)).findById(id);
         verify(userRepository, times(1)).save(existingUser);
-
     }
 
     @Test
     void shouldThrowExceptionWhenUserDoesNotExist() {
         // ARRANGE
         UUID id = UUID.randomUUID();
-        UpdateUserCommand command =
-                new UpdateUserCommand(id, "new@example.com", "newpass");
+        UpdateUserCommand command = new UpdateUserCommand(
+                id,
+                "new@example.com",
+                "newpass"
+        );
 
         when(userRepository.findById(id)).thenReturn(Optional.empty());
 
@@ -72,39 +89,57 @@ class UpdateUserServiceImplTest {
     void shouldUpdateOnlyEmailWhenPasswordIsNull() {
         // ARRANGE
         UUID id = UUID.randomUUID();
-        User existingUser = new User(new Email("old@example.com"), "pass", Role.USER);
+        User existingUser = new User(
+                new Email("old@example.com"),
+                "pass",
+                Role.USER
+        );
 
-        UpdateUserCommand command =
-                new UpdateUserCommand(id, "new@example.com", null);
+        UpdateUserCommand command = new UpdateUserCommand(
+                id,
+                "new@example.com",
+                null
+        );
 
         when(userRepository.findById(id)).thenReturn(Optional.of(existingUser));
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         // ACT
         User result = service.updateUser(command);
 
         // ASSERT
         assertEquals("new@example.com", result.getEmail().value());
-        assertEquals("pass", result.getPassword()); // password does not change
+        assertEquals("pass", result.getPassword());
+        assertNotNull(result.getUpdatedAt());
     }
 
     @Test
     void shouldUpdateOnlyPasswordWhenEmailIsNull() {
         // ARRANGE
         UUID id = UUID.randomUUID();
-        User existingUser = new User(new Email("old@example.com"), "pass", Role.USER);
+        User existingUser = new User(
+                new Email("old@example.com"),
+                "pass",
+                Role.USER
+        );
 
-        UpdateUserCommand command =
-                new UpdateUserCommand(id, null, "newPassword");
+        UpdateUserCommand command = new UpdateUserCommand(
+                id,
+                null,
+                "newPassword"
+        );
 
         when(userRepository.findById(id)).thenReturn(Optional.of(existingUser));
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         // ACT
         User result = service.updateUser(command);
 
         // ASSERT
-        assertEquals("old@example.com", result.getEmail().value()); // email does not change
+        assertEquals("old@example.com", result.getEmail().value());
         assertEquals("newPassword", result.getPassword());
+        assertNotNull(result.getUpdatedAt());
     }
 }

@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -26,42 +25,35 @@ public class LoginServiceImpl implements LoginUseCase {
 
     @Override
     public LoginResponseDto login(String email, String password) {
-        try {
-            // Authenticate the user
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(email, password)
-            );
+        // 1. Autenticar (si falla, lanza BadCredentialsException automáticamente)
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(email, password)
+        );
 
-            // Extract user details authenticated
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        // 2. Extraer UserDetails
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-            // Generate JWT token
-            String token = jwtService.generateToken(userDetails);
+        // 3. Generar JWT
+        String token = jwtService.generateToken(userDetails);
 
-            // Fetch full data from user repository
-            User user = userRepositoryPort.findByEmail(email)
-                    .orElseThrow(() -> new InvalidCredentialsException("User not found"));
+        // 4. Obtener usuario desde BD
+        User user = userRepositoryPort.findByEmail(email)
+                .orElseThrow(() -> new InvalidCredentialsException("User not found"));
 
-            // Register last login update (optional)
-            user.recordLogin();
-            userRepositoryPort.save(user);
+        // 5. Actualizar lastLoginAt
+        user.recordLogin();
+        userRepositoryPort.save(user);
 
-            // Create DTO with user info
-            UserInfoDto userInfo = new UserInfoDto(
-                    user.getId(),
-                    user.getEmail().value(),
-                    user.getName(),
-                    user.getRole().name(),
-                    user.getCreatedAt(),
-                    user.getLastLoginAt()
-            );
+        // 6. Crear UserInfoDto
+        UserInfoDto userInfo = new UserInfoDto(
+                user.getId(),
+                user.getEmail().value(),
+                user.getName(),
+                user.getRole().name(),
+                user.getCreatedAt(),
+                user.getLastLoginAt()
+        );
 
-            // Return token + user info
-            return new LoginResponseDto(token, userInfo);
-
-        } catch (AuthenticationException e){
-            throw new InvalidCredentialsException("Invalid email or password");
-        }
-
+        return new LoginResponseDto(token, userInfo);
     }
 }

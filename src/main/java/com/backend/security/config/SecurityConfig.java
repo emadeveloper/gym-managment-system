@@ -41,8 +41,7 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
                                 "/h2-console/**"
-                        )
-                        .permitAll()
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(customAuthProvider)

@@ -1,3 +1,14 @@
 spring:
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+
   profiles:
     active: dev
+
+  logging:
+    level:
+      org.springframework.security: WARN
+      org.springframework.security.config.annotation.authentication.configuration: ERROR

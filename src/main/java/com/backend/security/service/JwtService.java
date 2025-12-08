@@ -18,10 +18,10 @@ import java.util.function.Function;
 @Service
 public class JwtService implements TokenGeneratorPort {
 
-    @Value("${jwt.secret}")
+    @Value("${jwt.secret:defaultTestSecretKey1234567890123456789012345678901234567890}")
     private String secretKey;
 
-    @Value("${jwt.expiration}")
+    @Value("${jwt.expiration:864000000}")
     private long expirationTime;
 
     public String extractUsername(String token) {

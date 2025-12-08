@@ -5,6 +5,7 @@ spring:
     username: admin
     password: admin
   jpa:
+    open-in-view: false
     hibernate:
       ddl-auto: create-drop
     show-sql: true
@@ -18,3 +19,16 @@ spring:
   jwt:
     secret: ${JWT_SECRET:defaultSecretKeyOnlyForDevPleaseChangeInProduction}
     expiration: ${JWT_EXPIRATION:86400000}
+
+  logging:
+    level:
+      com.backend: DEBUG
+      org.springframework.security: INFO
+      org.springframework.security.config.annotation.authentication.configuration: ERROR
+
+  springdoc:
+    api-docs:
+      enabled: true
+    swagger-ui:
+      enabled: true
+      path: /swagger-ui.html

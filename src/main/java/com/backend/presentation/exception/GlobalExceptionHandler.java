@@ -1,77 +1,114 @@
 package com.backend.presentation.exception;
 
-import com.backend.domain.exception.*;
+import com.backend.domain.exception.InvalidEmailException;
+import com.backend.domain.exception.UserAlreadyExistsException;
+import com.backend.domain.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<ApiError> handleInvalidCredentials(InvalidCredentialsException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ApiError(HttpStatus.BAD_REQUEST.value(), ex.getMessage()));
+    /* ---------------------------------------------------------------------- */
+    /* AUTHENTICATION ERRORS (401 Unauthorized)                             */
+    /* ---------------------------------------------------------------------- */
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Map<String, Object>> handleBadCredentials(BadCredentialsException ex) {
+        System.out.println("Bad credentials caught: " + ex.getMessage());
+        return buildErrorResponse("Invalid email or password", HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ApiError> handleUserNotFound(UserNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ApiError(HttpStatus.NOT_FOUND.value(), ex.getMessage()));
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleUserNotFound(UsernameNotFoundException ex) {
+        return buildErrorResponse("Invalid email or password", HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<ApiError> handleUserAlreadyExists(UserAlreadyExistsException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(new ApiError(HttpStatus.CONFLICT.value(), ex.getMessage()));
+    /* ---------------------------------------------------------------------- */
+    /* VALIDATION ERRORS (400 Bad Request)                                  */
+    /* ---------------------------------------------------------------------- */
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidationErrors(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage())
+        );
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("errors", errors);
+
+        return ResponseEntity.badRequest().body(response);
     }
 
     @ExceptionHandler(InvalidEmailException.class)
-    public ResponseEntity<ApiError> handleInvalidEmail(InvalidEmailException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ApiError(HttpStatus.BAD_REQUEST.value(), ex.getMessage()));
+    public ResponseEntity<Map<String, Object>> handleInvalidEmail(InvalidEmailException ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(InvalidPasswordException.class)
-    public ResponseEntity<ApiError> handleInvalidPassword(InvalidPasswordException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ApiError(HttpStatus.BAD_REQUEST.value(), ex.getMessage()));
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+    /* ---------------------------------------------------------------------- */
+    /* NOT FOUND ERRORS (404 Not Found)                                     */
+    /* ---------------------------------------------------------------------- */
 
-        Map<String, String> fieldErrors = ex.getBindingResult()
-                .getFieldErrors()
-                .stream()
-                .collect(Collectors.toMap(
-                        FieldError::getField,
-                        fe -> Optional.ofNullable(fe.getDefaultMessage()).orElse("Invalid Value"),
-                        (existing, replacement) -> existing // Prevents override
-                ));
-
-        ApiError apiError = new ApiError(
-                HttpStatus.BAD_REQUEST.value(),
-                "Validation failed",
-                fieldErrors
-        );
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleUserNotFoundDomain(UserNotFoundException ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
+
+    /* ---------------------------------------------------------------------- */
+    /* CONFLICT ERRORS (409 Conflict)                                       */
+    /* ---------------------------------------------------------------------- */
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<Map<String, Object>> handleUserAlreadyExists(UserAlreadyExistsException ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* GENERIC ERROR (500 Internal Server Error)                            */
+    /* ---------------------------------------------------------------------- */
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleGeneral(Exception ex) {
-        ApiError apiError = new ApiError(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Unexpected server error. Please contact support"
+    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
+        // Log the full exception in production
+
+        System.err.println("🔴 UNHANDLED EXCEPTION: " + ex.getClass().getName());
+        System.err.println("🔴 MESSAGE: " + ex.getMessage());
+        ex.printStackTrace();
+
+        return buildErrorResponse(
+                "An unexpected error occurred. Please try again later.",
+                HttpStatus.INTERNAL_SERVER_ERROR
         );
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(apiError);
+    }
+
+    /* ---------------------------------------------------------------------- */
+    /* HELPER METHOD                                                         */
+    /* ---------------------------------------------------------------------- */
+
+    private ResponseEntity<Map<String, Object>> buildErrorResponse(String message, HttpStatus status) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", status.value());
+        response.put("error", status.getReasonPhrase());
+        response.put("message", message);
+
+        return ResponseEntity.status(status).body(response);
     }
 }
