@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { getToken, getUser, removeToken, removeUser, saveToken, saveUser } from '../utils/auth';
+import { getToken, isAuthenticated, getUser, removeToken, removeUser, saveToken, saveUser } from '../utils/auth';
 import { authAPI } from '../services/api';
 
 const AuthContext = createContext(null);
@@ -82,7 +82,7 @@ export function AuthProvider ({ children }) {
         login,
         register,
         logout,
-        isAuthtenticated: !!user,
+        isAuthenticated: isAuthenticated() && !!user,
     };
     
     return (

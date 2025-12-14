@@ -24,7 +24,7 @@ export const removeUser = () => {
     localStorage.removeItem("user");
 }
 
-export const isAuthtenticated = () => {
+export const isAuthenticated = () => {
     return !!getToken();
 }
 
