@@ -21,7 +21,7 @@ export function Login() {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Limpiar error del campo cuando el usuario escribe
+    // Clean errors fields when user writes
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }

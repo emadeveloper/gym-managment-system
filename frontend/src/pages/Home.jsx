@@ -1,42 +1,12 @@
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
+import Navbar from '../components/layout/Navbar';
 
 export function Home() {
-  const { isAuthenticated } = useAuth();
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-purple-50">
       {/* Navbar */}
-      <nav className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
-              <span className="text-2xl">🏋️</span>
-              <h1 className="text-xl font-bold text-gray-900">
-                Gym Management
-              </h1>
-            </div>
-            <div className="flex space-x-4">
-              {isAuthenticated ? (
-                <Link to="/dashboard">
-                  <Button>Dashboard</Button>
-                </Link>
-              ) : (
-                <>
-                  <Link to="/login">
-                    <Button variant="secondary">Login</Button>
-                  </Link>
-                  <Link to="/register">
-                    <Button>Sign Up</Button>
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
-
+      <Navbar />
       {/* Hero Section */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center">

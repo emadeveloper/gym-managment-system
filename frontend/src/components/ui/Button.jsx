@@ -7,10 +7,10 @@ export function Button({
     className = '',
     ...props 
   }) {
-    const baseStyles = 'px-4 py-2 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
+    const baseStyles = 'px-4 py-2 rounded-3xl font-bold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer';
     
     const variants = {
-      primary: 'bg-primary text-white hover:bg-blue-600 active:bg-blue-700',
+      primary: 'bg-primary text-white hover:bg-red-600 active:bg-red-700',
       secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300 active:bg-gray-400',
       danger: 'bg-red-500 text-white hover:bg-red-600 active:bg-red-700',
     };
