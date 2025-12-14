@@ -19,7 +19,8 @@ const Navbar = () => {
   // Calculate opacity based on scroll position
   // Starts at 1 (fully opaque) and decreases to 0.7 (70% opacity) as user scrolls
   const opacity = Math.max(0.7, 1 - scrollY / 200);
-  const backgroundColor = `rgba(255, 255, 255, ${opacity})`;
+  const backgroundColor = `rgba(0, 0, 0, ${opacity})`;
+  
 
   const menuItems = [
     { label: "Planes", href: "#planes" },
@@ -47,7 +48,7 @@ const Navbar = () => {
           <div className="flex items-center space-x-2">
             <Link
               to="/"
-              className="uppercase text-2xl font-extrabold text-gray-900 hover:text-primary transition-colors"
+              className="uppercase text-2xl font-extrabold text-white hover:text-primary transition-colors"
             >
               La Resistencia Gym
             </Link>
@@ -59,7 +60,7 @@ const Navbar = () => {
               <Link
                 key={item.label}
                 to={item.href}
-                className="text-gray-700 hover:bg-gray-100 py-2 px-2.5 mx-1 rounded-4xl font-medium transition-colors"
+                className="text-white hover:text-secondary py-2 px-2.5 mx-1 rounded-4xl font-medium transition-colors"
               >
                 {item.label}
               </Link>
@@ -75,7 +76,7 @@ const Navbar = () => {
           {/* Hamburger Button - Mobile */}
           <button
             onClick={toggleMenu}
-            className="md:hidden p-2 rounded-lg text-gray-700 hover:text-primary hover:bg-gray-100 transition-all duration-300"
+            className="md:hidden p-2 rounded-lg text-white hover:text-primary transition-all duration-300"
             aria-label="Toggle menu"
           >
             <div className="relative w-6 h-6">
@@ -110,14 +111,14 @@ const Navbar = () => {
               : "max-h-0 opacity-0"
           }`}
         >
-          <div className="border-t border-gray-200 py-4">
+          <div className="border-t border-gray-700 py-4">
             <div className="flex flex-col space-y-1">
               {menuItems.map((item, index) => (
                 <Link
                   key={item.label}
                   to={item.href}
                   onClick={closeMenu}
-                  className={`text-gray-700 hover:text-primary font-bold transition-all duration-200 py-1 transform ${
+                  className={`text-white hover:text-primary font-bold transition-all duration-200 py-1 transform ${
                     isMenuOpen
                       ? "translate-x-0 opacity-100"
                       : "-translate-x-4 opacity-0"
@@ -130,7 +131,7 @@ const Navbar = () => {
                 </Link>
               ))}
               <div
-                className={`pt-4 border-t border-gray-200 flex flex-col space-y-3 transform transition-all duration-200 ${
+                className={`pt-4 border-t border-gray-700 flex flex-col space-y-3 transform transition-all duration-200 ${
                   isMenuOpen
                     ? "translate-x-0 opacity-100"
                     : "-translate-x-4 opacity-0"

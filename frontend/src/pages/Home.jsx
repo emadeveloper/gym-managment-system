@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import Navbar from '../components/layout/Navbar';
+import Footer from '../components/layout/Footer';
 
 export function Home() {
   return (
@@ -56,27 +57,10 @@ export function Home() {
             </p>
           </div>
         </div>
-
-        {/* Tech Stack */}
-        <div className="mt-20 text-center">
-          <p className="text-sm text-gray-500 mb-4">Built with modern technologies</p>
-          <div className="flex justify-center space-x-8 text-gray-400">
-            <span className="font-semibold">React</span>
-            <span className="font-semibold">Spring Boot</span>
-            <span className="font-semibold">PostgreSQL</span>
-            <span className="font-semibold">JWT</span>
-          </div>
-        </div>
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-8 mt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-gray-400">
-            © 2025 Gym Management System. Built by Emanuel Martinez.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
