@@ -84,7 +84,7 @@ export function Login() {
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-heading text-foreground uppercase tracking-tight">
             Welcome Back
           </h1>
-          <p className="text-secondary-text mt-2 text-sm sm:text-base">
+          <p className="text-secondary-text mt-2 text-sm sm:text-base text-foreground">
             Sign in to your account
           </p>
         </div>
@@ -130,7 +130,7 @@ export function Login() {
         </form>
 
         <div className="mt-6 sm:mt-8 text-center">
-          <p className="text-xs sm:text-sm text-text-muted">
+          <p className="text-xs sm:text-sm text-text-muted text-foreground">
             Don't have an account?{' '}
             <Link to="/register" className="text-gym-red font-medium hover:underline">
               Sign up

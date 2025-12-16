@@ -79,23 +79,23 @@ export function Register() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-black flex flex-col items-center justify-center px-4 sm:px-6 py-8 sm:py-12 lg:py-16">
+    <div className="min-h-svh w-full bg-black flex flex-col items-center justify-center px-4 sm:px-6 py-8 sm:py-12 lg:py-4">
       {/* Logo */}
       <div className="mb-4 sm:mb-6 lg:mb-8 flex justify-center">
         <img 
           src={Logo} 
           alt="La Resistencia Logo" 
-          className="h-16 sm:h-20 md:h-24 lg:h-28 w-auto object-contain"
+          className="h-16 sm:h-20 md:h-24 lg:h-28 w-auto object-"
         />
       </div>
 
       {/* Card */}
-      <Card className="w-full max-w-md sm:max-w-lg lg:max-w-xl bg-surface shadow-2xl border border-mid-gray/20">
+      <Card className="w-full max-w-md sm:max-w-lg lg:max-w-md bg-surface shadow-2xl border border-mid-gray/20">
         <div className="text-center mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-heading text-foreground uppercase tracking-tight">
             Create Account
           </h1>
-          <p className="text-secondary-text mt-2 text-sm sm:text-base">
+          <p className="text-secondary-text mt-2 text-sm sm:text-base text-foreground">
             Sign up to get started
           </p>
         </div>
@@ -156,7 +156,7 @@ export function Register() {
         </form>
 
         <div className="mt-6 sm:mt-8 text-center">
-          <p className="text-xs sm:text-sm text-text-muted">
+          <p className="text-xs sm:text-sm text-text-muted text-foreground">
             Already have an account?{' '}
             <Link to="/login" className="text-gym-red font-medium hover:underline">
               Sign in

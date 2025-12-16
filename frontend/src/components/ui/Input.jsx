@@ -23,8 +23,8 @@ export function Input({
             type={inputType}
             className={`
               w-full px-3 py-2.5 sm:px-4 sm:py-3 border rounded-lg 
-              text-sm sm:text-base
-              focus:ring-2 focus:ring-primary focus:border-transparent
+              text-sm sm:text-base text-foreground
+              focus:border-transparent
               transition-all duration-200
               ${error ? 'border-red-500' : 'border-gray-500'}
               ${isPassword ? 'pr-10' : ''}
