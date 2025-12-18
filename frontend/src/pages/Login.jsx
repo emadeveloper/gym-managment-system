@@ -68,34 +68,36 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-black flex flex-col items-center justify-center px-4 sm:px-6 py-8 sm:py-12 lg:py-16">
+    <div className="min-h-screen w-full bg-black flex flex-col items-center justify-center px-4 sm:px-6 py-2 sm:py-8 lg:py-2">
       {/* Logo */}
-      <div className="mb-4 sm:mb-6 lg:mb-8 flex justify-center">
-        <img 
-          src={Logo} 
-          alt="La Resistencia Logo" 
-          className="h-16 sm:h-20 md:h-24 lg:h-28 w-auto object-contain"
-        />
+      <div className="mb-2 sm:mb-4 lg:mb-3 flex justify-center">
+        <Link to="/home">
+          <img 
+            src={Logo} 
+            alt="La Resistencia Logo" 
+            className="h-30 sm:h-30 md:h-30 lg:h-40 w-auto object-contain"
+          />
+        </Link>
       </div>
 
       {/* Card */}
-      <Card className="w-full max-w-md sm:max-w-lg lg:max-w-xl bg-surface shadow-2xl border border-mid-gray/20">
-        <div className="text-center mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-heading text-foreground uppercase tracking-tight">
+      <Card className="w-full max-w-sm sm:max-w-lg lg:max-w-md bg-surface shadow-2xl border border-mid-gray/20">
+        <div className="text-center mb-3 sm:mb-5 lg:mb-4">
+          <h1 className="text-3xl sm:text-3xl lg:text-2xl font-heading text-foreground uppercase tracking-tight">
             Welcome Back
           </h1>
-          <p className="text-secondary-text mt-2 text-sm sm:text-base text-foreground">
+          <p className="text-secondary-text mt-1 lg:mt-0.5 text-base sm:text-base lg:text-sm text-foreground">
             Sign in to your account
           </p>
         </div>
 
         {serverError && (
-          <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gym-red/10 border border-gym-red rounded-lg">
-            <p className="text-xs sm:text-sm text-gym-red font-medium">{serverError}</p>
+          <div className="mb-2.5 sm:mb-4 lg:mb-3 p-2.5 sm:p-3 lg:p-2.5 bg-gym-red/10 border border-gym-red rounded-lg">
+            <p className="text-sm sm:text-sm lg:text-xs text-gym-red font-medium">{serverError}</p>
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 lg:space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-4 lg:space-y-3">
           <Input
             label="Email"
             type="email"
@@ -105,7 +107,7 @@ export function Login() {
             error={errors.email}
             placeholder="you@example.com"
             autoComplete="email"
-            className="text-sm sm:text-base"
+            className="text-base sm:text-base"
           />
 
           <Input
@@ -117,20 +119,20 @@ export function Login() {
             error={errors.password}
             placeholder="••••••••"
             autoComplete="current-password"
-            className="text-sm sm:text-base"
+            className="text-base sm:text-base"
           />
 
           <Button
             type="submit"
             loading={loading}
-            className="w-full mt-4 sm:mt-6 py-3 sm:py-3.5 lg:py-4 text-base sm:text-lg lg:text-xl uppercase font-heading bg-gym-red hover:bg-gym-red-light transition-colors"
+            className="w-full mt-3 sm:mt-4 lg:mt-3 py-3 sm:py-3 lg:py-2.5 text-base sm:text-base lg:text-sm uppercase font-heading bg-gym-red hover:bg-gym-red-light transition-colors"
           >
             Sign In
           </Button>
         </form>
 
-        <div className="mt-6 sm:mt-8 text-center">
-          <p className="text-xs sm:text-sm text-text-muted text-foreground">
+        <div className="mt-3 sm:mt-5 lg:mt-4 text-center">
+          <p className="text-sm sm:text-sm text-text-muted text-foreground">
             Don't have an account?{' '}
             <Link to="/register" className="text-gym-red font-medium hover:underline">
               Sign up
