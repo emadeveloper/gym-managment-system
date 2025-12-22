@@ -16,12 +16,12 @@ export function Home() {
       {/* Hero Section */}
       <main className="">
         <HeroSection />
-        {/* Plans Section */}
-        <Plans />
         {/* Training Programs Section */}
         <TrainingPrograms />
-        {/* Training Programs Section */}
+        {/* Testimonials Section */}
         <Testimonials />
+        {/* Plans Section */}
+        <Plans />
         {/* Products */}
         <Products />
       </main>

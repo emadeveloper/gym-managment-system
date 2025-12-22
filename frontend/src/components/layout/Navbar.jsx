@@ -17,16 +17,21 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Calculate opacity based on scroll position
-  // Starts at 1 (fully opaque) and decreases to 0.7 (70% opacity) as user scrolls
-  const opacity = Math.max(0.7, 1 - scrollY / 200);
-  const backgroundColor = `rgba(0, 0, 0, ${opacity})`;
+  // Background behavior:
+  // - At the very top (over the hero image): fully transparent
+  // - After scrolling: black with slight transparency
+  const scrolled = scrollY > 10;
+  const opacity = Math.max(0.75, 1 - scrollY / 250);
+  const backgroundColor = scrolled ? `rgba(0, 0, 0, ${opacity})` : 'transparent';
 
-  const menuItems = [
-    { label: "Planes", href: "#planes" },
-    { label: "Rutinas", href: "#rutinas" },
-    { label: "Productos", href: "#productos" },
-    { label: "Uníte a la Comunidad", href: "#comunidad" },
+  const menuItemsLeft = [
+    { label: "Programas", href: "#training" },
+    { label: "Testimonios", href: "#testimonials" },
+  ];
+
+  const menuItemsRight = [
+    { label: "Planes", href: "#plans" },
+    
   ];
 
   const toggleMenu = () => {
@@ -38,44 +43,72 @@ const Navbar = () => {
   };
 
   return (
-    <nav 
-      className="sticky top-0 z-50 shadow-sm backdrop-blur-sm transition-all duration-300"
+    <nav
+      className="sticky top-0 z-50 backdrop-blur-sm transition-all duration-300"
       style={{ backgroundColor }}
     >
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-25">
-          {/* Logo */}
-          <div className="max-w-full space-x-8">
-            <Link
-              to="/"
-            >
-              <img className="h-full rounded-full size-44" src={Logo} alt="" />
-            </Link>
-          </div>
-
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-6">
-            {menuItems.map((item) => (
+        <div className="hidden md:flex items-center justify-around h-20">
+          {/* Left links */}
+          <div className="flex items-center space-x-6">
+            {menuItemsLeft.map((item) => (
               <Link
                 key={item.label}
                 to={item.href}
-                className="text-white hover:text-secondary py-2 px-2.5 mx-1 rounded-4xl font-medium transition-colors"
+                className="text-white hover:text-secondary py-2 px-2.5 rounded-4xl font-medium transition-colors"
               >
                 {item.label}
               </Link>
             ))}
-            {/* Join us Button - Desktop */}
-            <div className="hidden md:flex items-center space-x-4 rounded-3xl">
-              <Link to="/register">
-                <Button className="">Asociate</Button>
+          </div>
+
+          {/* Center Logo */}
+          <div className="flex items-center justify-center">
+            <Link to="/">
+              <img
+                className="h-20 w-auto rounded-full object-contain"
+                src={Logo}
+                alt="La Resistencia Logo"
+              />
+            </Link>
+          </div>
+
+          {/* Right links + CTA */}
+          <div className="flex items-center space-x-4">
+            {menuItemsRight.map((item) => (
+              <Link
+                key={item.label}
+                to={item.href}
+                className="text-white hover:text-secondary py-2 px-2.5 rounded-4xl font-medium transition-colors"
+              >
+                {item.label}
               </Link>
-            </div>
+            ))}
+            <Link to="/register">
+              <Button className="uppercase font-heading px-5 py-2">
+                Asociate
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        {/* Mobile Header */}
+        <div className="flex md:hidden justify-between items-center h-16">
+          {/* Logo (centered visually with flex grow) */}
+          <div className="flex-1 flex justify-center">
+            <Link to="/">
+              <img
+                className="h-15 w-auto rounded-full object-contain"
+                src={Logo}
+                alt="La Resistencia Logo"
+              />
+            </Link>
           </div>
 
           {/* Hamburger Button - Mobile */}
           <button
             onClick={toggleMenu}
-            className="md:hidden p-2 rounded-lg text-white hover:text-primary transition-all duration-300"
+            className="absolute left-4 p-2 rounded-lg text-white hover:text-primary transition-all duration-300"
             aria-label="Toggle menu"
           >
             <div className="relative w-6 h-6">
@@ -105,14 +138,12 @@ const Navbar = () => {
         {/* Mobile Menu */}
         <div
           className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-            isMenuOpen
-              ? "max-h-96 opacity-100"
-              : "max-h-0 opacity-0"
+            isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
           }`}
         >
           <div className="border-t border-gray-700 py-4">
             <div className="flex flex-col space-y-1">
-              {menuItems.map((item, index) => (
+              {[...menuItemsLeft, ...menuItemsRight].map((item, index) => (
                 <Link
                   key={item.label}
                   to={item.href}
@@ -137,12 +168,12 @@ const Navbar = () => {
                 }`}
                 style={{
                   transitionDelay: isMenuOpen
-                    ? `${menuItems.length * 50}ms`
+                    ? `${(menuItemsLeft.length + menuItemsRight.length) * 50}ms`
                     : "0ms",
                 }}
               >
                 <Link to="/register" onClick={closeMenu}>
-                  <Button className="">Asociate</Button>
+                  <Button className="w-full">Asociate</Button>
                 </Link>
               </div>
             </div>

@@ -67,7 +67,7 @@ const Plans = () => {
 
   return (
     <section 
-      id="planes" 
+      id="plans" 
       ref={sectionRef}
       className={`bg-[#202128] py-40 px-4 sm:px-6 lg:px-8 transition-all duration-1000 ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
