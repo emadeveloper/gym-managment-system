@@ -7,6 +7,7 @@ import Plans from '../components/layout/Plans';
 import TrainingPrograms from '../components/layout/TrainingPrograms';
 import Products from '../components/layout/Products';
 import Testimonials from '../components/layout/Testimonials';
+import AboutSection from '../components/layout/About';
 
 export function Home() {
   return (
@@ -22,8 +23,9 @@ export function Home() {
         <Testimonials />
         {/* Plans Section */}
         <Plans />
-        {/* Products */}
-        <Products />
+        {/* About Section */}
+        <AboutSection />
+        {/* Products <Products /> Temporarily disabled*/}
       </main>
       {/* Footer */}
       <Footer />

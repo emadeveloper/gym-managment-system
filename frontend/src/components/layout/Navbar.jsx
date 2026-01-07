@@ -27,11 +27,11 @@ const Navbar = () => {
   const menuItemsLeft = [
     { label: "Programas", href: "#training" },
     { label: "Testimonios", href: "#testimonials" },
+    { label: "Planes", href: "#plans" },
   ];
 
   const menuItemsRight = [
-    { label: "Planes", href: "#plans" },
-    
+    { label: "Inciar sesión", href: "#login" },
   ];
 
   const toggleMenu = () => {

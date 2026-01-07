@@ -16,7 +16,8 @@
     /* Map these to your specific Dark Theme colors */
     --color-background: #111;     /* Primary background, near black */
     --color-foreground: #f0f0f0;  /* Primary text/foreground, off-white */
-    --color-surface: #222;        /* Card/section background, darker grey */
+    --color-surface: #222;   
+    --bg-gray: #202128;     /* Card/section background, darker grey */
 }
 
 /* ========================================================= */
