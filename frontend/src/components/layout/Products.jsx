@@ -146,7 +146,7 @@ const Products = () => {
 
   return (
     <section 
-      id="productos" 
+      id="products" 
       ref={sectionRef}
       className={`bg-black py-20 px-4 sm:px-6 lg:px-8 transition-all duration-1000 ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'

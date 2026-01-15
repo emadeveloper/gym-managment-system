@@ -1,5 +1,3 @@
-import { Link } from 'react-router-dom';
-import { Button } from '../components/ui/Button';
 import Navbar from '../components/layout/Navbar';
 import Footer from '../components/layout/Footer';
 import HeroSection from '../components/layout/HeroSection';
@@ -16,16 +14,16 @@ export function Home() {
       <Navbar />
       {/* Hero Section */}
       <main className="">
-        <HeroSection />
+        <HeroSection path="/home"/>
         {/* Training Programs Section */}
-        <TrainingPrograms />
+        <TrainingPrograms path="/training"/>
         {/* Testimonials Section */}
-        <Testimonials />
+        <Testimonials path="/testimonials"/>
         {/* Plans Section */}
-        <Plans />
-        {/* About Section */}
-        <AboutSection />
-        {/* Products <Products /> Temporarily disabled*/}
+        <Plans path="/plans"/>
+        {/* <Products /> Products - Temporarily disabled */}
+        {/* About */}
+        <AboutSection path="/about"/>
       </main>
       {/* Footer */}
       <Footer />

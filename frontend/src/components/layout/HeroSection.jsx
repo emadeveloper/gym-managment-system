@@ -2,10 +2,12 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../ui/Button';
 import HeroBanner from '../../docs/img/hero-banner-4.png';
+import { useScrollToSection } from '../../hooks/useScrollToSection';
 
 const HeroSection = () => {
+  const { scrollTo } = useScrollToSection(); 
   return (
-    <section className="relative w-full min-h-screen bg-black">
+    <section id="hero" className="relative w-full min-h-screen bg-black">
       {/* Background image */}
       <div className="absolute inset-0">
         <img
@@ -39,8 +41,9 @@ const HeroSection = () => {
                 Asociate Ahora
               </Button>
             </Link>
-            <Link to="#plans">
+            <Link>
               <Button
+                onClick={() => scrollTo("plans")}
                 variant="secondary"
                 className="w-full sm:w-auto px-8 py-3 text-sm sm:text-base lg:text-lg uppercase font-heading"
               >

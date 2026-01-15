@@ -15,7 +15,7 @@ const AboutSection = () => {
         {/* Section Header */}
         <div className="text-center mb-16">
           <span className="inline-block px-4 py-2 bg-primary/10 border border-primary/30 rounded text-primary text-sm font-heading uppercase tracking-wider mb-10">
-            Nuestra Historia
+            - Nuestra Historia -
           </span>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-heading font-bold text-white uppercase tracking-tight">
             Esto No Es Solo Un Gym.
@@ -192,7 +192,7 @@ const AboutSection = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Team Member 1 */}
-            <div className="group relative bg-bg-gray border border-gray-800 rounded-lg overflow-hidden hover:border-primary/50 transition-all duration-300">
+            <div className="group relative bg-gray-800 border border-gray-800 rounded-lg overflow-hidden hover:border-primary/50 transition-all duration-300">
               <div className="aspect-square bg-gray-800 relative overflow-hidden">
                 {/* Placeholder - reemplazar con imagen real */}
                 <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-gray-800 to-gray-900">
@@ -215,7 +215,7 @@ const AboutSection = () => {
             </div>
 
             {/* Team Member 2 */}
-            <div className="group relative bg-gray-900 border border-gray-800 rounded-lg overflow-hidden hover:border-primary/50 transition-all duration-300">
+            <div className="group relative bg-gray-800 border border-gray-800 rounded-lg overflow-hidden hover:border-primary/50 transition-all duration-300">
               <div className="aspect-square bg-gray-800 relative overflow-hidden">
                 <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-gray-800 to-gray-900">
                   <span className="text-6xl">👤</span>
@@ -236,7 +236,7 @@ const AboutSection = () => {
             </div>
 
             {/* Team Member 3 */}
-            <div className="group relative bg-gray-900 border border-gray-800 rounded-lg overflow-hidden hover:border-primary/50 transition-all duration-300">
+            <div className="group relative bg-gray-800 border border-gray-800 rounded-lg overflow-hidden hover:border-primary/50 transition-all duration-300">
               <div className="aspect-square bg-gray-800 relative overflow-hidden">
                 <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-gray-800 to-gray-900">
                   <span className="text-6xl">👤</span>
@@ -271,11 +271,6 @@ const AboutSection = () => {
             <Link to="/register">
               <Button className="px-8 py-3 text-lg uppercase font-heading">
                 Asociate Ahora
-              </Button>
-            </Link>
-            <Link to="/contact">
-              <Button variant="secondary" className="px-8 py-3 text-lg uppercase font-heading">
-                Visitanos
               </Button>
             </Link>
           </div>
