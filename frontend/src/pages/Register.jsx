@@ -70,11 +70,11 @@ export function Register() {
     
     const result = await register(formData.email, formData.password);
     
-    if (result.success) {
+    if (result?.success) {
       // Auto-login after successfull register
       navigate('/dashboard');
     } else {
-      setServerError(result.error);
+      setServerError(result.error || "Registration failed");
     }
   };
 
