@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { useScrollReveal } from '../../hooks/useScrollReveal';
 
@@ -11,7 +9,7 @@ const testimonialsData = [
     plan: 'Plan Élite - 6 Meses',
     story: 'Gracias a Heavy Duty Gym, no solo perdí 15kg, sino que tripliqué mi energía. Las rutinas son intensas pero el resultado es innegable.',
     metrics: 'Pérdida de 15kg y 50% más de fuerza',
-    imageSrc: 'path/to/juan_after.jpg', // Placeholder image URL
+    imageSrc: 'path/to/juan_after.jpg',
   },
   {
     id: 2,
@@ -44,83 +42,88 @@ const Testimonials = () => {
   const [sectionRef, isVisible] = useScrollReveal({ threshold: 0.1 });
 
   return (
-    <section 
-      id="community" 
+    <section
+      id="community"
       ref={sectionRef}
-      // Used primary-bg for a dark section background
-      className={`bg-primary-bg py-40 px-4 sm:px-6 lg:px-8 transition-all duration-1000 ${
+      className={`bg-background py-16 sm:py-24 lg:py-32 px-4 sm:px-6 lg:px-8 transition-all duration-1000 ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
       }`}
     >
       <div className="max-w-7xl mx-auto">
-        
-        {/* Header - Uses Oswald for impact */}
-        <div className={`text-center mb-16 transition-all duration-1000 delay-200 ${
-          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-        }`}>
-          {/* Headline uses text-foreground and Oswald (via h2 style) */}
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 uppercase tracking-wide">
+
+        {/* HEADER SECTION */}
+        <div
+          className={`text-center mb-16 sm:mb-20 lg:mb-24 transition-all duration-1000 delay-200 ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}
+        >
+          {/* Main Headline */}
+          <h2 className="text-4xl sm:text-5xl lg:text-6xl font-heading font-bold text-foreground mb-6 pb-4 sm:mb-8 uppercase tracking-wide">
             Testimonios Reales. Resultados Heavy Duty.
           </h2>
-          {/* Paragraph uses secondary text color and Inter (default style) */}
-          <p className="text-lg md:text-xl text-secondary-text max-w-3xl mx-auto mt-6">
-            Nuestros clientes hablan por nosotros. Mirá las transformaciones que logramos juntos.
-          </p>
+
+          <div className="flex justify-center">
+            <p className="text-base sm:text-lg lg:text-xl text-gray-400 max-w-2xl">
+              Nuestros clientes hablan por nosotros. Mirá las transformaciones que logramos juntos.
+            </p>
+          </div>
         </div>
 
-        {/* Testimonials Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* TESTIMONIALS GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
           {testimonialsData.map((testimonial, index) => (
             <div
               key={testimonial.id}
-              // Use bg-surface for the card background color
-              className={` justify-center bg-surface rounded-2xl p-lg shadow-2xl flex flex-col transition-all duration-300 group ${
-                isVisible 
-                  ? 'opacity-100 translate-y-0' 
+              className={`bg-surface border border-gray-800 rounded-2xl overflow-hidden flex flex-col transition-all duration-300 group hover:border-primary hover:shadow-lg hover:shadow-primary/20 ${
+                isVisible
+                  ? 'opacity-100 translate-y-0'
                   : 'opacity-0 translate-y-10'
               }`}
               style={{
-                // Staggered delay for each card
                 transitionDelay: isVisible ? `${400 + index * 150}ms` : '0ms',
-                // Add a hover effect to emphasize the card
-                transform: isVisible ? 'none' : 'translateY(10px)',
               }}
             >
-              
-              {/* 1. Image (Visual Proof) */}
-              <div className="w-full h-64 overflow-hidden rounded-lg mb-base border border-mid-gray/50">
-                  <img 
-                      src={testimonial.imageSrc} 
-                      alt={`Transformación de ${testimonial.name}`} 
-                      className="w-full h-full object-cover transition duration-500 group-hover:scale-105" 
-                  />
+
+              {/* IMAGE SECTION */}
+              <div className="w-full h-64 sm:h-72 overflow-hidden bg-surface-light">
+                <img
+                  src={testimonial.imageSrc}
+                  alt={`Transformación de ${testimonial.name}`}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
               </div>
 
-              {/* 2. Name & Plan */}
-              <h3 className="text-2xl flex justify-center font-heading uppercase text-gym-red mb-xs mt-3">
-                {testimonial.name}
-              </h3>
-              <p className="text-md text-foreground font-sans mb-base flex justify-center mt-2">
-                {testimonial.plan}
-              </p>
+              {/* CONTENT SECTION */}
+              <div className="p-6 sm:p-8 flex flex-col flex-1">
 
-              {/* 3. The Story/Quote (Inter font, readable text color) */}
-              <div className='w-full flex justify-center px-4 mt-2'>
-                <blockquote className="text-secondary-text italic grow mb-md leading-relaxed">
-                    "{testimonial.story}"
-                </blockquote>
-              </div>
+                {/* NAME */}
+                <h3 className="text-xl sm:text-2xl font-heading font-bold text-primary uppercase tracking-wide mb-2 pb-6">
+                  {testimonial.name}
+                </h3>
 
-              {/* 4. The Metrics (Muted, subtle separation) */}
-              <div className="w-full border-t border-mid-gray pt-sm mt-2">
-                <p className="text-text-muted text-sm font-sans p-2 font-bold">
-                  {testimonial.metrics}
+                {/* PLAN */}
+                <p className="text-sm sm:text-base text-gray-400 font-body mb-6">
+                  {testimonial.plan}
                 </p>
+
+                {/* STORY/QUOTE */}
+                <blockquote className="text-gray-400 italic leading-relaxed mb-8 flex-1">
+                  "{testimonial.story}"
+                </blockquote>
+
+                {/* METRICS */}
+                <div className="border-t border-gray-700 pt-4 sm:pt-6">
+                  <p className="text-xs sm:text-sm font-body font-bold text-primary/80">
+                    ✓ {testimonial.metrics}
+                  </p>
+                </div>
+
               </div>
 
             </div>
           ))}
         </div>
+
       </div>
     </section>
   );

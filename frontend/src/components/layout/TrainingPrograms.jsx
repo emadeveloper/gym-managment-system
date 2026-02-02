@@ -81,12 +81,14 @@ const TrainingPrograms = () => {
         <div className={`text-center mb-16 transition-all duration-1000 delay-200 ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
         }`}>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black mb-4 uppercase tracking-wide">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black mb-4 uppercase tracking-wide pb-3">
             Nuestros Programas de Entrenamiento
           </h2>
-          <p className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto mt-6">
-            Descubrí nuestros programas especializados diseñados para ayudarte a alcanzar tus objetivos.
-          </p>
+          <div className='flex justify-center'>
+            <p className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto mt-6">
+              Descubrí nuestros programas especializados diseñados para ayudarte a alcanzar tus objetivos.
+            </p>
+          </div>
         </div>
 
         {/* Programs Grid */}

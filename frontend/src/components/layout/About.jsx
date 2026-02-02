@@ -185,9 +185,11 @@ const AboutSection = () => {
             <h3 className="text-3xl sm:text-4xl font-heading font-bold text-white uppercase">
               El Equipo
             </h3>
-            <p className="text-gray-400 mt-4 max-w-2xl mx-auto">
-              No somos entrenadores celebrities. Somos gente que vive lo que enseña.
-            </p>
+            <div className='flex justify-center'>
+              <p className="text-gray-400 text-xl mt-4 max-w-2xl mx-auto py-3">
+                No somos entrenadores comunes. Somos gente que vive lo que enseña.
+              </p>  
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -201,10 +203,10 @@ const AboutSection = () => {
                 <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
               <div className="p-6">
-                <h4 className="text-xl font-heading font-bold text-white uppercase mb-1">
+                <h4 className="text-xl font-heading font-bold text-white uppercase mb-1 pb-2">
                   Guillermo Martínez
                 </h4>
-                <p className="text-primary text-sm font-semibold mb-3">
+                <p className="text-primary text-sm font-semibold mb-3 pb-2">
                   Fundador & Head Coach
                 </p>
                 <p className="text-gray-400 text-sm">
@@ -223,10 +225,10 @@ const AboutSection = () => {
                 <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
               <div className="p-6">
-                <h4 className="text-xl font-heading font-bold text-white uppercase mb-1">
+                <h4 className="text-xl font-heading font-bold text-white uppercase mb-1 pb-2">
                   Rocío Foss
                 </h4>
-                <p className="text-primary text-sm font-semibold mb-3">
+                <p className="text-primary text-sm font-semibold mb-3 pb-2">
                   Coach y Fisico Dietista.
                 </p>
                 <p className="text-gray-400 text-sm">
@@ -244,10 +246,10 @@ const AboutSection = () => {
                 <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </div>
               <div className="p-6">
-                <h4 className="text-xl font-heading font-bold text-white uppercase mb-1">
+                <h4 className="text-xl font-heading font-bold text-white uppercase mb-1 pb-2">
                   Julián Martínez
                 </h4>
-                <p className="text-primary text-sm font-semibold mb-3">
+                <p className="text-primary text-sm font-semibold mb-3 pb-2">
                   Coach de Fuerza
                 </p>
                 <p className="text-gray-400 text-sm">
@@ -261,12 +263,14 @@ const AboutSection = () => {
 
         {/* Final CTA */}
         <div className="text-center bg-linear-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/30 rounded-2xl p-12">
-          <h3 className="text-3xl sm:text-4xl font-heading font-bold text-white uppercase mb-4">
+          <h3 className="text-3xl sm:text-4xl font-heading font-bold text-white uppercase mb-4 pb-4">
             ¿Listo Para Unirte?
           </h3>
-          <p className="text-gray-300 mb-8 max-w-2xl mx-auto">
-            No te prometemos que va a ser fácil. Te prometemos que va a valer la pena.
-          </p>
+          <div className='flex justify-center'>
+            <p className="text-gray-300 mb-8 max-w-2xl mx-auto pb-6">
+              No te prometemos que va a ser fácil. Te prometemos que va a valer la pena.
+            </p>
+          </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/register">
               <Button className="px-8 py-3 text-lg uppercase font-heading">
