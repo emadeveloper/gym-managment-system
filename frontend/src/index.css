@@ -2,7 +2,7 @@
 @import "tailwindcss";
 
 /* ========================================================= */
-/* 1. TAILWIND THEME CONFIGURATION (@theme) */
+/* TAILWIND THEME CONFIGURATION (@theme) */
 /* ========================================================= */
 @theme {
     /* --- Accent Colors (Gym Branding) --- */
@@ -43,7 +43,7 @@
 }
 
 /* ========================================================= */
-/* 2. ROOT VARIABLES & DARK MODE (Default) */
+/* ROOT VARIABLES & DARK MODE (Default) */
 /* ========================================================= */
 :root {
     /* --- Theme Colors --- */
@@ -127,7 +127,7 @@
 }
 
 /* ========================================================= */
-/* 3. LIGHT MODE (Media Query) */
+/* LIGHT MODE (Media Query) */
 /* ========================================================= */
 @media (prefers-color-scheme: light) {
     :root {
@@ -142,7 +142,7 @@
 }
 
 /* ========================================================= */
-/* 4. GLOBAL ELEMENT STYLES */
+/* GLOBAL ELEMENT STYLES */
 /* ========================================================= */
 
 /* Body & HTML */
@@ -194,7 +194,7 @@ ul, ol {
 }
 
 /* ========================================================= */
-/* 5. FORM ELEMENTS */
+/* FORM ELEMENTS */
 /* ========================================================= */
 
 input, textarea, select {
@@ -220,7 +220,7 @@ button {
 }
 
 /* ========================================================= */
-/* 6. SCROLLBAR STYLING (Optional Enhancement) */
+/* SCROLLBAR STYLING (Optional Enhancement) */
 /* ========================================================= */
 
 ::-webkit-scrollbar {
@@ -245,4 +245,22 @@ button {
 * {
     scrollbar-color: var(--gym-red) var(--surface-bg);
     scrollbar-width: thin;
+}
+
+/* ========================================================= */
+/* ANIMATION KEYFRAMES */
+/* ========================================================= */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
 }
