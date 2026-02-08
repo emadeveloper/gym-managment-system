@@ -111,7 +111,7 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                {/* Mostrar login y register */}
+                {/* Show login y register */}
                 <Link to="/login">
                   <Button
                     variant="secondary"

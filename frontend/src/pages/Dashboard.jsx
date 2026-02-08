@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/layout/Navbar';
+
 import DashboardSidebar from '../components/layout/DashboardSidebar';
+import DashboardHeader from '../components/layout/DashboardHeader';
+
 
 import DashboardOverview from '../components/layout/DashboardOverview';
 import MyRoutines from '../components/layout/MyRoutines';
 import MyClasses from '../components/layout/MyClasses';
 import UserProfile from '../components/layout/UserProfile';
 
-
-const Dashboard = () => {
+export function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   
@@ -18,7 +19,7 @@ const Dashboard = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/');
   };
 
   const tabs = [
@@ -48,6 +49,9 @@ const Dashboard = () => {
     },
   ];
 
+  /**
+   * Renderiza el contenido según el tab activo
+   */
   const renderContent = () => {
     switch (activeTab) {
       case 'overview':
@@ -64,43 +68,32 @@ const Dashboard = () => {
   };
 
   return (
-    <div id='dashboard' className="min-h-screen bg-background text-foreground"> 
-      {/* FLEX CONTAINER - Sidebar + Contenido */}
-      <div className="flex flex-col lg:flex-row">
+    <div className="min-h-screen bg-background text-foreground">
+      
+      {/* HEADER MOBILE - only mobile (lg:hidden) */}
+      <DashboardHeader
+        tabs={tabs}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onLogout={handleLogout}
+        user={user}
+      />
+
+      {/* FLEX CONTAINER - Sidebar + Content */}
+      <div className="flex">
         
-        {/* SIDEBAR - Solo visible en desktop (lg:) */}
+        {/* SIDEBAR DESKTOP - Only desktop (hidden lg:flex) */}
         <DashboardSidebar
           tabs={tabs}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
+          onLogout={handleLogout}
+          user={user}
         />
 
         {/* MAIN CONTENT AREA */}
         <main className="flex-1 min-h-screen">
-          
-          {/* TABS HORIZONTALES - Solo visible en mobile (hidden lg:) */}
-          <div className="lg:hidden border-b border-gray-800 bg-surface sticky top-16 z-40">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-x-auto">
-              <div className="flex gap-1">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`px-4 py-3 whitespace-nowrap font-medium transition-colors border-b-2 ${
-                      activeTab === tab.id
-                        ? 'border-primary text-primary'
-                        : 'border-transparent text-gray-400 hover:text-foreground'
-                    }`}
-                  >
-                    <span className="mr-1">{tab.icon}</span>
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* CONTENIDO DE LA SECCIÓN ACTIVA */}
+          {/* Animation content */}
           <div
             key={activeTab}
             className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12 animate-fadeIn"
@@ -110,8 +103,8 @@ const Dashboard = () => {
         </main>
       </div>
 
-      {/* FOOTER - Siempre visible abajo */}
-      <footer className="border-t border-gray-800 bg-surface mt-16">
+      {/* FOOTER */}
+      <footer className="border-t border-gray-800 bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-xs sm:text-sm text-gray-400">
             <p>&copy; 2026 La Resistencia. Todos los derechos reservados.</p>
