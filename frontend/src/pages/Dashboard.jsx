@@ -26,25 +26,25 @@ export function Dashboard() {
     {
       id: 'overview',
       label: 'Dashboard',
-      icon: '📊',
+      icon: '',
       description: 'Tu resumen personal',
     },
     {
       id: 'routines',
       label: 'Mis Rutinas',
-      icon: '💪',
+      icon: '',
       description: 'Tus entrenamientos',
     },
     {
       id: 'classes',
       label: 'Clases',
-      icon: '🎯',
+      icon: '',
       description: 'Clases disponibles',
     },
     {
       id: 'profile',
       label: 'Perfil',
-      icon: '👤',
+      icon: '',
       description: 'Tus datos',
     },
   ];

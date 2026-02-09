@@ -6,18 +6,18 @@ const UserProfile = ({ user, onLogout }) => {
     return (
       <div className="space-y-8">
         <div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-2">
-            Mi Perfil 👤
+          <h1 className="text-center text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-2">
+            Mi Perfil
           </h1>
-          <p className="text-sm sm:text-base text-gray-400">
+          <p className="text-center text-sm sm:text-base text-gray-400">
             Administra tu información personal y cuenta.
           </p>
         </div>
   
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Información Personal */}
-          <Card className="bg-surface border border-gray-800 lg:col-span-2">
-            <h3 className="text-xl font-heading font-bold text-foreground mb-6">
+          <Card className="bg-surface border border-gray-800 lg:col-span-3">
+            <h3 className="text-xl font-heading font-bold text-foreground mb-6 pb-4 border-b border-gray-700">
               Información Personal
             </h3>
   
@@ -60,18 +60,14 @@ const UserProfile = ({ user, onLogout }) => {
             </div>
           </Card>
   
-          {/* Acciones */}
-          <Card className="bg-surface border border-gray-800">
-            <h3 className="text-xl font-heading font-bold text-foreground mb-6">
-              Acciones
-            </h3>
-  
+          {/* Actions Card */}
+          {/* <Card className="bg-surface border border-gray-800">
             <div className="space-y-3 flex flex-col h-full">
               <Button variant="secondary" className="w-full text-sm uppercase font-heading py-2">
-                📥 Descargar mis datos
+                Descargar mis datos
               </Button>
               <Button variant="secondary" className="w-full text-sm uppercase font-heading py-2">
-                🔔 Preferencias de notificaciones
+                Preferencias de notificaciones
               </Button>
               <div className="flex-1" />
               <Button
@@ -82,11 +78,11 @@ const UserProfile = ({ user, onLogout }) => {
                 🚪 Cerrar sesión
               </Button>
             </div>
-          </Card>
+          </Card> */}
         </div>
   
         {/* Información de Suscripción */}
-        <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/30">
+        <Card className="bg-gradient-linear from-primary/10 to-primary/5 border border-primary/30">
           <h3 className="text-xl font-heading font-bold text-foreground mb-4">
             Tu Suscripción
           </h3>
