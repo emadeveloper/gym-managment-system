@@ -5,11 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import DashboardSidebar from '../components/layout/DashboardSidebar';
 import DashboardHeader from '../components/layout/DashboardHeader';
 
-
 import DashboardOverview from '../components/layout/DashboardOverview';
 import MyRoutines from '../components/layout/MyRoutines';
 import MyClasses from '../components/layout/MyClasses';
 import UserProfile from '../components/layout/UserProfile';
+
+import { LayoutDashboard, Dumbbell, HandFist, User } from 'lucide-react';
 
 export function Dashboard() {
   const { user, logout } = useAuth();
@@ -26,25 +27,25 @@ export function Dashboard() {
     {
       id: 'overview',
       label: 'Dashboard',
-      icon: '',
+      icon: LayoutDashboard,
       description: 'Tu resumen personal',
     },
     {
       id: 'routines',
       label: 'Mis Rutinas',
-      icon: '',
+      icon: Dumbbell,
       description: 'Tus entrenamientos',
     },
     {
       id: 'classes',
       label: 'Clases',
-      icon: '',
+      icon: HandFist,
       description: 'Clases disponibles',
     },
     {
       id: 'profile',
       label: 'Perfil',
-      icon: '',
+      icon: User,
       description: 'Tus datos',
     },
   ];

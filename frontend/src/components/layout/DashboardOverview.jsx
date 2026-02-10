@@ -3,14 +3,8 @@ import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import EmptyState from './EmptyState';
 
-/**
- * DashboardOverview - MEJORADO
- * Maneja todos los estados:
- * - Con datos (dummy)
- * - Sin datos
- * - Sin membresía activa
- * - Usuario nuevo
- */
+import { Check} from 'lucide-react';
+
 const DashboardOverview = ({ user }) => {
   // Mock data - Eventually replace with API calls
   const membershipStatus = {
@@ -75,7 +69,7 @@ const DashboardOverview = ({ user }) => {
               <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
                 Suscripción activa
               </h4>
-              <span className="text-2xl">📅</span>
+              <Check className='text-primary w-10 h-10'/>
             </div>
             <p className="text-2xl sm:text-3xl font-heading font-bold text-foreground">
               {membershipStatus.daysLeft}

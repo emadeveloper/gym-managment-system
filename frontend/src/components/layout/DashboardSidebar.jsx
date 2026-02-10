@@ -5,11 +5,11 @@ import Logo from "../../docs/img/la-resistencia-logo-2.jpg";
 const DashboardSidebar = ({ tabs, activeTab, setActiveTab, onLogout, user }) => {
   return (
     <aside className="hidden lg:flex flex-col w-64 bg-surface border-r border-gray-800 sticky top-0 h-screen overflow-y-auto">
-      
+
       {/* HEADER - Logo/Branding */}
       <div className="p-6 border-b border-gray-700">
         {/* TODO: Users can update their own photo from their files */}
-        <img src={Logo} alt="La-Resistencia-logo-2"  className='rounded-full'/>
+        <img src={Logo} alt="La-Resistencia-logo-2" className='rounded-full' />
         <p className="text-xs text-gray-500 mt-1 pt-2 text-center">
           Dashboard de entrenamiento
         </p>
@@ -29,21 +29,22 @@ const DashboardSidebar = ({ tabs, activeTab, setActiveTab, onLogout, user }) => 
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-200 group ${
-              activeTab === tab.id
+            className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-200 group ${activeTab === tab.id
                 ? ' text-primary border border-primary/30'
                 : 'text-gray-400 hover:text-foreground hover:bg-surface-light border border-transparent'
-            }`}
+              }`}
           >
             <div className="flex items-center gap-3">
+              
               {/* Icon */}
-              <span
-                className={`text-xl transition-transform group-hover:scale-110 ${
-                  activeTab === tab.id ? 'scale-110' : ''
-                }`}
-              >
-                {tab.icon}
-              </span>
+              {tab.icon && (
+                <tab.icon
+                  className={`w-5 h-5 transition-all duration-200 ${activeTab === tab.id
+                      ? 'text-primary scale-110'
+                      : 'text-gray-400 group-hover:text-foreground group-hover:scale-110'
+                    }`}
+                />
+              )}
 
               {/* Text */}
               <div className="flex-1 text-left">
@@ -51,11 +52,10 @@ const DashboardSidebar = ({ tabs, activeTab, setActiveTab, onLogout, user }) => 
                   {tab.label}
                 </p>
                 <p
-                  className={`text-xs transition-colors ${
-                    activeTab === tab.id
+                  className={`text-xs transition-colors ${activeTab === tab.id
                       ? 'text-primary/70'
                       : 'text-gray-500'
-                  }`}
+                    }`}
                 >
                   {tab.description}
                 </p>
@@ -72,7 +72,7 @@ const DashboardSidebar = ({ tabs, activeTab, setActiveTab, onLogout, user }) => 
 
       {/* FOOTER - User info y Logout (Sticky) */}
       <div className="border-t border-gray-700 p-6 space-y-4">
-        
+
         {/* Info del usuario */}
         <div className="p-3 bg-surface-light rounded-lg border border-gray-700">
           <p className="text-xs uppercase tracking-widest text-gray-500 font-heading font-bold mb-2">
@@ -91,7 +91,7 @@ const DashboardSidebar = ({ tabs, activeTab, setActiveTab, onLogout, user }) => 
           className="w-full text-sm uppercase font-heading py-2 justify-center text-black hover:text-white hover:bg-primary border border-black"
           onClick={onLogout}
         >
-        Cerrar sesión
+          Cerrar sesión
         </Button>
 
         {/* Copyright */}
