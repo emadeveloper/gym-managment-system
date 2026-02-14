@@ -1,18 +1,20 @@
 import React from 'react';
 import { Card } from '../../ui/Card';
 import { Button } from '../../ui/Button';
+import { User } from 'lucide-react';
 
 const UserProfile = ({ user, onLogout }) => {
     return (
-      <div className="space-y-8">
-        <div>
+      <div className="space-y-4">
+        <div className='flex justify-center items-center gap-4'>
           <h1 className="text-center text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-2">
             Mi Perfil
           </h1>
-          <p className="text-center text-sm sm:text-base text-gray-400">
+          <User className='text-primary w-12 h-12'/>
+        </div>
+          <p className="text-center text-sm sm:text-base text-gray-400 pb-4">
             Administra tu información personal y cuenta.
           </p>
-        </div>
   
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Información Personal */}
