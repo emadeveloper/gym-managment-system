@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button } from '../../components/ui/Button';
-import Logo from "../../docs/img/la-resistencia-logo-2.jpg";
+import { Button } from '../../ui/Button';
+import Logo from '../../../docs/img/la-resistencia-logo-2.jpg'
 
 const DashboardSidebar = ({ tabs, activeTab, setActiveTab, onLogout, user }) => {
   return (
@@ -17,7 +17,7 @@ const DashboardSidebar = ({ tabs, activeTab, setActiveTab, onLogout, user }) => 
 
       {/* NAVIGATION - flexible on the middle */}
       <nav className="flex-1 p-6 space-y-2">
-        {/* Título de sección */}
+        {/* Section Title */}
         <div className="mb-6 pb-4 border-b border-gray-700">
           <p className="text-xs uppercase tracking-widest text-gray-500 font-heading font-bold">
             Navegación

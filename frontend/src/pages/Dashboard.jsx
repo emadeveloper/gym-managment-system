@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
-import DashboardSidebar from '../components/layout/DashboardSidebar';
-import DashboardHeader from '../components/layout/DashboardHeader';
+import DashboardSidebar from '../components/layout/Dashboard/DashboardSidebar';
+import DashboardHeader from '../components/layout/Dashboard/DashboardHeader';
 
-import DashboardOverview from '../components/layout/DashboardOverview';
-import MyRoutines from '../components/layout/MyRoutines';
-import MyClasses from '../components/layout/MyClasses';
-import UserProfile from '../components/layout/UserProfile';
+import DashboardOverview from '../components/layout/dashboard/DashboardOverview';
+import MyRoutines from '../components/layout/dashboard/MyRoutines';
+import MyClasses from '../components/layout/Dashboard/MyClasses';
+import UserProfile from '../components/layout/dashboard/UserProfile';
+import Nutrition from '../components/layout/nutrition/Nutrition';
 
-import { LayoutDashboard, Dumbbell, HandFist, User } from 'lucide-react';
+import mockNutritionData from '../components/layout/nutrition/mockNutritionData';
 
 export function Dashboard() {
   const { user, logout } = useAuth();
@@ -23,29 +24,39 @@ export function Dashboard() {
     navigate('/');
   };
 
+  /**
+   * ✅ CORRECTO: Los iconos son STRINGS (emojis)
+   * NO componentes de React
+   */
   const tabs = [
     {
       id: 'overview',
       label: 'Dashboard',
-      icon: LayoutDashboard,
+      icon: '',  // ← String emoji, NO componente
       description: 'Tu resumen personal',
     },
     {
       id: 'routines',
       label: 'Mis Rutinas',
-      icon: Dumbbell,
+      icon: '',  // ← String emoji, NO componente
       description: 'Tus entrenamientos',
+    },
+    {
+      id: 'nutrition',
+      label: 'Mi Nutrición',
+      icon: '',  // ← String emoji, NO componente
+      description: 'Tus planes de alimentación',
     },
     {
       id: 'classes',
       label: 'Clases',
-      icon: HandFist,
+      icon: '',  // ← String emoji, NO componente
       description: 'Clases disponibles',
     },
     {
       id: 'profile',
       label: 'Perfil',
-      icon: User,
+      icon: '',  // ← String emoji, NO componente
       description: 'Tus datos',
     },
   ];
@@ -61,6 +72,8 @@ export function Dashboard() {
         return <MyRoutines user={user} />;
       case 'classes':
         return <MyClasses user={user} />;
+      case 'nutrition':
+        return <Nutrition user={user} nutritionData={mockNutritionData} />
       case 'profile':
         return <UserProfile user={user} onLogout={handleLogout} />;
       default:

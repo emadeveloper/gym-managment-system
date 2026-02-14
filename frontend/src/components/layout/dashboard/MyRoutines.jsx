@@ -1,6 +1,7 @@
 import React from 'react';
-import { Card } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
+import { Card } from '../../ui/Card';
+import { Button } from '../../ui/Button';
+import { Dumbbell } from 'lucide-react';
 
 const MyRoutines = ({ user }) => {
     const routines = [
@@ -34,12 +35,15 @@ const MyRoutines = ({ user }) => {
     ];
   
     return (
-      <div className="space-y-8">
-        <div>
+      <div className="space-y-2">
+        <div className='flex items-center justify-center gap-4'>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-2">
             Mis Rutinas
           </h1>
-          <p className="text-sm sm:text-base text-gray-400">
+          <Dumbbell className='text-primary w-12 h-12'/>
+        </div>
+        <div>
+          <p className="text-sm sm:text-base text-gray-400 text-center pb-3">
             Accede a todas tus rutinas personalizadas y realiza un seguimiento de tu progreso.
           </p>
         </div>
@@ -96,11 +100,11 @@ const MyRoutines = ({ user }) => {
           ))}
         </div>
   
-        <Card className="bg-surface border border-gray-800">
-          <h3 className="text-lg font-heading font-bold text-foreground mb-4">
+        <Card className="bg-surface border border-gray-800 text-center">
+          <h3 className="text-lg font-heading font-bold text-foreground mb-4 pb-1">
             ¿Necesitas una rutina nueva?
           </h3>
-          <p className="text-gray-400 mb-4">
+          <p className="text-gray-400 mb-4 pb-2">
             Contacta con nuestro equipo de entrenadores para crear una rutina personalizada según tus objetivos.
           </p>
           <Button className="w-full text-sm uppercase font-heading py-2">

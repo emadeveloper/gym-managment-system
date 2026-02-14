@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Button } from '../../components/ui/Button';
-import Logo from '../../docs/img/la-resistencia-logo-2.jpg';
+import { Button } from '../../ui/Button';
+import Logo from '../../../docs/img/la-resistencia-logo-1.jpg';
 
 const DashboardHeader = ({ tabs, activeTab, setActiveTab, onLogout, user }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);

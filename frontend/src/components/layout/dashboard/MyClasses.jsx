@@ -1,6 +1,7 @@
 import React from 'react';
-import { Card } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
+import { Card } from '../../ui/Card';
+import { Button } from '../../ui/Button';
+import { BicepsFlexed } from 'lucide-react';
 
 const MyClasses = ({ user }) => {
 
@@ -52,22 +53,23 @@ const MyClasses = ({ user }) => {
   ];
 
   return (
-    <div className="space-y-8">
-      <div>
+    <div className="space-y-2">
+      <div className='flex gap-3 justify-center items-center'>
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-2">
           Clases Disponibles
         </h1>
-        <p className="text-sm sm:text-base text-gray-400">
+        <BicepsFlexed className='text-primary w-10 h-10'/>
+      </div>
+        <p className="text-sm sm:text-base text-gray-400 text-center pb-3">
           Reserva y participa en nuestras clases grupales. Aprende de nuestros entrenadores expertos.
         </p>
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
         {classes.map((classItem) => (
           <Card key={classItem.id} className="bg-surface border border-gray-800">
             <div className="flex items-start justify-between mb-4">
               <div>
-                <h3 className="text-lg sm:text-xl font-heading font-bold text-foreground">
+                <h3 className="text-lg sm:text-xl font-heading font-bold text-foreground pb-2">
                   {classItem.name}
                 </h3>
                 <p className="text-xs sm:text-sm text-gray-400 mt-1">
