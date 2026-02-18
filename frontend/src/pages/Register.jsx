@@ -71,8 +71,19 @@ export function Register() {
     const result = await register(formData.email, formData.password);
     
     if (result?.success) {
-      // Auto-login after successfull register
-      navigate('/dashboard');
+      /**
+       * ✅ SOLUCIÓN FINAL: Obtener el rol del localStorage
+       * 
+       * Los usuarios nuevos por defecto tienen rol 'USER'
+       * Pero por si acaso, verificamos
+       */
+      const storedUser = JSON.parse(localStorage.getItem('user'));
+      
+      if (storedUser?.role === 'ADMIN') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');  // La mayoría de usuarios nuevos serán USER
+      }
     } else {
       setServerError(result.error || "Registration failed");
     }

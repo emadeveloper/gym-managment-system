@@ -4,22 +4,22 @@ import { authAPI } from '../services/api';
 
 const AuthContext = createContext(null);
 
-export function AuthProvider ({ children }) {
+export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Load user from localStorage 
+    // Load user from localStorage on mount
     useEffect(() => {
         const token = getToken();
         const savedUser = getUser();
 
-        if(token && savedUser) {
+        if (token && savedUser) {
             setUser(savedUser);
         }
 
-        setLoading(false)
-    },[]);
+        setLoading(false);
+    }, []);
 
     const login = async (email, password) => {
         setLoading(true);
@@ -27,7 +27,7 @@ export function AuthProvider ({ children }) {
 
         try {
             const response = await authAPI.login(email, password);
-            const { token, user: userData} = response.data;
+            const { token, user: userData } = response.data;
 
             // Save in Local Storage
             saveToken(token);
@@ -36,15 +36,15 @@ export function AuthProvider ({ children }) {
             // Update State
             setUser(userData);
 
-            return { success: true};
+            return { success: true };
         } catch (err) {
             const errorMessage = err.response?.data?.message || "Login Failed";
             setError(errorMessage);
-            return { success: false, error: errorMessage};
+            return { success: false, error: errorMessage };
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     const register = async (email, password) => {
         setLoading(true);
@@ -54,26 +54,45 @@ export function AuthProvider ({ children }) {
             const response = await authAPI.register(email, password);
             const { token, user: userData } = response.data;
 
-            // Auto login after the register
+            // Auto login after registration
             saveToken(token);
             saveUser(userData);
             setUser(userData);
 
-            return {success: true};
+            return { success: true };
         } catch (err) {
             const errorMessage = err.response?.data?.message || "Registration Failed";
             setError(errorMessage);
+            return { success: false, error: errorMessage };
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     const logout = () => {
         removeToken();
         removeUser();
         setUser(null);
         setError(null);
-    }
+    };
+
+    /**
+     * Verificar si el usuario tiene un rol específico
+     * @param {string} role - Rol a verificar (ej: 'ADMIN', 'USER')
+     * @returns {boolean}
+     */
+    const hasRole = (role) => {
+        return user?.role === role;
+    };
+
+    /**
+     * Verificar si el usuario tiene alguno de los roles especificados
+     * @param {string[]} roles - Array de roles a verificar
+     * @returns {boolean}
+     */
+    const hasAnyRole = (roles) => {
+        return roles.includes(user?.role);
+    };
 
     const value = {
         user,
@@ -82,24 +101,27 @@ export function AuthProvider ({ children }) {
         login,
         register,
         logout,
+        hasRole,
+        hasAnyRole,
         isAuthenticated: isAuthenticated() && !!user,
+        isAdmin: user?.role === 'ADMIN',
+        isUser: user?.role === 'USER',
     };
     
     return (
         <AuthContext.Provider value={value}>
             {children}
         </AuthContext.Provider>
-    )
-} 
+    );
+}
 
-// eslint-disable-next-line react-refresh/only-export-components
+
 export function useAuth() {
     const context = useContext(AuthContext);
 
     if (!context) {
-        throw new Error("useAuth must be used withim an Auth Provider");
+        throw new Error("useAuth must be used within an AuthProvider");
     }
 
     return context;
 }
-

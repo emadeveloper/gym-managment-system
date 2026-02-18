@@ -61,7 +61,19 @@ export function Login() {
     const result = await login(formData.email, formData.password);
     
     if (result.success) {
-      navigate('/dashboard');
+      /**
+       * ✅ SOLUCIÓN FINAL: Obtener el rol del localStorage
+       * 
+       * En lugar de esperar a que el context se actualice,
+       * leemos directamente del localStorage que se acaba de actualizar
+       */
+      const storedUser = JSON.parse(localStorage.getItem('user'));
+      
+      if (storedUser?.role === 'ADMIN') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     } else {
       setServerError(result.error);
     }
