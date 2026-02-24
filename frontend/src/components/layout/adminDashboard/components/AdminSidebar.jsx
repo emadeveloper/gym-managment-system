@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '../../../ui/Button';
 import Logo from '../../../../docs/img/la-resistencia-logo-1.jpg';
+import { Users, Dumbbell, Salad, BarChart3 } from 'lucide-react';
 
 /**
  * AdminSidebar
@@ -8,6 +9,13 @@ import Logo from '../../../../docs/img/la-resistencia-logo-1.jpg';
  * Mismo diseño que User Dashboard
  */
 const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, user }) => {
+  const ICON_MAP = {
+    users: Users,
+    routines: Dumbbell,
+    nutrition: Salad,
+    analytics: BarChart3,
+  };
+
   return (
     <aside className="hidden lg:flex flex-col w-64 bg-surface border-r border-gray-800 sticky top-0 h-screen overflow-y-auto">
 
@@ -32,50 +40,53 @@ const AdminSidebar = ({ tabs, activeTab, setActiveTab, onLogout, user }) => {
         </div>
 
         {/* Tab Items */}
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-200 group ${
-              activeTab === tab.id
-                ? 'bg-gradient-to-linear from-primary/20 to-primary/10 text-primary border border-primary/30'
-                : 'text-gray-400 hover:text-foreground hover:bg-surface-light border border-transparent'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              
-              {/* Icon */}
-              {tab.icon && (
-                <span
-                  className={`text-xl transition-all duration-200 ${
-                    activeTab === tab.id ? 'scale-110' : 'group-hover:scale-110'
-                  }`}
-                >
-                  {tab.icon}
-                </span>
-              )}
+        {tabs.map((tab) => {
+          const IconComponent = ICON_MAP[tab.id];
 
-              {/* Text */}
-              <div className="flex-1 text-left">
-                <p className="font-semibold text-sm">
-                  {tab.label}
-                </p>
-                <p
-                  className={`text-xs transition-colors ${
-                    activeTab === tab.id ? 'text-primary/70' : 'text-gray-500'
-                  }`}
-                >
-                  {tab.description}
-                </p>
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-all duration-200 group ${
+                activeTab === tab.id
+                  ? 'bg-gradient-to-linear from-primary/20 to-primary/10 text-primary border border-primary/30'
+                  : 'text-gray-400 hover:text-foreground hover:bg-surface-light border border-transparent'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                {/* Icon */}
+                {IconComponent && (
+                  <span
+                    className={`inline-flex items-center justify-center rounded-lg bg-black/40 border border-gray-800 p-2 transition-all duration-200 ${
+                      activeTab === tab.id ? 'scale-105 border-primary/50 text-primary' : 'group-hover:scale-105 text-gray-300'
+                    }`}
+                  >
+                    <IconComponent className="h-4 w-4" />
+                  </span>
+                )}
+
+                {/* Text */}
+                <div className="flex-1 text-left">
+                  <p className="font-semibold text-sm">
+                    {tab.label}
+                  </p>
+                  <p
+                    className={`text-xs transition-colors ${
+                      activeTab === tab.id ? 'text-primary/70' : 'text-gray-500'
+                    }`}
+                  >
+                    {tab.description}
+                  </p>
+                </div>
+
+                {/* Indicator */}
+                {activeTab === tab.id && (
+                  <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                )}
               </div>
-
-              {/* Indicator */}
-              {activeTab === tab.id && (
-                <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              )}
-            </div>
-          </button>
-        ))}
+            </button>
+          );
+        })}
       </nav>
 
       {/* FOOTER - User info y Logout (Sticky) */}
