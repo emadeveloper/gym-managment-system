@@ -1,9 +1,9 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:usersdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    driverClassName: org.h2.Driver
-    username: admin
-    password: admin
+    url: jdbc:postgresql://localhost:5432/backend_db
+    driver-class-name: org.postgresql.Driver
+    username: backend_user
+    password: backend_password
   jpa:
     open-in-view: false
     hibernate:
@@ -12,10 +12,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
   jwt:
     secret: ${JWT_SECRET:defaultSecretKeyOnlyForDevPleaseChangeInProduction}
     expiration: ${JWT_EXPIRATION:86400000}
