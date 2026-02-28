@@ -1,18 +1,16 @@
-version: "3.9"
-
 services:
   postgres:
-    image: postgres:16-alpine
-    container_name: fullstack_postgres
+    image: postgres:16-alpine # <--- Cambiá el 18 por 16
+    container_name: la-resistencia-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: backend_db
-      POSTGRES_USER: backend_user
-      POSTGRES_PASSWORD: backend_password
+      POSTGRES_DB: la_resistencia_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+    ports:
+      - "5434:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
 
 volumes:
   postgres_data:
