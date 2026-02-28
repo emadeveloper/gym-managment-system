@@ -1,21 +1,26 @@
 spring:
+  # ============ DATABASE ============
   datasource:
-    url: jdbc:postgresql://localhost:5432/backend_db
+    url: jdbc:postgresql://localhost:5434/la_resistencia_db
     driver-class-name: org.postgresql.Driver
-    username: backend_user
-    password: backend_password
+    username: admin
+    password: admin123
+  # ============ JPA/HIBERNATE ============
   jpa:
+    platform: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
     hibernate:
-      ddl-auto: create-drop
-    show-sql: true
+      ddl-auto: update
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
+  # ============ JWT Json Web Token Keys ============
   jwt:
     secret: ${JWT_SECRET:defaultSecretKeyOnlyForDevPleaseChangeInProduction}
     expiration: ${JWT_EXPIRATION:86400000}
 
+  # ============ LOGGING ============
   logging:
     level:
       com.backend: DEBUG

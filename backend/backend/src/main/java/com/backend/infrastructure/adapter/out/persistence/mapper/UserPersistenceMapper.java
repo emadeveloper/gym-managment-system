@@ -2,7 +2,6 @@ package com.backend.infrastructure.adapter.out.persistence.mapper;
 
 import com.backend.domain.model.User;
 import com.backend.domain.valueobject.Email;
-import com.backend.domain.valueobject.Role;
 import com.backend.infrastructure.adapter.out.persistence.entity.UserJpaEntity;
 import org.springframework.stereotype.Component;
 
@@ -12,53 +11,64 @@ import java.util.UUID;
 
 /**
  * UserPersistenceMapper
- *
- * Convierte entre User (dominio) y UserJpaEntity (persistencia).
- * Responsable de la transformación de datos entre capas.
+ * Converts between User (Domain) and UserJpaEntity (persistence).
+ * Responsible for transformation between layers to keep separation of concerns and maintain clean architecture.
  */
 @Component
 public class UserPersistenceMapper {
 
     /**
-     * Convierte User de dominio → UserJpaEntity para persistencia
+     * Converts User from Domain to -> UserJpaENtity for persistence
      *
-     * @param user Usuario del dominio
-     * @return Entidad JPA lista para guardar en BD
+     * @param user User from domain
+     * @return Entity JPA ready to store on DB
      */
     public UserJpaEntity toEntity(User user) {
         if (user == null) return null;
 
         UserJpaEntity entity = new UserJpaEntity();
 
-        // IDENTIDAD
+        // Maintaing relations without inyect or add any repository
+        if (user.getTrainerIds() != null && !user.getTrainerIds().isEmpty()) {
+            List<UserJpaEntity> trainerProxies = user.getTrainerIds().stream()
+                .map(trainerId -> {
+                    UserJpaEntity trainerProxy = new UserJpaEntity();
+                    trainerProxy.setId(trainerId); // JPA will use this id for the foreign key
+                    return trainerProxy;
+                })
+                .toList();
+            entity.setTrainers(trainerProxies);
+        }
+
+        // Identity
         entity.setId(user.getId());
 
-        // DATOS PERSONALES
+        // Personal Data
         entity.setName(user.getName());
         entity.setLastName(user.getLastName());
-        entity.setEmail(user.getEmail().value());  // ← Email es value object
+        entity.setEmail(user.getEmail().value());
         entity.setPassword(user.getPassword());
         entity.setRole(user.getRole());
 
-        // DATOS BIOMÉTRICOS
+        // BIOMETRIC DATA
         entity.setAge(user.getAge());
         entity.setHeightCm(user.getHeightCm());
         entity.setWeightKg(user.getWeightKg());
 
-        // DATOS DE CONTACTO
+        // CONTACT DATA
         entity.setDni(user.getDni());
         entity.setPhone(user.getPhone());
 
-        // RELACIONES (solo IDs)
+        // RELATIONS (only IDs)
         entity.setCurrentSubscriptionId(user.getCurrentSubscriptionId());
-        // Nota: Los trainerIds se persisten en tabla intermedia user_trainers
+        // Note: trainerIds persisten on the user_trainers intermediate table
 
         // TIMESTAMPS
         entity.setCreatedAt(user.getCreatedAt());
         entity.setUpdatedAt(user.getUpdatedAt());
         entity.setLastLoginAt(user.getLastLoginAt());
 
-        // ESTADO
+        // STATE
         entity.setIsActive(user.getIsActive());
         entity.setProfileUpdated(user.getProfileUpdated());
 
@@ -66,45 +76,45 @@ public class UserPersistenceMapper {
     }
 
     /**
-     * Convierte UserJpaEntity de persistencia → User de dominio
+     * Converts UserJpaEntity from persistence → User from domain
      *
-     * @param entity Entidad JPA de la BD
-     * @return Usuario del dominio con toda su lógica
+     * @param entity Entity JPA from the DB
+     * @return User from domain with all the logic and value objects ready to be used in the domain layer
      */
     public User toDomain(UserJpaEntity entity) {
         if (entity == null) return null;
 
-        // Recrear el value object Email
+        // Recreate the value object Email from the string stored in the database
         Email email = new Email(entity.getEmail());
 
-        // Obtener trainerIds desde relación (si está cargada)
+        // Obtain trainerids from relation (if it's loaded)
         List<UUID> trainerIds = new ArrayList<>();
         if (entity.getTrainers() != null && !entity.getTrainers().isEmpty()) {
             entity.getTrainers().forEach(trainer -> trainerIds.add(trainer.getId()));
         }
 
-        // Crear dominio con todos los datos
+        // Create domain with all the data from the entity, including value objects and relations
         return new User(
-                // IDENTIDAD
+                // IDENTITY
                 entity.getId(),
 
-                // DATOS PERSONALES
+                // PERSONAL DATA
                 entity.getName(),
                 entity.getLastName(),
                 email,
                 entity.getPassword(),
                 entity.getRole(),
 
-                // DATOS BIOMÉTRICOS
+                // BIOMETRIC DATA
                 entity.getAge(),
                 entity.getHeightCm(),
                 entity.getWeightKg(),
 
-                // DATOS DE CONTACTO
+                // CONTACT DATA
                 entity.getDni(),
                 entity.getPhone(),
 
-                // RELACIONES
+                // RELATIONS
                 entity.getCurrentSubscriptionId(),
                 trainerIds,
 
@@ -113,7 +123,7 @@ public class UserPersistenceMapper {
                 entity.getUpdatedAt(),
                 entity.getLastLoginAt(),
 
-                // ESTADO
+                // STATE
                 entity.getIsActive(),
                 entity.getProfileUpdated()
         );
