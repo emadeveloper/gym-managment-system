@@ -123,7 +123,7 @@ export const UsersManagement = () => {
         </Card>
       </div>
 
-      {/* TABLA USUARIOS */}
+      {/* TABLA / LISTA DE USUARIOS */}
       <Card className="bg-surface border border-gray-800 p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <div>
@@ -139,7 +139,55 @@ export const UsersManagement = () => {
           </button>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* VISTA MÓVIL: TARJETAS STACKED (SIN SCROLL HORIZONTAL) */}
+        <div className="space-y-3 md:hidden">
+          {MOCK_USERS.map((user) => (
+            <div
+              key={user.id}
+              className="rounded-xl border border-gray-800 bg-surface-light/60 p-4 space-y-2"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-heading font-semibold text-foreground">
+                    {user.name}
+                  </p>
+                  <p className="text-xs text-gray-400 truncate">{user.email}</p>
+                </div>
+                <span className="inline-flex items-center gap-1 rounded-full bg-black/40 border border-gray-800 px-2 py-0.5 text-[11px] text-gray-200">
+                  {user.plan}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between gap-3 text-xs">
+                <p className="text-gray-400">
+                  Último check‑in:{' '}
+                  <span className="text-gray-200">{user.lastCheckIn}</span>
+                </p>
+                <span
+                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                    user.status === 'Activo'
+                      ? 'bg-emerald-500/10 text-emerald-400'
+                      : 'bg-red-500/10 text-red-400'
+                  }`}
+                >
+                  {user.status}
+                </span>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-1">
+                <button className="text-[11px] text-primary hover:underline">
+                  Editar
+                </button>
+                <button className="text-[11px] text-red-400 hover:underline">
+                  Desactivar
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* VISTA DESKTOP: TABLA COMPLETA */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="min-w-[700px] w-full text-xs sm:text-sm">
             <thead>
               <tr className="text-left text-gray-500 border-b border-gray-800">

@@ -1,15 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "../ui/Button";
 import Logo from "../../docs/img/la-resistencia-logo-1.jpg";
 import { useScrollToSection } from "../../hooks/useScrollToSection";
 import { useAuth } from "../../context/AuthContext";
+import {
+  LayoutGrid,
+  Dumbbell,
+  Calendar,
+  User,
+  BookOpen,
+  Users,
+  CreditCard,
+} from "lucide-react";
 
 const Navbar = () => {
   const { scrollTo } = useScrollToSection();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  
+  const location = useLocation();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
 
@@ -29,17 +39,17 @@ const Navbar = () => {
 
   // ========== MENU FOR PUBLIC USERS ==========
   const menuItemsPublic = [
-    { label: "Programas", scrollTo: "programs" },
-    { label: "Comunidad", scrollTo: "community" },
-    { label: "Planes", scrollTo: "plans" },
+    { label: "Programas", scrollTo: "programs", icon: BookOpen },
+    { label: "Comunidad", scrollTo: "community", icon: Users },
+    { label: "Planes", scrollTo: "plans", icon: CreditCard },
   ];
 
   // ========== MENU FOR AUTH USERS ==========
   const menuItemsAuthenticated = [
-    { label: "Mi Dashboard", route: "/dashboard" },
-    { label: "Mis Rutinas", route: "/routines" },
-    { label: "Clases", route: "/classes" },
-    { label: "Perfil", route: "/profile" },
+    { label: "Mi Dashboard", route: "/dashboard", icon: LayoutGrid },
+    { label: "Mis Rutinas", route: "/routines", icon: Dumbbell },
+    { label: "Clases", route: "/classes", icon: Calendar },
+    { label: "Perfil", route: "/profile", icon: User },
   ];
 
   const handleLogout = () => {
@@ -60,26 +70,39 @@ const Navbar = () => {
         {/* ================= DESKTOP ================= */}
         <div className="hidden md:flex items-center justify-between h-20">
           {/* Left - Menu Items */}
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
             {user
-              ? menuItemsAuthenticated.map((item) => (
-                  <Link
-                    key={item.label}
-                    to={item.route}
-                    className="text-white hover:text-secondary py-2 px-2.5 rounded-4xl font-medium transition-colors"
-                  >
-                    {item.label}
-                  </Link>
-                ))
-              : menuItemsPublic.map((item) => (
-                  <button
-                    key={item.label}
-                    onClick={() => scrollTo(item.scrollTo)}
-                    className="text-white hover:text-secondary py-2 px-2.5 rounded-4xl font-medium transition-colors cursor-pointer"
-                  >
-                    {item.label}
-                  </button>
-                ))}
+              ? menuItemsAuthenticated.map((item) => {
+                  const isActive = location.pathname === item.route;
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.label}
+                      to={item.route}
+                      className={`inline-flex items-center gap-2 py-2 px-3 sm:px-4 rounded-lg font-medium transition-colors ${
+                        isActive
+                          ? "bg-primary text-white"
+                          : "text-white hover:text-primary-light hover:bg-white/5"
+                      }`}
+                    >
+                      {Icon && <Icon className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />}
+                      <span className="hidden sm:inline">{item.label}</span>
+                    </Link>
+                  );
+                })
+              : menuItemsPublic.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.label}
+                      onClick={() => scrollTo(item.scrollTo)}
+                      className="inline-flex items-center gap-2 text-white hover:text-primary-light hover:bg-white/5 py-2 px-3 sm:px-4 rounded-lg font-medium transition-colors cursor-pointer"
+                    >
+                      {Icon && <Icon className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />}
+                      <span className="hidden sm:inline">{item.label}</span>
+                    </button>
+                  );
+                })}
           </div>
 
           {/* Center Logo */}
@@ -175,41 +198,59 @@ const Navbar = () => {
           }`}
         >
           <div className="border-t border-gray-700 py-4">
-            <div className="flex flex-col space-y-2">
-              {/* Items según autenticación */}
+            <div className="flex flex-col space-y-1">
               {user
-                ? menuItemsAuthenticated.map((item, index) => (
-                    <Link
-                      key={item.label}
-                      to={item.route}
-                      onClick={closeMenu}
-                      className="text-white hover:text-primary font-bold transition-all duration-200 py-1"
-                      style={{
-                        transitionDelay: isMenuOpen
-                          ? `${index * 50}ms`
-                          : "0ms",
-                      }}
-                    >
-                      {item.label}
-                    </Link>
-                  ))
-                : menuItemsPublic.map((item, index) => (
-                    <button
-                      key={item.label}
-                      onClick={() => {
-                        scrollTo(item.scrollTo);
-                        closeMenu();
-                      }}
-                      className="cursor-pointer text-white hover:text-primary font-bold transition-all duration-200 py-1 text-left"
-                      style={{
-                        transitionDelay: isMenuOpen
-                          ? `${index * 50}ms`
-                          : "0ms",
-                      }}
-                    >
-                      {item.label}
-                    </button>
-                  ))}
+                ? menuItemsAuthenticated.map((item, index) => {
+                    const isActive = location.pathname === item.route;
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.label}
+                        to={item.route}
+                        onClick={closeMenu}
+                        className={`inline-flex items-center gap-3 py-3 px-4 rounded-none font-semibold transition-all duration-200 ${
+                          isActive
+                            ? "bg-primary text-white"
+                            : "text-white hover:bg-white/5 hover:text-primary-light"
+                        }`}
+                        style={{
+                          transitionDelay: isMenuOpen
+                            ? `${index * 50}ms`
+                            : "0ms",
+                        }}
+                      >
+                        {Icon && (
+                          <Icon
+                            className={`w-5 h-5 shrink-0 ${
+                              isActive ? "text-white" : "text-current"
+                            }`}
+                          />
+                        )}
+                        {item.label}
+                      </Link>
+                    );
+                  })
+                : menuItemsPublic.map((item, index) => {
+                    const Icon = item.icon;
+                    return (
+                      <button
+                        key={item.label}
+                        onClick={() => {
+                          scrollTo(item.scrollTo);
+                          closeMenu();
+                        }}
+                        className="inline-flex items-center gap-3 cursor-pointer text-white hover:bg-white/5 hover:text-primary-light font-semibold transition-all duration-200 py-3 px-4 rounded-none text-left w-full"
+                        style={{
+                          transitionDelay: isMenuOpen
+                            ? `${index * 50}ms`
+                            : "0ms",
+                        }}
+                      >
+                        {Icon && <Icon className="w-5 h-5 shrink-0" />}
+                        {item.label}
+                      </button>
+                    );
+                  })}
 
               {/* Auth actions en mobile */}
               <div className="pt-4 border-t border-gray-700">

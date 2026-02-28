@@ -120,7 +120,7 @@ export const RoutinesManagement = () => {
         </Card>
       </div>
 
-      {/* TABLA RUTINAS */}
+      {/* TABLA / LISTA DE RUTINAS */}
       <Card className="bg-surface border border-gray-800 p-4 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
           <div>
@@ -136,7 +136,62 @@ export const RoutinesManagement = () => {
           </button>
         </div>
 
-        <div className="overflow-x-auto">
+        {/* VISTA MÓVIL: TARJETAS STACKED */}
+        <div className="space-y-3 md:hidden">
+          {MOCK_ROUTINES.map((routine) => (
+            <div
+              key={routine.id}
+              className="rounded-xl border border-gray-800 bg-surface-light/60 p-4 space-y-2"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-heading font-semibold text-foreground">
+                  {routine.name}
+                </p>
+                <span className="inline-flex items-center gap-1 rounded-full bg-black/40 border border-gray-800 px-2 py-0.5 text-[11px] text-gray-200">
+                  {routine.level}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between gap-3 text-xs">
+                <p className="text-gray-400">
+                  Duración:{' '}
+                  <span className="text-gray-200">{routine.duration}</span>
+                </p>
+                <p className="text-gray-400">
+                  Sesiones/sem:{' '}
+                  <span className="text-gray-200">
+                    {routine.sessionsPerWeek}
+                  </span>
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between gap-3 text-xs">
+                <span
+                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                    routine.status === 'Activa'
+                      ? 'bg-emerald-500/10 text-emerald-400'
+                      : routine.status === 'Borrador'
+                      ? 'bg-yellow-500/10 text-yellow-400'
+                      : 'bg-gray-500/10 text-gray-400'
+                  }`}
+                >
+                  {routine.status}
+                </span>
+                <div className="flex justify-end gap-3">
+                  <button className="text-[11px] text-primary hover:underline">
+                    Editar
+                  </button>
+                  <button className="text-[11px] text-red-400 hover:underline">
+                    Archivar
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* VISTA DESKTOP: TABLA COMPLETA */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="min-w-[700px] w-full text-xs sm:text-sm">
             <thead>
               <tr className="text-left text-gray-500 border-b border-gray-800">
