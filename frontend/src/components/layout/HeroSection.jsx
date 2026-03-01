@@ -1,64 +1,60 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../ui/Button';
-import HeroBanner from '../../docs/img/hero-banner-4.png';
+import HeroBanner from '../../docs/img/hero-banner-4.jpg';
 import { useScrollToSection } from '../../hooks/useScrollToSection';
 
 const HeroSection = () => {
-  const { scrollTo } = useScrollToSection(); 
+  const { scrollTo } = useScrollToSection();
+
   return (
-    <section id="hero" className="relative w-full min-h-screen bg-black">
-      {/* Background image */}
+    <section
+      id="hero"
+      className="relative isolate overflow-hidden border-b border-gray-900 bg-background"
+    >
       <div className="absolute inset-0">
         <img
           src={HeroBanner}
-          alt="La Resistencia Hero Banner"
-          className="w-full h-full object-cover object-center"
+          alt="Entrenamiento en La Resistencia"
+          className="h-full w-full object-cover object-center"
         />
-        {/* Gradient overlay for readability */}
-        <div className="absolute inset-0 bg-linear-to-b from-black/30 via-black/80 to-black/90 md:bg-linear-to-r md:from-black/95 md:via-black/70 md:to-black/20" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.38),rgba(0,0,0,0.72)_38%,rgba(0,0,0,0.92)_100%)] md:bg-[linear-gradient(90deg,rgba(0,0,0,0.9)_0%,rgba(0,0,0,0.68)_42%,rgba(0,0,0,0.3)_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(204,0,0,0.16),transparent_32%)]" />
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-72 sm:py-72 lg:py-32 flex flex-col lg:flex-row items-center lg:items-center gap-10">
-        {/* Text block */}
-        <div className="w-full lg:w-3/5 lg:text-left">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-heading font-bold text-white leading-tight tracking-tight uppercase">
+      <div className="relative z-10 mx-auto flex min-h-[calc(100svh-4rem)] max-w-7xl flex-col justify-end px-4 pb-8 sm:px-6 sm:pb-10 md:min-h-[88vh] md:justify-start md:pt-28 md:pb-16 lg:px-8 lg:pt-32">
+        <div className="mx-auto max-w-3xl text-center md:mx-0 md:text-left">
+          <h1 className="text-3xl font-heading font-bold uppercase leading-none tracking-tight text-white sm:text-4xl md:text-6xl xl:text-7xl">
             No viniste a encajar.
-            <span className="block text-primary mt-1 ">
+            <span className="mt-2 block text-primary">
               Viniste a Resistir.
             </span>
           </h1>
 
-          <p className="mt-4 sm:mt-6 text-sm sm:text-base md:text-lg text-gray-200 max-w-xl mx-auto lg:mx-0">
-            El último bastión del entrenamiento real. Sin circo. Solo Resultados.
+          <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-gray-300 sm:mt-5 sm:text-base sm:leading-7 md:mx-0 md:mt-6 md:max-w-2xl md:text-lg md:leading-8">
+            Un espacio para construir fuerza, disciplina y progreso medible. Acá el
+            foco no es posar: es sostener una rutina que te cambie de verdad.
           </p>
 
-          {/* CTA buttons */}
-          <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-center sm:gap-4 md:mt-8 md:justify-start">
             <Link to="/register">
-              <Button className="w-full sm:w-auto px-8 py-3 text-sm sm:text-base lg:text-lg uppercase font-heading">
+              <Button className="w-full sm:w-auto px-8 py-4 text-sm font-heading uppercase tracking-[0.2em] sm:text-base">
                 Asociate Ahora
               </Button>
             </Link>
-            <Link>
-              <Button
-                onClick={() => scrollTo("plans")}
-                variant="secondary"
-                className="w-full sm:w-auto px-8 py-3 text-sm sm:text-base lg:text-lg uppercase font-heading"
-              >
-                Ver Planes
-              </Button>
-            </Link>
+            <Button
+              onClick={() => scrollTo('plans')}
+              variant="secondary"
+              className="w-full sm:w-auto px-8 py-4 text-sm font-heading uppercase tracking-[0.2em] sm:text-base"
+            >
+              Ver Planes
+            </Button>
           </div>
         </div>
 
-        {/* Empty flex space on large screens to balance layout */}
-        <div className="hidden lg:block w-2/5" aria-hidden="true" />
       </div>
     </section>
   );
 };
 
 export default HeroSection;
-

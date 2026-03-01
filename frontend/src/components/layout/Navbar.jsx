@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "../ui/Button";
-import Logo from "../../docs/img/la-resistencia-logo-1.jpg";
 import { useScrollToSection } from "../../hooks/useScrollToSection";
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -11,6 +10,7 @@ import {
   User,
   BookOpen,
   Users,
+  Shield,
   CreditCard,
 } from "lucide-react";
 
@@ -19,6 +19,17 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const activeDashboardTab = new URLSearchParams(location.search).get("tab") || "overview";
+  const userInitials = user?.name
+    ? user.name
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .map((part) => part.charAt(0).toUpperCase())
+        .join("")
+    : user?.email
+      ? user.email.charAt(0).toUpperCase()
+      : "";
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrollY, setScrollY] = useState(0);
@@ -46,15 +57,54 @@ const Navbar = () => {
 
   // ========== MENU FOR AUTH USERS ==========
   const menuItemsAuthenticated = [
-    { label: "Mi Dashboard", route: "/dashboard", icon: LayoutGrid },
-    { label: "Mis Rutinas", route: "/routines", icon: Dumbbell },
-    { label: "Clases", route: "/classes", icon: Calendar },
-    { label: "Perfil", route: "/profile", icon: User },
+    {
+      label: "Resumen",
+      to: "/dashboard",
+      icon: LayoutGrid,
+      matches: location.pathname === "/dashboard" && activeDashboardTab === "overview",
+    },
+    {
+      label: "Rutinas",
+      to: { pathname: "/dashboard", search: "?tab=routines" },
+      icon: Dumbbell,
+      matches: location.pathname === "/dashboard" && activeDashboardTab === "routines",
+    },
+    {
+      label: "Nutrición",
+      to: { pathname: "/dashboard", search: "?tab=nutrition" },
+      icon: Shield,
+      matches: location.pathname === "/dashboard" && activeDashboardTab === "nutrition",
+    },
+    {
+      label: "Clases",
+      to: { pathname: "/dashboard", search: "?tab=classes" },
+      icon: Calendar,
+      matches: location.pathname === "/dashboard" && activeDashboardTab === "classes",
+    },
+    {
+      label: "Perfil",
+      to: { pathname: "/dashboard", search: "?tab=profile" },
+      icon: User,
+      matches: location.pathname === "/dashboard" && activeDashboardTab === "profile",
+    },
   ];
+
+  const desktopAuthLinkClass =
+    "group relative inline-flex h-11 min-w-[7.25rem] items-center justify-center px-4 text-xs font-semibold uppercase tracking-[0.12em] text-gray-300 transition-colors duration-300 hover:text-white";
+  const desktopPublicLinkClass =
+    "group relative inline-flex h-11 items-center justify-center px-4 text-xs font-semibold uppercase tracking-[0.12em] text-gray-300 transition-colors duration-300 hover:text-white";
 
   const handleLogout = () => {
     logout();
     navigate("/login");
+    setIsMenuOpen(false);
+  };
+
+  const goToProfile = () => {
+    navigate({
+      pathname: "/dashboard",
+      search: "?tab=profile",
+    });
     setIsMenuOpen(false);
   };
 
@@ -63,112 +113,124 @@ const Navbar = () => {
 
   return (
     <nav
-      className="sticky top-0 z-50 backdrop-blur-sm transition-all duration-300"
+      className="sticky top-0 z-50 border-b border-white/8 bg-black/78 transition-all duration-300 backdrop-blur-xl"
       style={{ backgroundColor }}
     >
-      <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto w-full max-w-none px-4 sm:px-6 lg:px-10">
         {/* ================= DESKTOP ================= */}
-        <div className="hidden md:flex items-center justify-between h-20">
-          {/* Left - Menu Items */}
-          <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
-            {user
-              ? menuItemsAuthenticated.map((item) => {
-                  const isActive = location.pathname === item.route;
-                  const Icon = item.icon;
-                  return (
-                    <Link
-                      key={item.label}
-                      to={item.route}
-                      className={`inline-flex items-center gap-2 py-2 px-3 sm:px-4 rounded-lg font-medium transition-colors ${
-                        isActive
-                          ? "bg-primary text-white"
-                          : "text-white hover:text-primary-light hover:bg-white/5"
-                      }`}
-                    >
-                      {Icon && <Icon className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />}
-                      <span className="hidden sm:inline">{item.label}</span>
-                    </Link>
-                  );
-                })
-              : menuItemsPublic.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <button
-                      key={item.label}
-                      onClick={() => scrollTo(item.scrollTo)}
-                      className="inline-flex items-center gap-2 text-white hover:text-primary-light hover:bg-white/5 py-2 px-3 sm:px-4 rounded-lg font-medium transition-colors cursor-pointer"
-                    >
-                      {Icon && <Icon className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />}
-                      <span className="hidden sm:inline">{item.label}</span>
-                    </button>
-                  );
-                })}
-          </div>
-
-          {/* Center Logo */}
-          <div className="flex items-center justify-center">
-            <button onClick={() => navigate(user ? "/dashboard" : "/")}>
-              <img
-                className="h-20 w-auto rounded-full object-contain cursor-pointer"
-                src={Logo}
-                alt="La Resistencia Logo"
-              />
+        <div className="hidden md:block">
+          <div className="grid min-h-24 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-6">
+            <button
+              onClick={() => navigate(user ? "/dashboard" : "/")}
+              className="flex shrink-0 items-center"
+            >
+              <span className="font-heading text-2xl font-bold uppercase tracking-tight text-white lg:text-3xl">
+                La <span className="text-primary">Resistencia</span> Gym
+              </span>
             </button>
-          </div>
 
-          {/* Right - Auth Actions */}
-          <div className="flex items-center space-x-4">
-            {user ? (
-              <>
-                {/* Show fullname and loogout */}
-                <span className="text-white text-sm font-medium">
-                  {user.name || user.email}
-                </span>
-                <Button
-                  variant="secondary"
-                  className=" font-heading px-5 py-2 bg-primary text-white hover:bg-secondary"
-                  onClick={handleLogout}
-                >
-                  Cerrar Sesión
-                </Button>
-              </>
-            ) : (
-              <>
-                {/* Show login y register */}
-                <Link to="/login">
+            <div className="flex min-w-0 flex-1 justify-center">
+              <div className="flex items-center gap-1 rounded-full border border-white/8 bg-black/35 px-3 py-2">
+                {user
+                  ? menuItemsAuthenticated.map((item) => {
+                      return (
+                        <Link
+                          key={item.label}
+                          to={item.to}
+                          className={`${desktopAuthLinkClass} ${
+                            item.matches
+                              ? "text-white"
+                              : ""
+                          }`}
+                        >
+                          <span>{item.label}</span>
+                          <span
+                            className={`absolute inset-x-3 bottom-1 h-px origin-center bg-primary transition-transform duration-300 ${
+                              item.matches
+                                ? "scale-x-100"
+                                : "scale-x-0 group-hover:scale-x-100"
+                            }`}
+                          />
+                        </Link>
+                      );
+                    })
+                  : menuItemsPublic.map((item) => {
+                      return (
+                        <button
+                          key={item.label}
+                          onClick={() => scrollTo(item.scrollTo)}
+                          className={`${desktopPublicLinkClass} cursor-pointer`}
+                        >
+                          <span>{item.label}</span>
+                          <span className="absolute inset-x-3 bottom-1 h-px origin-center scale-x-0 bg-primary transition-transform duration-300 group-hover:scale-x-100" />
+                        </button>
+                      );
+                    })}
+              </div>
+            </div>
+
+            <div className="flex shrink-0 items-center gap-3">
+              {user ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={goToProfile}
+                    className="hidden h-11 w-11 items-center justify-center rounded-full border border-white/8 bg-black/35 text-sm font-semibold uppercase tracking-[0.08em] text-gray-200 transition-all duration-300 hover:border-primary/40 hover:bg-white/5 hover:text-white xl:inline-flex"
+                    aria-label="Ir al perfil"
+                    title={user.name || user.email || "Ir al perfil"}
+                  >
+                    {userInitials ? (
+                      <span>{userInitials}</span>
+                    ) : (
+                      <User className="h-4 w-4" />
+                    )}
+                  </button>
                   <Button
                     variant="secondary"
-                    className="font-heading px-5 py-2"
+                    className="h-11 rounded-full border-white/8 bg-black/35 px-4 py-0 font-heading text-xs uppercase tracking-[0.12em] hover:border-primary hover:bg-primary hover:text-white"
+                    onClick={handleLogout}
                   >
-                    Iniciar sesión
+                    Cerrar sesión
                   </Button>
-                </Link>
-                <Link to="/register">
-                  <Button className="font-heading px-5 py-2">
-                    Asociate
-                  </Button>
-                </Link>
-              </>
-            )}
+                </>
+              ) : (
+                <>
+                  <Link to="/login">
+                    <Button
+                      variant="secondary"
+                      className="rounded-full border-white/8 bg-black/35 px-6 py-3 font-heading uppercase tracking-[0.08em] hover:border-primary/30 hover:bg-white/5"
+                    >
+                      Contacto
+                    </Button>
+                  </Link>
+                  <Link to="/register">
+                    <Button className="rounded-full px-6 py-3 font-heading uppercase tracking-[0.08em]">
+                      Empezar
+                    </Button>
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
         {/* ================= MOBILE HEADER ================= */}
-        <div className="flex md:hidden justify-between items-center h-16">
+        <div className="flex h-16 items-center justify-between md:hidden">
           <div className="flex-1 flex justify-center">
-            <button onClick={() => navigate(user ? "/dashboard" : "/")}>
-              <img
-                className="h-15 w-auto rounded-full object-contain cursor-pointer"
-                src={Logo}
-                alt="La Resistencia Logo"
-              />
+            <button
+              onClick={() => navigate(user ? "/dashboard" : "/")}
+              className="flex items-center"
+            >
+              <span className="font-heading text-lg font-bold uppercase tracking-tight text-white">
+                La <span className="text-primary">Resistencia</span> Gym
+              </span>
             </button>
           </div>
 
           {/* Hamburger */}
           <button
             onClick={toggleMenu}
-            className="cursor-pointer absolute left-4 p-2 rounded-lg text-white hover:text-primary transition-all duration-300"
+            className="cursor-pointer absolute left-2 p-2 rounded-lg text-white hover:text-primary transition-all duration-300"
             aria-label="Toggle menu"
           >
             <div className="relative w-6 h-6">
@@ -197,19 +259,18 @@ const Navbar = () => {
             isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
           }`}
         >
-          <div className="border-t border-gray-700 py-4">
+          <div className="border-t border-white/8 bg-black/92 py-4 backdrop-blur-xl">
             <div className="flex flex-col space-y-1">
               {user
                 ? menuItemsAuthenticated.map((item, index) => {
-                    const isActive = location.pathname === item.route;
                     const Icon = item.icon;
                     return (
                       <Link
                         key={item.label}
-                        to={item.route}
+                        to={item.to}
                         onClick={closeMenu}
                         className={`inline-flex items-center gap-3 py-3 px-4 rounded-none font-semibold transition-all duration-200 ${
-                          isActive
+                          item.matches
                             ? "bg-primary text-white"
                             : "text-white hover:bg-white/5 hover:text-primary-light"
                         }`}
@@ -222,7 +283,7 @@ const Navbar = () => {
                         {Icon && (
                           <Icon
                             className={`w-5 h-5 shrink-0 ${
-                              isActive ? "text-white" : "text-current"
+                              item.matches ? "text-white" : "text-current"
                             }`}
                           />
                         )}
@@ -253,15 +314,25 @@ const Navbar = () => {
                   })}
 
               {/* Auth actions en mobile */}
-              <div className="pt-4 border-t border-gray-700">
+              <div className="pt-4 border-t border-white/8 px-4">
                 {user ? (
                   <>
-                    <p className="text-white text-sm font-medium mb-3">
-                      {user.name || user.email}
-                    </p>
+                    <div className="mb-3 flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={goToProfile}
+                        className="flex h-10 w-10 items-center justify-center rounded-full border border-primary/25 bg-primary/10 text-sm font-semibold uppercase tracking-[0.08em] text-white"
+                        aria-label="Ir al perfil"
+                      >
+                        {userInitials ? userInitials : <User className="h-4 w-4" />}
+                      </button>
+                      <p className="truncate text-sm font-medium text-white">
+                        {user.name || user.email}
+                      </p>
+                    </div>
                     <Button
                       variant="secondary"
-                      className="w-full bg-primary text-white hover:bg-secondary"
+                      className="h-11 w-full rounded-full border-white/8 bg-black/55 px-4 py-0 text-xs uppercase tracking-[0.12em] hover:border-primary hover:bg-primary hover:text-white"
                       onClick={handleLogout}
                     >
                       Cerrar sesión
@@ -270,12 +341,12 @@ const Navbar = () => {
                 ) : (
                   <>
                     <Link to="/login" onClick={closeMenu}>
-                      <Button variant="secondary" className="w-full mb-2">
-                        Iniciar sesión
+                      <Button variant="secondary" className="mb-2 w-full rounded-full border-white/8 bg-black/55 hover:bg-black/75">
+                        Contacto
                       </Button>
                     </Link>
                     <Link to="/register" onClick={closeMenu}>
-                      <Button className="w-full">Asociate</Button>
+                      <Button className="w-full rounded-full">Empezar</Button>
                     </Link>
                   </>
                 )}

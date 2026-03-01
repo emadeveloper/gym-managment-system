@@ -72,31 +72,33 @@ const TrainingPrograms = () => {
     <section 
       id="programs" 
       ref={sectionRef}
-      className={`bg-gray-100 py-40 px-4 sm:px-6 lg:px-8 transition-all duration-1000 ${
+      className={`border-y border-gray-900 bg-background py-24 px-4 sm:px-6 lg:px-8 transition-all duration-1000 ${
         isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
       }`}
     >
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className={`text-center mb-16 transition-all duration-1000 delay-200 ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
         }`}>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-black mb-4 uppercase tracking-wide pb-3">
-            Nuestros Programas de Entrenamiento
+          <span className="inline-flex rounded-full border border-primary/25 bg-primary/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+            Disciplinas de la casa
+          </span>
+          <h2 className="mt-6 text-4xl md:text-5xl lg:text-6xl font-heading font-bold text-white uppercase tracking-tight">
+            Programas que se sostienen
           </h2>
-          <div className='flex justify-center'>
-            <p className="text-lg md:text-xl text-gray-700 max-w-3xl mx-auto mt-6">
-              Descubrí nuestros programas especializados diseñados para ayudarte a alcanzar tus objetivos.
+          <div className="flex justify-center">
+            <p className="mt-6 max-w-3xl text-lg md:text-xl text-gray-400">
+              Cada bloque combina estructura, progresión y seguimiento para que tu esfuerzo
+              tenga dirección, no solo intensidad.
             </p>
           </div>
         </div>
 
-        {/* Programs Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {programs.map((program, index) => (
             <div
               key={program.id}
-              className={`bg-[#202128] rounded-2xl p-8 shadow-2xl transition-all duration-300 hover:scale-105 group ${
+              className={`group rounded-3xl border border-gray-800 bg-surface p-8 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 ${
                 isVisible 
                   ? 'opacity-100 translate-y-0' 
                   : 'opacity-0 translate-y-10'
@@ -105,32 +107,29 @@ const TrainingPrograms = () => {
                 transitionDelay: isVisible ? `${400 + index * 100}ms` : '0ms'
               }}
             >
-              {/* Icon */}
               <div className="flex justify-center mb-6">
-                <div className="bg-white/20 rounded-full p-4 group-hover:bg-primary/80 transition-colors">
-                  <div className="text-white">
+                <div className="rounded-2xl border border-gray-800 bg-black/30 p-4 text-primary transition-colors group-hover:border-primary/40 group-hover:bg-primary/10">
+                  <div>
                     {program.icon}
                   </div>
                 </div>
               </div>
 
-              {/* Title */}
-              <h3 className="text-2xl font-bold text-white mb-4 text-center">
+              <h3 className="text-2xl font-heading font-bold text-white mb-4 text-center uppercase">
                 {program.title}
               </h3>
 
-              {/* Description */}
-              <p className="text-white/90 text-center leading-relaxed">
+              <p className="text-gray-400 text-center leading-relaxed">
                 {program.description}
               </p>
             </div>
           ))}
         </div>
 
-        {/* Additional Info */}
         <div className="mt-16 text-center">
-          <p className="text-gray-600 text-lg">
-            Todos nuestros programas están diseñados por entrenadores certificados y se adaptan a tu nivel de condición física
+          <p className="text-gray-500 text-lg">
+            Diseñados por entrenadores certificados y ajustados a tu nivel, para que el
+            progreso no dependa de improvisar.
           </p>
         </div>
       </div>
@@ -139,4 +138,3 @@ const TrainingPrograms = () => {
 };
 
 export default TrainingPrograms;
-

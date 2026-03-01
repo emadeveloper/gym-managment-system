@@ -1,23 +1,19 @@
 import React from 'react';
 import { Card } from '../../ui/Card';
 import { Button } from '../../ui/Button';
-import { pdf } from '@react-pdf/renderer';
-import NutritionPDF from './NutritionPdf';
-
 
 export const NutritionCard = ({ user, nutritionData }) => {
   const { dailyMacros } = nutritionData;
 
-  // Descargar PDF - Esta función SOLO se ejecuta al clickear el botón
   const downloadPDF = async () => {
     try {
-      // Create document PDF (without render it on UI)
+      const [{ pdf }, { default: NutritionPDF }] = await Promise.all([
+        import('@react-pdf/renderer'),
+        import('./NutritionPdf'),
+      ]);
+
       const doc = <NutritionPDF user={user} nutritionData={nutritionData} />;
-      
-      // Convert to PDF
       const asPdf = pdf(doc);
-      
-      // Download
       asPdf.download(`plan-nutricional-${user?.name || 'usuario'}.pdf`);
     } catch (error) {
       console.error('Error al descargar PDF:', error);

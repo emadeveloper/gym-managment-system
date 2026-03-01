@@ -83,7 +83,7 @@ export function Login() {
     <div className="min-h-screen w-full bg-black flex flex-col items-center justify-center px-4 sm:px-6 py-2 sm:py-8 lg:py-2">
       {/* Logo */}
       <div className="mb-2 sm:mb-4 lg:mb-3 flex justify-center">
-        <Link to="/home">
+        <Link to="/">
           <img 
             src={Logo} 
             alt="La Resistencia Logo" 

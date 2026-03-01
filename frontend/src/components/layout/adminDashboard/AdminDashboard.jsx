@@ -1,15 +1,22 @@
-import React, { useState } from 'react';
+import React, { Suspense, lazy, useState } from 'react';
 import { useAuth } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 import AdminSidebar from './components/AdminSidebar';
 import AdminHeader from './components/AdminHeader';
 
-// Importar componentes de cada módulo
-import UsersManagement from './users/UsersManagement';
-import RoutinesManagement from './userRoutines/RoutinesManagement';
-import NutritionManagement from './userNutrition/NutritionManagement';
-import Analytics from './analytics/Analytics';
+const UsersManagement = lazy(() => import('./users/UsersManagement'));
+const RoutinesManagement = lazy(() => import('./userRoutines/RoutinesManagement'));
+const NutritionManagement = lazy(() => import('./userNutrition/NutritionManagement'));
+const Analytics = lazy(() => import('./analytics/Analytics'));
+
+function AdminTabFallback() {
+  return (
+    <div className="rounded-3xl border border-gray-800 bg-surface p-8 text-sm uppercase tracking-[0.18em] text-gray-400">
+      Cargando módulo
+    </div>
+  );
+}
 
 /**
  * ADMIN DASHBOARD - Componente Principal
@@ -129,7 +136,9 @@ export function AdminDashboard() {
             key={activeTab}
             className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12 animate-fadeIn"
           >
-            {renderContent()}
+            <Suspense fallback={<AdminTabFallback />}>
+              {renderContent()}
+            </Suspense>
           </div>
         </main>
       </div>

@@ -9,9 +9,9 @@ export function Button({
   }) {
     const baseStyles = 'px-4 py-2 rounded-3xl font-bold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer';
     
-    const variants = {
+  const variants = {
       primary: 'bg-primary text-white hover:bg-red-600 active:bg-red-700',
-      secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300 active:bg-gray-400',
+      secondary: 'border border-gray-700 bg-surface text-white hover:border-primary/50 hover:bg-surface-light active:border-primary',
       danger: 'bg-red-500 text-white hover:bg-red-600 active:bg-red-700',
     };
   

@@ -1,27 +1,54 @@
-import React, { useState } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-
-import DashboardSidebar from '../components/layout/Dashboard/DashboardSidebar';
-import DashboardHeader from '../components/layout/Dashboard/DashboardHeader';
-
-import DashboardOverview from '../components/layout/dashboard/DashboardOverview';
-import MyRoutines from '../components/layout/dashboard/MyRoutines';
-import MyClasses from '../components/layout/Dashboard/MyClasses';
-import UserProfile from '../components/layout/dashboard/UserProfile';
-import Nutrition from '../components/layout/nutrition/Nutrition';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import mockNutritionData from '../components/layout/nutrition/mockNutritionData';
+import DashboardSidebar from '../components/layout/dashboard/DashboardSidebar';
+import DashboardHeader from '../components/layout/dashboard/DashboardHeader';
+
+const DashboardOverview = lazy(() => import('../components/layout/dashboard/DashboardOverview'));
+const MyRoutines = lazy(() => import('../components/layout/dashboard/MyRoutines'));
+const MyClasses = lazy(() => import('../components/layout/dashboard/MyClasses'));
+const UserProfile = lazy(() => import('../components/layout/dashboard/UserProfile'));
+const Nutrition = lazy(() => import('../components/layout/nutrition/Nutrition'));
+
+function TabFallback() {
+  return (
+    <div className="rounded-3xl border border-gray-800 bg-surface p-8 text-sm uppercase tracking-[0.18em] text-gray-400">
+      Cargando módulo
+    </div>
+  );
+}
 
 export function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  
-  const [activeTab, setActiveTab] = useState('overview');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const validTabs = ['overview', 'routines', 'nutrition', 'classes', 'profile'];
+  const requestedTab = searchParams.get('tab');
+  const normalizedTab = validTabs.includes(requestedTab) ? requestedTab : 'overview';
+  const [activeTab, setActiveTab] = useState(normalizedTab);
+
+  useEffect(() => {
+    if (normalizedTab !== activeTab) {
+      setActiveTab(normalizedTab);
+    }
+  }, [activeTab, normalizedTab]);
 
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  const handleTabChange = (nextTab) => {
+    setActiveTab(nextTab);
+
+    if (nextTab === 'overview') {
+      setSearchParams({}, { replace: true });
+      return;
+    }
+
+    setSearchParams({ tab: nextTab }, { replace: true });
   };
 
   /**
@@ -85,13 +112,13 @@ export function Dashboard() {
     <div className="min-h-screen bg-background text-foreground">
       
       {/* HEADER MOBILE - only mobile (lg:hidden) */}
-      <DashboardHeader
-        tabs={tabs}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        onLogout={handleLogout}
-        user={user}
-      />
+        <DashboardHeader
+          tabs={tabs}
+          activeTab={activeTab}
+          setActiveTab={handleTabChange}
+          onLogout={handleLogout}
+          user={user}
+        />
 
       {/* FLEX CONTAINER - Sidebar + Content */}
       <div className="flex">
@@ -100,7 +127,7 @@ export function Dashboard() {
         <DashboardSidebar
           tabs={tabs}
           activeTab={activeTab}
-          setActiveTab={setActiveTab}
+          setActiveTab={handleTabChange}
           onLogout={handleLogout}
           user={user}
         />
@@ -112,7 +139,9 @@ export function Dashboard() {
             key={activeTab}
             className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12 animate-fadeIn"
           >
-            {renderContent()}
+            <Suspense fallback={<TabFallback />}>
+              {renderContent()}
+            </Suspense>
           </div>
         </main>
       </div>

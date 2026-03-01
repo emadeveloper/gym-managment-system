@@ -48,6 +48,7 @@
 :root {
     /* --- Theme Colors --- */
     --gym-red: #cc0000;
+    --primary-light: #ff3333;
     --primary-bg: #111;
     --primary-text: #f0f0f0;
     --surface-bg: #222;
@@ -150,6 +151,8 @@ body, html {
     margin: 0;
     padding: 0;
     min-height: 100vh;
+    background-color: var(--primary-bg);
+    color: var(--primary-text);
 }
 
 /* Headings - Using Oswald font family */
