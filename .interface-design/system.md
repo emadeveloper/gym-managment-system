@@ -20,3 +20,5 @@ Key component patterns
 - Testimonial cards: use proof-oriented identity chips and labeled result rows instead of placeholder imagery.
 - Footer: use actionable support blocks and real expandable legal summaries; avoid fake affordances and placeholders.
 - Navbar: center the logo on its own column, keep left/right groups visually balanced, and give authenticated tabs equal spacing and equal control widths.
+- Admin roster screens: build them as stacked surfaces with a summary header, one control rail, then a roster/table surface. Use identity chips, restrained status pills, and bordered action buttons instead of plain text links.
+- Admin create forms: treat create/edit flows as full in-module pages, with a clear return action, grouped field sections, and responsive two-column layouts that collapse cleanly to one column on mobile.
