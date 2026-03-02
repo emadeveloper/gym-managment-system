@@ -4,15 +4,19 @@ import { Card } from "../../ui/Card";
 export const NutritionMeals = ({ meals }) => {
     return (
       <div className="space-y-6">
-        <h3 className="text-lg font-heading font-bold text-foreground pb-4 text-center sm:text-2xl pt-3">
-          Plan de Comidas Diarias
-        </h3>
+        <div className="text-center">
+          <p className="text-xs font-heading uppercase tracking-[0.18em] text-gray-500">
+            Planificación
+          </p>
+          <h3 className="pt-3 text-lg font-heading font-bold text-foreground sm:text-2xl">
+            Plan de comidas diarias
+          </h3>
+        </div>
   
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {meals.map((meal, mealIndex) => (
-            <Card key={mealIndex} className="bg-surface border border-gray-800">
-              {/* Meal header */}
-              <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-700">
+            <Card key={mealIndex} className="border border-gray-800 bg-surface p-5">
+              <div className="mb-4 flex items-center justify-between border-b border-gray-800 pb-4">
                 <div>
                   <h4 className="text-lg font-heading font-bold text-foreground">
                     {meal.name}
@@ -37,14 +41,14 @@ export const NutritionMeals = ({ meals }) => {
                     )}
   
                     {/* Info */}
-                    <div className="flex-1">
-                      <p className="font-semibold text-foreground text-sm">
-                        {item.name}
+                  <div className="flex-1">
+                    <p className="font-semibold text-foreground text-sm">
+                      {item.name}
                       </p>
                       <p className="text-xs text-gray-400 mb-2">
                         Porción: {item.portion}
                       </p>
-                      <div className="grid grid-cols-4 gap-1 text-xs">
+                      <div className="grid grid-cols-4 gap-2 text-xs">
                         <div>
                           <p className="text-gray-500">Cal</p>
                           <p className="font-semibold text-foreground">{item.calories}</p>
@@ -67,8 +71,7 @@ export const NutritionMeals = ({ meals }) => {
                 ))}
               </div>
   
-              {/* Total Macros */}
-              <div className="p-3 bg-surface-light rounded-lg border border-gray-700">
+              <div className="rounded-2xl border border-gray-800 bg-surface-light p-3">
                 <div className="flex justify-between items-center">
                   <span className="font-semibold text-foreground text-sm">
                     Total

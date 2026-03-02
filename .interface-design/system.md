@@ -22,3 +22,5 @@ Key component patterns
 - Navbar: center the logo on its own column, keep left/right groups visually balanced, and give authenticated tabs equal spacing and equal control widths.
 - Admin roster screens: build them as stacked surfaces with a summary header, one control rail, then a roster/table surface. Use identity chips, restrained status pills, and bordered action buttons instead of plain text links.
 - Admin create forms: treat create/edit flows as full in-module pages, with a clear return action, grouped field sections, and responsive two-column layouts that collapse cleanly to one column on mobile.
+- Admin programming screens: for routines and plans, mirror the roster pattern but swap member identity for training metadata chips, workload stats, and schedule signals. Keep creation flows as separate in-module pages, not modal overlays.
+- Nutrition modules: keep the same borders-only shell as routines, but use review timing, macro load, and assignment state as the primary signals. User nutrition screens should open with a summary surface, then stack exportable daily macros, distribution, meals, and support notes in clearly separated bordered sections.

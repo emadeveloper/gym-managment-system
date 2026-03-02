@@ -2,37 +2,11 @@ import React from 'react';
 import { Card } from '../../ui/Card';
 import { Button } from '../../ui/Button';
 import { Dumbbell } from 'lucide-react';
+import { useGymData } from '../../../context/GymDataContext';
 
 const MyRoutines = ({ user }) => {
-    const routines = [
-      {
-        id: 1,
-        name: 'Fuerza Full Body',
-        days: 4,
-        focus: 'Fuerza y recomposición corporal',
-        exercises: 8,
-        duration: '60 min',
-        status: 'En progreso',
-      },
-      {
-        id: 2,
-        name: 'Cardio HIIT',
-        days: 2,
-        focus: 'Resistencia y quema de calorías',
-        exercises: 5,
-        duration: '30 min',
-        status: 'Disponible',
-      },
-      {
-        id: 3,
-        name: 'Movilidad y Stretching',
-        days: 3,
-        focus: 'Flexibilidad y recuperación',
-        exercises: 12,
-        duration: '45 min',
-        status: 'Completado',
-      },
-    ];
+    const { getAssignedRoutinesForUser } = useGymData();
+    const routines = getAssignedRoutinesForUser(user?.email);
   
     return (
       <div className="space-y-2">
@@ -48,7 +22,8 @@ const MyRoutines = ({ user }) => {
           </p>
         </div>
   
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+        {routines.length > 0 ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           {routines.map((routine) => (
             <Card key={routine.id} className="bg-surface border border-gray-800">
               <div className="flex items-start justify-between mb-4">
@@ -57,16 +32,16 @@ const MyRoutines = ({ user }) => {
                     {routine.name}
                   </h3>
                   <p className="text-xs sm:text-sm text-gray-400 mt-1">
-                    {routine.focus}
+                    {routine.focusArea || routine.goal}
                   </p>
                 </div>
                 <span
                   className={`px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
-                    routine.status === 'En progreso'
+                    routine.status === 'Activa'
                       ? 'bg-primary/20 text-primary border border-primary/40'
-                      : routine.status === 'Completado'
-                      ? 'bg-green-600/20 text-green-400 border border-green-500/40'
-                      : 'bg-gray-700/20 text-gray-300 border border-gray-600/40'
+                      : routine.status === 'Archivada'
+                        ? 'bg-gray-700/20 text-gray-300 border border-gray-600/40'
+                        : 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/30'
                   }`}
                 >
                   {routine.status}
@@ -75,11 +50,11 @@ const MyRoutines = ({ user }) => {
   
               <div className="grid grid-cols-3 gap-4 mb-6 pb-6 border-b border-gray-700">
                 <div className="text-center">
-                  <p className="text-sm font-semibold text-foreground">{routine.days}</p>
+                  <p className="text-sm font-semibold text-foreground">{routine.sessionsPerWeek}</p>
                   <p className="text-xs text-gray-400">días/semana</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-semibold text-foreground">{routine.exercises}</p>
+                  <p className="text-sm font-semibold text-foreground">{routine.exercises || 0}</p>
                   <p className="text-xs text-gray-400">ejercicios</p>
                 </div>
                 <div className="text-center">
@@ -93,12 +68,26 @@ const MyRoutines = ({ user }) => {
                   Ver detalles
                 </Button>
                 <Button variant="secondary" className="w-full text-sm uppercase font-heading py-2">
-                  Comenzar entrenamiento
+                  {routine.status === 'Activa' ? 'Comenzar entrenamiento' : 'Ver planificación'}
                 </Button>
               </div>
             </Card>
           ))}
-        </div>
+          </div>
+        ) : (
+          <Card className="bg-surface border border-gray-800 text-center">
+            <h3 className="text-lg font-heading font-bold text-foreground mb-4 pb-1">
+              Todavía no tienes una rutina asignada
+            </h3>
+            <p className="text-gray-400 mb-4 pb-2">
+              Cuando el equipo te asigne una rutina desde administración, aparecerá aquí
+              automáticamente con su carga, duración y estado.
+            </p>
+            <Button className="w-full text-sm uppercase font-heading py-2">
+              Solicitar revisión
+            </Button>
+          </Card>
+        )}
   
         <Card className="bg-surface border border-gray-800 text-center">
           <h3 className="text-lg font-heading font-bold text-foreground mb-4 pb-1">

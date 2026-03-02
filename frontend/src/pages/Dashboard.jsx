@@ -1,8 +1,7 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useGymData } from '../context/GymDataContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-
-import mockNutritionData from '../components/layout/nutrition/mockNutritionData';
 import DashboardSidebar from '../components/layout/dashboard/DashboardSidebar';
 import DashboardHeader from '../components/layout/dashboard/DashboardHeader';
 
@@ -22,6 +21,7 @@ function TabFallback() {
 
 export function Dashboard() {
   const { user, logout } = useAuth();
+  const { getAssignedNutritionForUser } = useGymData();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const validTabs = ['overview', 'routines', 'nutrition', 'classes', 'profile'];
@@ -100,7 +100,7 @@ export function Dashboard() {
       case 'classes':
         return <MyClasses user={user} />;
       case 'nutrition':
-        return <Nutrition user={user} nutritionData={mockNutritionData} />
+        return <Nutrition user={user} nutritionData={getAssignedNutritionForUser(user?.email)?.nutritionData} />
       case 'profile':
         return <UserProfile user={user} onLogout={handleLogout} />;
       default:

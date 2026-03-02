@@ -1,42 +1,8 @@
 import React, { useState } from 'react';
 import { Card } from '../../../ui/Card';
 import { Search, Download, Plus, ShieldCheck, Users, Clock3 } from 'lucide-react';
+import { useGymData } from '../../../../context/GymDataContext';
 import UsersCreateView from './UsersCreateView';
-
-const MOCK_USERS = [
-  {
-    id: 1,
-    name: 'Juan Pérez',
-    email: 'juan@example.com',
-    plan: 'Gold',
-    status: 'Activo',
-    lastCheckIn: 'Hoy · 08:15',
-  },
-  {
-    id: 2,
-    name: 'María López',
-    email: 'maria@example.com',
-    plan: 'Silver',
-    status: 'Activo',
-    lastCheckIn: 'Ayer · 19:40',
-  },
-  {
-    id: 3,
-    name: 'Carlos Díaz',
-    email: 'carlos@example.com',
-    plan: 'Bronze',
-    status: 'Inactivo',
-    lastCheckIn: 'Hace 14 días',
-  },
-  {
-    id: 4,
-    name: 'Ana Gómez',
-    email: 'ana@example.com',
-    plan: 'Platinum',
-    status: 'Activo',
-    lastCheckIn: 'Hoy · 06:30',
-  },
-];
 
 const FILTERS = [
   { label: 'Todos', tone: 'default', active: true },
@@ -44,36 +10,6 @@ const FILTERS = [
   { label: 'Inactivos', tone: 'danger', active: false },
 ];
 
-const METRICS = [
-  {
-    label: 'Total de miembros',
-    value: '1,400',
-    detail: '+32 en los últimos 30 días',
-    icon: Users,
-    accent: 'text-white',
-  },
-  {
-    label: 'Miembros activos',
-    value: '1,120',
-    detail: '80% con actividad reciente',
-    icon: ShieldCheck,
-    accent: 'text-emerald-400',
-  },
-  {
-    label: 'Nuevos este mes',
-    value: '84',
-    detail: '+18% vs. el mes pasado',
-    icon: Plus,
-    accent: 'text-primary',
-  },
-  {
-    label: 'Últimos check-ins',
-    value: '312',
-    detail: 'Movimientos registrados hoy',
-    icon: Clock3,
-    accent: 'text-white',
-  },
-];
 
 function getUserInitials(name) {
   return name
@@ -110,6 +46,56 @@ function getFilterClasses(filter) {
 
 export const UsersManagement = () => {
   const [isCreatingUser, setIsCreatingUser] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const { members } = useGymData();
+
+  const filteredUsers = members.filter((member) => {
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+
+    if (!normalizedSearch) {
+      return true;
+    }
+
+    return (
+      member.name.toLowerCase().includes(normalizedSearch) ||
+      member.email.toLowerCase().includes(normalizedSearch) ||
+      member.plan.toLowerCase().includes(normalizedSearch)
+    );
+  });
+
+  const activeMembers = members.filter((member) => member.status === 'Activo').length;
+  const pendingMembers = members.filter((member) => member.status === 'Pendiente').length;
+  const recentMembers = members.filter((member) => member.lastCheckIn === 'Recién creado').length;
+  const metrics = [
+    {
+      label: 'Total de miembros',
+      value: String(members.length),
+      detail: 'Roster disponible para asignación y seguimiento',
+      icon: Users,
+      accent: 'text-white',
+    },
+    {
+      label: 'Miembros activos',
+      value: String(activeMembers),
+      detail: 'Con estado operativo vigente',
+      icon: ShieldCheck,
+      accent: 'text-emerald-400',
+    },
+    {
+      label: 'Nuevos este mes',
+      value: String(recentMembers),
+      detail: 'Altas creadas desde el panel',
+      icon: Plus,
+      accent: 'text-primary',
+    },
+    {
+      label: 'Pendientes',
+      value: String(pendingMembers),
+      detail: 'Requieren activación o seguimiento',
+      icon: Clock3,
+      accent: 'text-white',
+    },
+  ];
 
   if (isCreatingUser) {
     return <UsersCreateView onBack={() => setIsCreatingUser(false)} />;
@@ -154,7 +140,9 @@ export const UsersManagement = () => {
               <input
                 type="text"
                 placeholder="Buscar por nombre, email o plan..."
-                className="w-full bg-transparent text-sm text-gray-200 placeholder:text-gray-600"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                className="w-full bg-transparent text-sm text-gray-200 placeholder:text-gray-500"
               />
             </label>
 
@@ -180,21 +168,21 @@ export const UsersManagement = () => {
           </p>
           <div className="mt-3 grid grid-cols-3 gap-3">
             <div className="rounded-2xl border border-gray-800 bg-surface-light px-3 py-3 text-center">
-              <p className="text-lg font-heading font-bold text-white">312</p>
+              <p className="text-lg font-heading font-bold text-white">{members.length}</p>
               <p className="mt-1 text-[11px] uppercase tracking-[0.12em] text-gray-500">
-                Check-ins
+                Miembros
               </p>
             </div>
             <div className="rounded-2xl border border-gray-800 bg-surface-light px-3 py-3 text-center">
-              <p className="text-lg font-heading font-bold text-emerald-400">93</p>
+              <p className="text-lg font-heading font-bold text-emerald-400">{activeMembers}</p>
               <p className="mt-1 text-[11px] uppercase tracking-[0.12em] text-gray-500">
-                Presentes
+                Activos
               </p>
             </div>
             <div className="rounded-2xl border border-gray-800 bg-surface-light px-3 py-3 text-center">
-              <p className="text-lg font-heading font-bold text-primary">18</p>
+              <p className="text-lg font-heading font-bold text-primary">{pendingMembers}</p>
               <p className="mt-1 text-[11px] uppercase tracking-[0.12em] text-gray-500">
-                Alertas
+                Pendientes
               </p>
             </div>
           </div>
@@ -202,7 +190,7 @@ export const UsersManagement = () => {
       </section>
 
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {METRICS.map((metric) => {
+        {metrics.map((metric) => {
           const Icon = metric.icon;
 
           return (
@@ -240,12 +228,12 @@ export const UsersManagement = () => {
             </p>
           </div>
           <div className="rounded-2xl border border-gray-800 bg-black/30 px-4 py-3 text-xs uppercase tracking-[0.14em] text-gray-400">
-            1,400 registros totales
+            {filteredUsers.length} registros visibles
           </div>
         </div>
 
         <div className="mt-4 space-y-3 md:hidden">
-          {MOCK_USERS.map((user) => (
+          {filteredUsers.map((user) => (
             <div
               key={user.id}
               className="rounded-2xl border border-gray-800 bg-surface-light p-4"
@@ -317,7 +305,7 @@ export const UsersManagement = () => {
                 </tr>
               </thead>
               <tbody>
-                {MOCK_USERS.map((user) => (
+                {filteredUsers.map((user) => (
                   <tr
                     key={user.id}
                     className="border-b border-gray-900/70 transition-colors last:border-b-0 hover:bg-black/20"
@@ -364,6 +352,12 @@ export const UsersManagement = () => {
             </table>
           </div>
         </div>
+
+        {filteredUsers.length === 0 && (
+          <div className="mt-4 rounded-2xl border border-dashed border-gray-800 bg-black/20 px-4 py-8 text-center text-sm text-gray-400">
+            No hay clientes que coincidan con la búsqueda actual.
+          </div>
+        )}
       </Card>
     </div>
   );

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ArrowLeft, Save, UserPlus } from 'lucide-react';
 import { Card } from '../../../ui/Card';
+import { useGymData } from '../../../../context/GymDataContext';
 
 const FIELD_GROUPS = [
   {
@@ -60,13 +61,13 @@ const FIELD_GROUPS = [
   },
 ];
 
-function Field({ field }) {
+function Field({ field, value, onChange }) {
   const baseClassName =
     'h-12 w-full rounded-2xl border border-gray-800 bg-black/25 px-4 text-sm text-gray-100 outline-none transition-colors placeholder:text-gray-400 focus:border-primary/40';
 
   if (field.type === 'select') {
     return (
-      <select name={field.name} defaultValue="" className={baseClassName}>
+      <select name={field.name} value={value} onChange={onChange} className={baseClassName}>
         <option value="" disabled className="text-gray-400">
           Seleccionar
         </option>
@@ -83,6 +84,8 @@ function Field({ field }) {
     <input
       name={field.name}
       type={field.type}
+      value={value}
+      onChange={onChange}
       placeholder={field.placeholder}
       className={baseClassName}
     />
@@ -90,6 +93,39 @@ function Field({ field }) {
 }
 
 export default function UsersCreateView({ onBack }) {
+  const { addMember } = useGymData();
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    dni: '',
+    birthDate: '',
+    email: '',
+    phone: '',
+    emergencyName: '',
+    emergencyPhone: '',
+    plan: '',
+    status: '',
+    startDate: '',
+    paymentMethod: '',
+    notes: '',
+  });
+
+  const handleFieldChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((currentData) => ({ ...currentData, [name]: value }));
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    if (!formData.email || !formData.firstName || !formData.lastName) {
+      return;
+    }
+
+    addMember(formData);
+    onBack();
+  };
+
   return (
     <div className="space-y-6 lg:space-y-8">
       <section className="rounded-3xl border border-gray-800 bg-surface p-5 sm:p-6 lg:p-8">
@@ -157,7 +193,7 @@ export default function UsersCreateView({ onBack }) {
         </Card>
       </section>
 
-      <form className="space-y-4" onSubmit={(event) => event.preventDefault()}>
+      <form className="space-y-4" onSubmit={handleSubmit}>
         {FIELD_GROUPS.map((group) => (
           <Card
             key={group.title}
@@ -176,7 +212,7 @@ export default function UsersCreateView({ onBack }) {
                   <label className="block text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
                     {field.label}
                   </label>
-                  <Field field={field} />
+                  <Field field={field} value={formData[field.name]} onChange={handleFieldChange} />
                 </div>
               ))}
             </div>
@@ -191,6 +227,9 @@ export default function UsersCreateView({ onBack }) {
               </label>
               <textarea
                 rows={5}
+                name="notes"
+                value={formData.notes}
+                onChange={handleFieldChange}
                 placeholder="Notas para el equipo, restricciones médicas, seguimiento inicial..."
                 className="w-full rounded-2xl border border-gray-800 bg-black/25 px-4 py-3 text-sm text-gray-100 outline-none transition-colors placeholder:text-gray-400 focus:border-primary/40"
               />
