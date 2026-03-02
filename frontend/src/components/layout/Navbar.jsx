@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "../ui/Button";
 import { useScrollToSection } from "../../hooks/useScrollToSection";
@@ -32,21 +32,27 @@ const Navbar = () => {
       : "";
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const isScrolledRef = useRef(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrollY(window.scrollY);
+      const nextIsScrolled = window.scrollY > 10;
+      if (isScrolledRef.current === nextIsScrolled) {
+        return;
+      }
+
+      isScrolledRef.current = nextIsScrolled;
+      setIsScrolled(nextIsScrolled);
     };
-    window.addEventListener("scroll", handleScroll);
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrolled = scrollY > 10;
-  const opacity = Math.max(0.75, 1 - scrollY / 250);
-  const backgroundColor = scrolled
-    ? `rgba(0, 0, 0, ${opacity})`
-    : "transparent";
+  const backgroundColor = isScrolled ? "rgba(0, 0, 0, 0.88)" : "rgba(0, 0, 0, 0.78)";
 
   // ========== MENU FOR PUBLIC USERS ==========
   const menuItemsPublic = [
