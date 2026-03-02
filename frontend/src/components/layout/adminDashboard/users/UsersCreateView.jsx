@@ -19,7 +19,9 @@ const FIELD_GROUPS = [
     description: 'Canales de comunicación y contacto de emergencia.',
     fields: [
       { name: 'email', label: 'Email', type: 'email', placeholder: 'cliente@email.com' },
+      { name: 'password', label: 'Contraseña temporal', type: 'password', placeholder: 'Min. 6 caracteres' },
       { name: 'phone', label: 'Teléfono', type: 'tel', placeholder: '+54 11 5555 5555' },
+      { name: 'confirmPassword', label: 'Confirmar contraseña', type: 'password', placeholder: 'Repetir contraseña' },
       {
         name: 'emergencyName',
         label: 'Contacto de emergencia',
@@ -94,12 +96,16 @@ function Field({ field, value, onChange }) {
 
 export default function UsersCreateView({ onBack }) {
   const { addMember } = useGymData();
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     dni: '',
     birthDate: '',
     email: '',
+    password: '',
+    confirmPassword: '',
     phone: '',
     emergencyName: '',
     emergencyPhone: '',
@@ -115,15 +121,30 @@ export default function UsersCreateView({ onBack }) {
     setFormData((currentData) => ({ ...currentData, [name]: value }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setSubmitError('');
 
-    if (!formData.email || !formData.firstName || !formData.lastName) {
+    if (!formData.email || !formData.firstName || !formData.lastName || !formData.password) {
+      setSubmitError('Completá nombre, apellido, email y contraseña.');
       return;
     }
 
-    addMember(formData);
-    onBack();
+    if (formData.password !== formData.confirmPassword) {
+      setSubmitError('Las contraseñas no coinciden.');
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      await addMember(formData);
+      onBack();
+    } catch (error) {
+      setSubmitError(error.response?.data?.message || 'No se pudo registrar el cliente.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -194,6 +215,12 @@ export default function UsersCreateView({ onBack }) {
       </section>
 
       <form className="space-y-4" onSubmit={handleSubmit}>
+        {submitError ? (
+          <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            {submitError}
+          </div>
+        ) : null}
+
         {FIELD_GROUPS.map((group) => (
           <Card
             key={group.title}
@@ -254,10 +281,11 @@ export default function UsersCreateView({ onBack }) {
                 </button>
                 <button
                   type="submit"
+                  disabled={submitting}
                   className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-primary/30 bg-primary px-4 text-xs font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-primary/90"
                 >
                   <Save className="h-4 w-4" />
-                  Guardar cliente
+                  {submitting ? 'Guardando...' : 'Guardar cliente'}
                 </button>
               </div>
             </div>

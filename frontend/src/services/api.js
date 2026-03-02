@@ -25,7 +25,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response.status === 401) {
+        if (error.response?.status === 401) {
             localStorage.removeItem("token");
             window.location.href = "/login";
         }
@@ -35,8 +35,22 @@ api.interceptors.response.use(
 
 // Auth endpoints
 export const authAPI = {
-    register: (email, password) =>
-        api.post("/auth/register", {email, password}),
+    register: async (email, password) => {
+        const response = await api.post("/auth/register", { email, password });
+
+        return {
+            ...response,
+            data: {
+                token: response.data.token,
+                user: {
+                    id: response.data.id,
+                    email: response.data.email,
+                    name: response.data.name || "",
+                    role: response.data.role,
+                },
+            },
+        };
+    },
 
     login: (email, password) =>
         api.post("/auth/login", {email, password}),

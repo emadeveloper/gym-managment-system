@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
 import mockNutritionData, { nutritionVariations } from '../components/layout/nutrition/mockNutritionData';
+import { authAPI, userAPI } from '../services/api';
 
-const MEMBERS_STORAGE_KEY = 'lr_members';
+const MEMBER_META_STORAGE_KEY = 'lr_member_meta';
 const ROUTINES_STORAGE_KEY = 'lr_routines';
 const NUTRITION_STORAGE_KEY = 'lr_nutrition_plans';
 
@@ -173,6 +174,17 @@ const DEFAULT_NUTRITION_PLANS = [
   },
 ];
 
+const DEFAULT_MEMBER_META = DEFAULT_MEMBERS.reduce((accumulator, member) => {
+  accumulator[member.email.toLowerCase()] = {
+    name: member.name,
+    plan: member.plan,
+    status: member.status,
+    lastCheckIn: member.lastCheckIn,
+  };
+
+  return accumulator;
+}, {});
+
 const GymDataContext = createContext(null);
 
 function readStorage(key, fallbackValue) {
@@ -221,28 +233,56 @@ function formatDisplayDate(dateValue) {
     : 'Pendiente';
 }
 
-function buildMemberFromAuthUser(user) {
+function mergeMemberRecord(apiUser, meta = {}) {
+  const email = apiUser?.email || meta.email || '';
+
   return {
-    id: Date.now(),
-    name: user.name || formatNameFromEmail(user.email),
-    email: user.email,
-    plan: user.plan || 'Pendiente',
-    status: 'Activo',
-    lastCheckIn: 'Pendiente',
+    id: apiUser?.id || meta.id || email || Date.now(),
+    name: meta.name || apiUser?.name || formatNameFromEmail(email),
+    email,
+    role: apiUser?.role || meta.role || 'USER',
+    plan: meta.plan || 'Pendiente',
+    status: meta.status || 'Activo',
+    lastCheckIn: meta.lastCheckIn || 'Pendiente',
+    phone: meta.phone || '',
+    dni: meta.dni || '',
+    birthDate: meta.birthDate || '',
+    emergencyName: meta.emergencyName || '',
+    emergencyPhone: meta.emergencyPhone || '',
+    startDate: meta.startDate || '',
+    paymentMethod: meta.paymentMethod || '',
+    notes: meta.notes || '',
   };
+}
+
+function buildMembersFromMetadata(memberMeta) {
+  return Object.entries(memberMeta).map(([email, meta]) =>
+    mergeMemberRecord(
+      {
+        id: meta.id || email,
+        email,
+        name: meta.name,
+        role: meta.role || 'USER',
+      },
+      meta,
+    ),
+  );
 }
 
 export function GymDataProvider({ children }) {
   const { user } = useAuth();
-  const [members, setMembers] = useState(() => readStorage(MEMBERS_STORAGE_KEY, DEFAULT_MEMBERS));
+  const [memberMeta, setMemberMeta] = useState(() =>
+    readStorage(MEMBER_META_STORAGE_KEY, DEFAULT_MEMBER_META),
+  );
+  const [members, setMembers] = useState(() => buildMembersFromMetadata(DEFAULT_MEMBER_META));
   const [routines, setRoutines] = useState(() => readStorage(ROUTINES_STORAGE_KEY, DEFAULT_ROUTINES));
   const [nutritionPlans, setNutritionPlans] = useState(() =>
     readStorage(NUTRITION_STORAGE_KEY, DEFAULT_NUTRITION_PLANS),
   );
 
   useEffect(() => {
-    writeStorage(MEMBERS_STORAGE_KEY, members);
-  }, [members]);
+    writeStorage(MEMBER_META_STORAGE_KEY, memberMeta);
+  }, [memberMeta]);
 
   useEffect(() => {
     writeStorage(ROUTINES_STORAGE_KEY, routines);
@@ -253,30 +293,58 @@ export function GymDataProvider({ children }) {
   }, [nutritionPlans]);
 
   useEffect(() => {
-    if (!user?.email || user.role === 'ADMIN') {
-      return;
-    }
+    let isActive = true;
 
-    setMembers((currentMembers) => {
-      const existingMember = currentMembers.find(
-        (member) => member.email.toLowerCase() === user.email.toLowerCase(),
-      );
-
-      if (existingMember) {
-        return currentMembers;
+    async function syncMembers() {
+      if (!user?.email) {
+        if (isActive) {
+          setMembers(buildMembersFromMetadata(memberMeta));
+        }
+        return;
       }
 
-      return [...currentMembers, buildMemberFromAuthUser(user)];
-    });
-  }, [user]);
+      if (user.role !== 'ADMIN') {
+        if (isActive) {
+          setMembers([
+            mergeMemberRecord(user, memberMeta[user.email.toLowerCase()]),
+          ]);
+        }
+        return;
+      }
 
-  const addMember = (memberData) => {
+      try {
+        const response = await userAPI.getAll();
+        if (!isActive) {
+          return;
+        }
+
+        setMembers(
+          response.data.map((apiUser) =>
+            mergeMemberRecord(apiUser, memberMeta[apiUser.email.toLowerCase()]),
+          ),
+        );
+      } catch {
+        if (isActive) {
+          setMembers(buildMembersFromMetadata(memberMeta));
+        }
+      }
+    }
+
+    syncMembers();
+
+    return () => {
+      isActive = false;
+    };
+  }, [user, memberMeta]);
+
+  const addMember = async (memberData) => {
     const fullName = `${memberData.firstName} ${memberData.lastName}`.trim();
-
-    const nextMember = {
-      id: Date.now(),
+    const normalizedEmail = memberData.email.toLowerCase();
+    const response = await authAPI.register(memberData.email, memberData.password);
+    const createdUser = response.data.user;
+    const nextMeta = {
+      id: createdUser.id,
       name: fullName || formatNameFromEmail(memberData.email),
-      email: memberData.email,
       plan: memberData.plan || 'Pendiente',
       status: memberData.status || 'Pendiente',
       lastCheckIn: 'Recién creado',
@@ -288,10 +356,30 @@ export function GymDataProvider({ children }) {
       startDate: memberData.startDate || '',
       paymentMethod: memberData.paymentMethod || '',
       notes: memberData.notes || '',
+      role: createdUser.role,
     };
 
-    setMembers((currentMembers) => [...currentMembers, nextMember]);
-    return nextMember;
+    setMemberMeta((currentMeta) => ({
+      ...currentMeta,
+      [normalizedEmail]: nextMeta,
+    }));
+
+    const createdMember = mergeMemberRecord(createdUser, nextMeta);
+    setMembers((currentMembers) => {
+      const existingMemberIndex = currentMembers.findIndex(
+        (member) => member.email.toLowerCase() === normalizedEmail,
+      );
+
+      if (existingMemberIndex === -1) {
+        return [createdMember, ...currentMembers];
+      }
+
+      return currentMembers.map((member, index) =>
+        index === existingMemberIndex ? createdMember : member,
+      );
+    });
+
+    return createdMember;
   };
 
   const addRoutine = (routineData) => {
