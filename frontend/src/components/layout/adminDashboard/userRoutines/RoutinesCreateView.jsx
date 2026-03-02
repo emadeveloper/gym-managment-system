@@ -3,6 +3,24 @@ import { ArrowLeft, Save, ClipboardPlus, CalendarClock, Dumbbell } from 'lucide-
 import { Card } from '../../../ui/Card';
 import { useGymData } from '../../../../context/GymDataContext';
 
+const EMPTY_FORM = {
+  name: '',
+  assignedMemberEmail: '',
+  goal: '',
+  level: '',
+  duration: '',
+  sessionsPerWeek: '',
+  weeks: '',
+  restWindow: '',
+  status: '',
+  coach: '',
+  exercises: '',
+  focusArea: '',
+  equipment: '',
+  notesTag: '',
+  notes: '',
+};
+
 const FIELD_GROUPS = [
   {
     title: 'Base de la rutina',
@@ -99,25 +117,13 @@ function Field({ field, value, onChange, members }) {
   );
 }
 
-export default function RoutinesCreateView({ onBack }) {
+export default function RoutinesCreateView({ onBack, initialData = null }) {
   const { members, addRoutine } = useGymData();
-  const [formData, setFormData] = useState({
-    name: '',
-    assignedMemberEmail: '',
-    goal: '',
-    level: '',
-    duration: '',
-    sessionsPerWeek: '',
-    weeks: '',
-    restWindow: '',
-    status: '',
-    coach: '',
-    exercises: '',
-    focusArea: '',
-    equipment: '',
-    notesTag: '',
-    notes: '',
-  });
+  const isEditing = Boolean(initialData?.id);
+  const [formData, setFormData] = useState(() => ({
+    ...EMPTY_FORM,
+    ...initialData,
+  }));
 
   const assignableMembers = useMemo(
     () => members.filter((member) => member.status !== 'Inactivo'),
@@ -149,11 +155,14 @@ export default function RoutinesCreateView({ onBack }) {
               Programación
             </p>
             <h1 className="mt-3 text-3xl font-heading font-bold uppercase text-foreground sm:text-4xl">
-              Alta de Nueva Rutina
+              {isEditing ? 'Editar Rutina' : initialData ? 'Personalizar Plantilla' : 'Alta de Nueva Rutina'}
             </h1>
             <p className="mt-3 text-sm leading-7 text-gray-400 sm:text-base">
-              Configurá una nueva rutina con objetivo, frecuencia y estructura clara para que
-              el equipo pueda asignarla o iterarla sin rehacer la base.
+              {isEditing
+                ? 'Ajustá la rutina existente en tiempo real y guardá los cambios sin salir del flujo operativo.'
+                : initialData
+                  ? 'Partí de una base ya estructurada, ajustá la carga según el cliente y guardá una versión lista para ejecutar.'
+                  : 'Configurá una nueva rutina con objetivo, frecuencia y estructura clara para que el equipo pueda asignarla o iterarla sin rehacer la base.'}
             </p>
           </div>
 
@@ -290,7 +299,7 @@ export default function RoutinesCreateView({ onBack }) {
                   className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-primary/30 bg-primary px-4 text-xs font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-primary/90"
                 >
                   <Save className="h-4 w-4" />
-                  Guardar rutina
+                  {isEditing ? 'Actualizar rutina' : 'Guardar rutina'}
                 </button>
               </div>
             </div>

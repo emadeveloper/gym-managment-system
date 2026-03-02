@@ -211,6 +211,16 @@ function formatNameFromEmail(email = '') {
     .join(' ');
 }
 
+function formatDisplayDate(dateValue) {
+  return dateValue
+    ? new Date(dateValue).toLocaleDateString('es-AR', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+      })
+    : 'Pendiente';
+}
+
 function buildMemberFromAuthUser(user) {
   return {
     id: Date.now(),
@@ -290,7 +300,6 @@ export function GymDataProvider({ children }) {
     );
 
     const nextRoutine = {
-      id: Date.now(),
       name: routineData.name,
       goal: routineData.goal,
       level: routineData.level,
@@ -309,8 +318,18 @@ export function GymDataProvider({ children }) {
       exercises: Number(routineData.exercises) || Math.max(4, Number(routineData.sessionsPerWeek) * 2),
     };
 
-    setRoutines((currentRoutines) => [nextRoutine, ...currentRoutines]);
-    return nextRoutine;
+    const routineId = routineData.id || Date.now();
+    const finalRoutine = { id: routineId, ...nextRoutine };
+
+    if (routineData.id) {
+      setRoutines((currentRoutines) =>
+        currentRoutines.map((routine) => (routine.id === routineData.id ? finalRoutine : routine)),
+      );
+      return finalRoutine;
+    }
+
+    setRoutines((currentRoutines) => [finalRoutine, ...currentRoutines]);
+    return finalRoutine;
   };
 
   const getAssignedRoutinesForUser = (email) =>
@@ -342,16 +361,9 @@ export function GymDataProvider({ children }) {
     const memberName =
       assignedMember?.name || formatNameFromEmail(planData.assignedMemberEmail);
     const today = new Date();
-    const reviewDate = planData.reviewDate
-      ? new Date(planData.reviewDate).toLocaleDateString('es-AR', {
-          day: '2-digit',
-          month: 'long',
-          year: 'numeric',
-        })
-      : 'Pendiente';
+    const reviewDate = formatDisplayDate(planData.reviewDate);
 
     const nextPlan = {
-      id: Date.now(),
       name: planData.name,
       goal: planData.goal,
       calories: macros.calories,
@@ -386,17 +398,23 @@ export function GymDataProvider({ children }) {
               .map((item) => item.trim())
               .filter(Boolean)
           : mockNutritionData.tips,
-        createdDate: today.toLocaleDateString('es-AR', {
-          day: '2-digit',
-          month: 'long',
-          year: 'numeric',
-        }),
+        createdDate: planData.createdDate || formatDisplayDate(today),
         nextReview: reviewDate,
       },
     };
 
-    setNutritionPlans((currentPlans) => [nextPlan, ...currentPlans]);
-    return nextPlan;
+    const planId = planData.id || Date.now();
+    const finalPlan = { id: planId, ...nextPlan };
+
+    if (planData.id) {
+      setNutritionPlans((currentPlans) =>
+        currentPlans.map((plan) => (plan.id === planData.id ? finalPlan : plan)),
+      );
+      return finalPlan;
+    }
+
+    setNutritionPlans((currentPlans) => [finalPlan, ...currentPlans]);
+    return finalPlan;
   };
 
   const getAssignedNutritionForUser = (email) =>

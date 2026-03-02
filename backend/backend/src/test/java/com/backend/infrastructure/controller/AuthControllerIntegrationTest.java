@@ -1,5 +1,6 @@
 package com.backend.infrastructure.controller;
 
+import com.backend.support.PostgresContainerTestSupport;
 import com.backend.presentation.dto.RegisterUserRequest;
 import com.backend.infrastructure.adapter.dto.LoginRequestDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -19,7 +21,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
-class AuthControllerIntegrationTest {
+@Testcontainers(disabledWithoutDocker = true)
+class AuthControllerIntegrationTest extends PostgresContainerTestSupport {
 
     @Autowired
     private MockMvc mockMvc;

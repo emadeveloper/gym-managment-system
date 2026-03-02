@@ -3,6 +3,7 @@ package com.backend.infrastructure.adapter.out.persistence.mapper;
 import com.backend.domain.model.User;
 import com.backend.domain.valueobject.Email;
 import com.backend.infrastructure.adapter.out.persistence.entity.UserJpaEntity;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -89,7 +90,7 @@ public class UserPersistenceMapper {
 
         // Obtain trainerids from relation (if it's loaded)
         List<UUID> trainerIds = new ArrayList<>();
-        if (entity.getTrainers() != null && !entity.getTrainers().isEmpty()) {
+        if (entity.getTrainers() != null && Hibernate.isInitialized(entity.getTrainers()) && !entity.getTrainers().isEmpty()) {
             entity.getTrainers().forEach(trainer -> trainerIds.add(trainer.getId()));
         }
 

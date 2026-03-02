@@ -5,9 +5,9 @@ import { useGymData } from '../../../../context/GymDataContext';
 import UsersCreateView from './UsersCreateView';
 
 const FILTERS = [
-  { label: 'Todos', tone: 'default', active: true },
-  { label: 'Activos', tone: 'success', active: false },
-  { label: 'Inactivos', tone: 'danger', active: false },
+  { label: 'Todos', tone: 'default' },
+  { label: 'Activos', tone: 'success' },
+  { label: 'Inactivos', tone: 'danger' },
 ];
 
 
@@ -47,9 +47,40 @@ function getFilterClasses(filter) {
 export const UsersManagement = () => {
   const [isCreatingUser, setIsCreatingUser] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const { members } = useGymData();
+  const [activeFilter, setActiveFilter] = useState('Todos');
+  const { members, routines, nutritionPlans } = useGymData();
 
-  const filteredUsers = members.filter((member) => {
+  const usersWithAssignments = members.map((member) => {
+    const memberRoutine =
+      routines.find(
+        (routine) =>
+          routine.assignedMemberEmail &&
+          routine.assignedMemberEmail.toLowerCase() === member.email.toLowerCase(),
+      ) || null;
+    const memberNutrition =
+      nutritionPlans.find(
+        (plan) =>
+          plan.assignedMemberEmail &&
+          plan.assignedMemberEmail.toLowerCase() === member.email.toLowerCase(),
+      ) || null;
+
+    return {
+      ...member,
+      currentRoutine: memberRoutine,
+      currentNutritionPlan: memberNutrition,
+    };
+  });
+
+  const filteredUsers = usersWithAssignments.filter((member) => {
+    const matchesFilter =
+      activeFilter === 'Todos' ||
+      (activeFilter === 'Activos' && member.status === 'Activo') ||
+      (activeFilter === 'Inactivos' && member.status !== 'Activo');
+
+    if (!matchesFilter) {
+      return false;
+    }
+
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
     if (!normalizedSearch) {
@@ -104,31 +135,18 @@ export const UsersManagement = () => {
   return (
     <div className="space-y-6 lg:space-y-8">
       <section className="rounded-3xl border border-gray-800 bg-surface p-5 sm:p-6 lg:p-8">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-3xl">
-            <p className="text-xs font-heading uppercase tracking-[0.24em] text-gray-500">
-              Administración
-            </p>
-            <h1 className="mt-3 text-3xl font-heading font-bold uppercase text-foreground sm:text-4xl">
-              Gestión de Usuarios
-            </h1>
-            <p className="mt-3 text-sm leading-7 text-gray-400 sm:text-base">
-              Supervisá miembros, actividad reciente y estado de sus planes desde un solo
-              frente. El objetivo es detectar rápido quién está entrenando, quién cayó en
-              inactividad y dónde intervenir.
-            </p>
-          </div>
-
-          <div className="grid w-full gap-3 sm:grid-cols-3 lg:w-auto lg:min-w-[26rem]">
-            {FILTERS.map((filter) => (
-              <button
-                key={filter.label}
-                className={`inline-flex h-11 items-center justify-center rounded-2xl border px-4 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${getFilterClasses(filter)}`}
-              >
-                {filter.label}
-              </button>
-            ))}
-          </div>
+        <div className="max-w-3xl">
+          <p className="text-xs font-heading uppercase tracking-[0.24em] text-gray-500">
+            Administración
+          </p>
+          <h1 className="mt-3 text-3xl font-heading font-bold uppercase text-foreground sm:text-4xl">
+            Gestión de Usuarios
+          </h1>
+          <p className="mt-3 text-sm leading-7 text-gray-400 sm:text-base">
+            Supervisá miembros, actividad reciente y estado de sus planes desde un solo
+            frente. El objetivo es detectar rápido quién está entrenando, quién cayó en
+            inactividad y dónde intervenir.
+          </p>
         </div>
       </section>
 
@@ -218,7 +236,7 @@ export const UsersManagement = () => {
       </section>
 
       <Card className="border border-gray-800 bg-surface p-4 sm:p-6">
-        <div className="flex flex-col gap-4 border-b border-gray-800 pb-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex flex-col gap-4 border-b border-gray-800 pb-4">
           <div>
             <p className="text-xs font-heading uppercase tracking-[0.2em] text-gray-500">
               Roster de miembros
@@ -227,8 +245,24 @@ export const UsersManagement = () => {
               Vista rápida de usuarios, plan, actividad reciente y acciones disponibles.
             </p>
           </div>
-          <div className="rounded-2xl border border-gray-800 bg-black/30 px-4 py-3 text-xs uppercase tracking-[0.14em] text-gray-400">
-            {filteredUsers.length} registros visibles
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+            <div className="grid gap-3 sm:grid-cols-3">
+              {FILTERS.map((filter) => (
+                <button
+                  key={filter.label}
+                  onClick={() => setActiveFilter(filter.label)}
+                  className={`inline-flex h-11 items-center justify-center rounded-2xl border px-4 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${getFilterClasses({
+                    ...filter,
+                    active: activeFilter === filter.label,
+                  })}`}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+            <div className="rounded-2xl border border-gray-800 bg-black/30 px-4 py-3 text-xs uppercase tracking-[0.14em] text-gray-400">
+              {filteredUsers.length} registros visibles
+            </div>
           </div>
         </div>
 
@@ -270,6 +304,27 @@ export const UsersManagement = () => {
                 </span>
               </div>
 
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <div className="rounded-2xl border border-gray-800 bg-black/20 px-3 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.14em] text-gray-500">Rutina actual</p>
+                  <p className="mt-1 text-sm text-gray-200">
+                    {user.currentRoutine?.name || 'Sin rutina'}
+                  </p>
+                  <p className="mt-1 text-[11px] uppercase tracking-[0.12em] text-gray-500">
+                    {user.currentRoutine?.status === 'Activa' ? 'Activa' : 'Inactiva'}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-gray-800 bg-black/20 px-3 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.14em] text-gray-500">Plan nutricional</p>
+                  <p className="mt-1 text-sm text-gray-200">
+                    {user.currentNutritionPlan?.name || 'Sin plan'}
+                  </p>
+                  <p className="mt-1 text-[11px] uppercase tracking-[0.12em] text-gray-500">
+                    {user.currentNutritionPlan?.status === 'Activo' ? 'Activo' : 'Inactivo'}
+                  </p>
+                </div>
+              </div>
+
               <div className="mt-4 flex justify-end gap-2">
                 <button className="inline-flex h-9 items-center rounded-xl border border-gray-800 bg-black/25 px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-300 transition-colors hover:border-primary/30 hover:text-white">
                   Editar
@@ -295,6 +350,18 @@ export const UsersManagement = () => {
                   </th>
                   <th className="px-5 py-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
                     Último check-in
+                  </th>
+                  <th className="px-5 py-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                    Rutina actual
+                  </th>
+                  <th className="px-5 py-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                    Estado rutina
+                  </th>
+                  <th className="px-5 py-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                    Plan nutricional
+                  </th>
+                  <th className="px-5 py-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                    Estado plan
                   </th>
                   <th className="px-5 py-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
                     Estado
@@ -329,6 +396,22 @@ export const UsersManagement = () => {
                       </span>
                     </td>
                     <td className="px-5 py-4 text-gray-300">{user.lastCheckIn}</td>
+                    <td className="px-5 py-4 text-gray-300">
+                      {user.currentRoutine?.name || 'Sin rutina'}
+                    </td>
+                    <td className="px-5 py-4">
+                      <span className="inline-flex items-center rounded-full border border-gray-800 bg-black/25 px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-gray-300">
+                        {user.currentRoutine?.status === 'Activa' ? 'Activa' : 'Inactiva'}
+                      </span>
+                    </td>
+                    <td className="px-5 py-4 text-gray-300">
+                      {user.currentNutritionPlan?.name || 'Sin plan'}
+                    </td>
+                    <td className="px-5 py-4">
+                      <span className="inline-flex items-center rounded-full border border-gray-800 bg-black/25 px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-gray-300">
+                        {user.currentNutritionPlan?.status === 'Activo' ? 'Activo' : 'Inactivo'}
+                      </span>
+                    </td>
                     <td className="px-5 py-4">
                       <span
                         className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${getStatusClasses(user.status)}`}

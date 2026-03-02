@@ -2,7 +2,9 @@ package com.backend.infrastructure.adapter.out.persistence.entity;
 
 import com.backend.domain.valueobject.Role;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -18,9 +20,9 @@ import java.util.UUID;
         @Index(name = "idx_role", columnList = "role"),
         @Index(name = "idx_is_active", columnList = "is_active")
 })
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class UserJpaEntity {
 
     @Id

@@ -1,8 +1,12 @@
+com/backend/support/PostgresContainerTestSupport.class
 com/backend/application/usecase/UpdateUserServiceImplTest.class
+com/backend/domain/model/UserTest.class
+com/backend/presentation/controller/UserControllerIntegrationTest.class
 com/backend/application/usecase/DeleteUserServiceImplTest.class
+com/backend/application/usecase/LoginServiceImplTest.class
+com/backend/application/usecase/RegisterUserServiceImplTest.class
+com/backend/presentation/controller/UserControllerIntegrationTest$AuthSession.class
 com/backend/application/usecase/GetUserByIdServiceImplTest.class
 com/backend/application/usecase/GetAllUsersServiceImplTest.class
-com/backend/application/usecase/LoginServiceImplTest.class
 com/backend/infrastructure/controller/AuthControllerIntegrationTest.class
 com/backend/BackendApplicationTests.class
-com/backend/application/usecase/RegisterUserServiceImplTest.class

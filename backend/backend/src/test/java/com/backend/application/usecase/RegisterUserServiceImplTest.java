@@ -7,6 +7,7 @@ import com.backend.application.port.out.TokenGeneratorPort;
 import com.backend.application.port.out.UserRepositoryPort;
 import com.backend.application.service.usecase.RegisterUserServiceImpl;
 import com.backend.domain.exception.InvalidEmailException;
+import com.backend.domain.exception.InvalidPasswordException;
 import com.backend.domain.exception.UserAlreadyExistsException;
 import com.backend.domain.model.User;
 import com.backend.domain.valueobject.Email;
@@ -113,8 +114,6 @@ class RegisterUserServiceImplTest {
                 "pass"
         );
 
-        when(userRepository.existsByEmail(anyString())).thenReturn(false);
-
         // Act + Assert
         assertThrows(InvalidEmailException.class,
                 () -> registerUserService.registerUser(command));
@@ -122,6 +121,21 @@ class RegisterUserServiceImplTest {
         verify(userRepository, never()).save(any());
         verify(notificationPort, never()).sendWelcomeEmail(any(), any());
         verify(tokenGeneratorPort, never()).generateToken(any());
+    }
+
+    @Test
+    void registerUser_WithShortPassword_ShouldThrowInvalidPasswordException() {
+        RegisterUserCommand command = new RegisterUserCommand(
+                "valid@email.com",
+                "123"
+        );
+
+        assertThrows(InvalidPasswordException.class,
+                () -> registerUserService.registerUser(command));
+
+        verify(userRepository, never()).existsByEmail(anyString());
+        verify(passwordEncoder, never()).encode(anyString());
+        verify(userRepository, never()).save(any());
     }
 
     /* ---------------------------------------------------------------------- */

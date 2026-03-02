@@ -5,6 +5,62 @@ import { useGymData } from '../../../../context/GymDataContext';
 import RoutinesCreateView from './RoutinesCreateView';
 
 const FILTERS = ['Todas', 'Activas', 'Borradores', 'Archivadas'];
+const TEMPLATE_ROUTINES = [
+  {
+    id: 'strength-base',
+    name: 'Fuerza Base',
+    summary: 'Full body con progresión lineal para subir fuerza útil sin ruido.',
+    goal: 'Fuerza',
+    level: 'Intermedio',
+    duration: '60 min',
+    sessionsPerWeek: '3',
+    weeks: '6',
+    restWindow: '90 seg',
+    status: 'Borrador',
+    coach: 'Julián Martínez',
+    exercises: '8',
+    focusArea: 'Full body',
+    equipment: 'Barra, rack, mancuernas',
+    notesTag: 'Plantilla fuerza base',
+    notes: 'Priorizar básicos, sostener técnica y progresar carga semana a semana.',
+  },
+  {
+    id: 'hypertrophy-upper',
+    name: 'Hipertrofia Superior',
+    summary: 'Bloque para volumen de tren superior con más densidad por sesión.',
+    goal: 'Hipertrofia',
+    level: 'Avanzado',
+    duration: '75 min',
+    sessionsPerWeek: '4',
+    weeks: '8',
+    restWindow: '60-75 seg',
+    status: 'Borrador',
+    coach: 'Lucía Fernández',
+    exercises: '10',
+    focusArea: 'Tren superior',
+    equipment: 'Mancuernas, polea, banco',
+    notesTag: 'Plantilla volumen upper',
+    notes: 'Ajustar volumen por fatiga y mantener registros por grupo muscular.',
+  },
+  {
+    id: 'starter-onboarding',
+    name: 'Inicio Guiado',
+    summary: 'Adaptación para nuevos clientes con técnica, control y adherencia.',
+    goal: 'Iniciación',
+    level: 'Principiante',
+    duration: '45 min',
+    sessionsPerWeek: '2',
+    weeks: '4',
+    restWindow: '60 seg',
+    status: 'Borrador',
+    coach: 'Julián Martínez',
+    exercises: '6',
+    focusArea: 'Adaptación general',
+    equipment: 'Peso corporal, mancuernas livianas',
+    notesTag: 'Plantilla onboarding',
+    notes: 'Bajar complejidad, reforzar patrones básicos y revisar tolerancia del cliente.',
+  },
+];
 
 function getStatusClasses(status) {
   if (status === 'Activa') {
@@ -40,6 +96,7 @@ function getFilterClasses(filter) {
 
 export const RoutinesManagement = () => {
   const [isCreatingRoutine, setIsCreatingRoutine] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('Todas');
   const { routines } = useGymData();
@@ -117,47 +174,31 @@ export const RoutinesManagement = () => {
   ];
 
   if (isCreatingRoutine) {
-    return <RoutinesCreateView onBack={() => setIsCreatingRoutine(false)} />;
+    return (
+      <RoutinesCreateView
+        initialData={selectedTemplate}
+        onBack={() => {
+          setIsCreatingRoutine(false);
+          setSelectedTemplate(null);
+        }}
+      />
+    );
   }
 
   return (
     <div className="space-y-6 lg:space-y-8">
       <section className="rounded-3xl border border-gray-800 bg-surface p-5 sm:p-6 lg:p-8">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-3xl">
-            <p className="text-xs font-heading uppercase tracking-[0.24em] text-gray-500">
-              Programación
-            </p>
-            <h1 className="mt-3 text-3xl font-heading font-bold uppercase text-foreground sm:text-4xl">
-              Gestión de Rutinas
-            </h1>
-            <p className="mt-3 text-sm leading-7 text-gray-400 sm:text-base">
-              Diseñá, asigná y mantené rutinas con una lectura rápida de carga semanal,
-              estado operativo y cliente vinculado desde el mismo frente.
-            </p>
-          </div>
-
-          <div className="grid w-full gap-3 sm:grid-cols-2 lg:w-auto lg:min-w-[30rem] lg:grid-cols-4">
-            {FILTERS.map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setActiveFilter(filter)}
-                className={`inline-flex h-11 items-center justify-center rounded-2xl border px-4 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${getFilterClasses({
-                  active: activeFilter === filter,
-                  tone:
-                    filter === 'Activas'
-                      ? 'success'
-                      : filter === 'Borradores'
-                        ? 'warning'
-                        : filter === 'Archivadas'
-                          ? 'muted'
-                          : 'default',
-                })}`}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
+        <div className="max-w-3xl">
+          <p className="text-xs font-heading uppercase tracking-[0.24em] text-gray-500">
+            Programación
+          </p>
+          <h1 className="mt-3 text-3xl font-heading font-bold uppercase text-foreground sm:text-4xl">
+            Gestión de Rutinas
+          </h1>
+          <p className="mt-3 text-sm leading-7 text-gray-400 sm:text-base">
+            Diseñá, asigná y mantené rutinas con una lectura rápida de carga semanal,
+            estado operativo y cliente vinculado desde el mismo frente.
+          </p>
         </div>
       </section>
 
@@ -181,7 +222,10 @@ export const RoutinesManagement = () => {
                 Exportar
               </button>
               <button
-                onClick={() => setIsCreatingRoutine(true)}
+                onClick={() => {
+                  setSelectedTemplate(null);
+                  setIsCreatingRoutine(true);
+                }}
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-primary/30 bg-primary px-4 text-xs font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-primary/90"
               >
                 <Plus className="h-4 w-4" />
@@ -218,6 +262,93 @@ export const RoutinesManagement = () => {
         </Card>
       </section>
 
+      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(18rem,0.6fr)]">
+        <Card className="border border-gray-800 bg-surface p-5 sm:p-6">
+          <div className="flex flex-col gap-4 border-b border-gray-800 pb-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-heading uppercase tracking-[0.2em] text-gray-500">
+                Plantillas base
+              </p>
+              <p className="mt-2 text-sm text-gray-400">
+                Arrancá desde una estructura probada y personalizala según el cliente, no desde cero.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-gray-800 bg-black/30 px-4 py-3 text-xs uppercase tracking-[0.14em] text-gray-400">
+              {TEMPLATE_ROUTINES.length} bases listas
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-4 lg:grid-cols-3">
+            {TEMPLATE_ROUTINES.map((template) => (
+              <div
+                key={template.id}
+                className="rounded-3xl border border-gray-800 bg-surface-light p-4"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-heading font-semibold uppercase text-white">
+                      {template.name}
+                    </p>
+                    <p className="mt-2 text-xs uppercase tracking-[0.12em] text-gray-500">
+                      {template.goal} · {template.level}
+                    </p>
+                  </div>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-gray-800 bg-black/20 text-gray-300">
+                    <Dumbbell className="h-4 w-4" />
+                  </div>
+                </div>
+
+                <p className="mt-4 text-sm leading-6 text-gray-400">
+                  {template.summary}
+                </p>
+
+                <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
+                  <div className="rounded-2xl border border-gray-800 bg-black/20 px-3 py-3">
+                    <p className="uppercase tracking-[0.12em] text-gray-500">Sesiones</p>
+                    <p className="mt-1 text-sm text-gray-200">{template.sessionsPerWeek} / sem</p>
+                  </div>
+                  <div className="rounded-2xl border border-gray-800 bg-black/20 px-3 py-3">
+                    <p className="uppercase tracking-[0.12em] text-gray-500">Duración</p>
+                    <p className="mt-1 text-sm text-gray-200">{template.duration}</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    setSelectedTemplate(template);
+                    setIsCreatingRoutine(true);
+                  }}
+                  className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-2xl border border-primary/30 bg-primary/10 px-4 text-xs font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-primary hover:text-white"
+                >
+                  Usar plantilla
+                </button>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card className="border border-gray-800 bg-surface p-5 sm:p-6">
+          <p className="text-xs font-heading uppercase tracking-[0.2em] text-gray-500">
+            Cómo usarlo
+          </p>
+          <div className="mt-4 space-y-3">
+            {[
+              'Elegí una plantilla base según el objetivo del cliente.',
+              'Entrá al formulario con la estructura ya cargada.',
+              'Ajustá sesiones, carga, enfoque y observaciones.',
+              'Asignala y guardala como rutina operativa.',
+            ].map((step) => (
+              <div
+                key={step}
+                className="rounded-2xl border border-gray-800 bg-surface-light px-4 py-3 text-sm text-gray-300"
+              >
+                {step}
+              </div>
+            ))}
+          </div>
+        </Card>
+      </section>
+
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => {
           const Icon = metric.icon;
@@ -244,7 +375,7 @@ export const RoutinesManagement = () => {
       </section>
 
       <Card className="border border-gray-800 bg-surface p-4 sm:p-6">
-        <div className="flex flex-col gap-4 border-b border-gray-800 pb-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex flex-col gap-4 border-b border-gray-800 pb-4">
           <div>
             <p className="text-xs font-heading uppercase tracking-[0.2em] text-gray-500">
               Biblioteca de rutinas
@@ -253,8 +384,31 @@ export const RoutinesManagement = () => {
               Controlá plantillas, frecuencia, duración, cliente asignado y estado de cada rutina.
             </p>
           </div>
-          <div className="rounded-2xl border border-gray-800 bg-black/30 px-4 py-3 text-xs uppercase tracking-[0.14em] text-gray-400">
-            {filteredRoutines.length} rutinas visibles
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {FILTERS.map((filter) => (
+                <button
+                  key={filter}
+                  onClick={() => setActiveFilter(filter)}
+                  className={`inline-flex h-11 items-center justify-center rounded-2xl border px-4 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${getFilterClasses({
+                    active: activeFilter === filter,
+                    tone:
+                      filter === 'Activas'
+                        ? 'success'
+                        : filter === 'Borradores'
+                          ? 'warning'
+                          : filter === 'Archivadas'
+                            ? 'muted'
+                            : 'default',
+                  })}`}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
+            <div className="rounded-2xl border border-gray-800 bg-black/30 px-4 py-3 text-xs uppercase tracking-[0.14em] text-gray-400">
+              {filteredRoutines.length} rutinas visibles
+            </div>
           </div>
         </div>
 
@@ -296,7 +450,13 @@ export const RoutinesManagement = () => {
                   {routine.status}
                 </span>
                 <div className="flex justify-end gap-2">
-                  <button className="inline-flex h-9 items-center rounded-xl border border-gray-800 bg-black/25 px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-300 transition-colors hover:border-primary/30 hover:text-white">
+                  <button
+                    onClick={() => {
+                      setSelectedTemplate(routine);
+                      setIsCreatingRoutine(true);
+                    }}
+                    className="inline-flex h-9 items-center rounded-xl border border-gray-800 bg-black/25 px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-300 transition-colors hover:border-primary/30 hover:text-white"
+                  >
                     Editar
                   </button>
                   <button className="inline-flex h-9 items-center rounded-xl border border-red-500/20 bg-red-500/10 px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-red-400 transition-colors hover:border-red-500/40 hover:text-red-300">
@@ -369,7 +529,13 @@ export const RoutinesManagement = () => {
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex items-center justify-end gap-2">
-                        <button className="inline-flex h-9 items-center rounded-xl border border-gray-800 bg-black/25 px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-300 transition-colors hover:border-primary/30 hover:text-white">
+                        <button
+                          onClick={() => {
+                            setSelectedTemplate(routine);
+                            setIsCreatingRoutine(true);
+                          }}
+                          className="inline-flex h-9 items-center rounded-xl border border-gray-800 bg-black/25 px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-300 transition-colors hover:border-primary/30 hover:text-white"
+                        >
                           Editar
                         </button>
                         <button className="inline-flex h-9 items-center rounded-xl border border-red-500/20 bg-red-500/10 px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-red-400 transition-colors hover:border-red-500/40 hover:text-red-300">

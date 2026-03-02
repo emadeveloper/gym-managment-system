@@ -1,35 +1,34 @@
 spring:
-  # ============ DATABASE ============
   datasource:
-    url: jdbc:postgresql://localhost:5434/la_resistencia_db
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5434/la_resistencia_db}
     driver-class-name: org.postgresql.Driver
-    username: admin
-    password: admin123
-  # ============ JPA/HIBERNATE ============
+    username: ${DATABASE_USERNAME:admin}
+    password: ${DATABASE_PASSWORD:admin123}
   jpa:
-    platform: org.hibernate.dialect.PostgreSQLDialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     show-sql: false
     properties:
       hibernate:
         format_sql: true
-  # ============ JWT Json Web Token Keys ============
-  jwt:
-    secret: ${JWT_SECRET:defaultSecretKeyOnlyForDevPleaseChangeInProduction}
-    expiration: ${JWT_EXPIRATION:86400000}
+  flyway:
+    enabled: true
 
-  # ============ LOGGING ============
-  logging:
-    level:
-      com.backend: DEBUG
-      org.springframework.security: INFO
-      org.springframework.security.config.annotation.authentication.configuration: ERROR
+jwt:
+  secret: ${JWT_SECRET:RGVmYXVsdFNlY3JldEtleU9ubHlGb3JEZXZQbGVhc2VDaGFuZ2VJblByb2R1Y3Rpb24=}
+  expiration: ${JWT_EXPIRATION:86400000}
 
-  springdoc:
-    api-docs:
-      enabled: true
-    swagger-ui:
-      enabled: true
-      path: /swagger-ui.html
+logging:
+  level:
+    com.backend: DEBUG
+    org.springframework.security: INFO
+    org.springframework.security.config.annotation.authentication.configuration: ERROR
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html

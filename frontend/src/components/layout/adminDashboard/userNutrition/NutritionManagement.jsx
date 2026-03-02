@@ -40,6 +40,7 @@ function getFilterClasses(filter) {
 
 export const NutritionManagement = () => {
   const [isCreatingPlan, setIsCreatingPlan] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('Todos');
   const { nutritionPlans } = useGymData();
@@ -111,47 +112,31 @@ export const NutritionManagement = () => {
   ];
 
   if (isCreatingPlan) {
-    return <NutritionCreateView onBack={() => setIsCreatingPlan(false)} />;
+    return (
+      <NutritionCreateView
+        initialData={selectedPlan}
+        onBack={() => {
+          setIsCreatingPlan(false);
+          setSelectedPlan(null);
+        }}
+      />
+    );
   }
 
   return (
     <div className="space-y-6 lg:space-y-8">
       <section className="rounded-3xl border border-gray-800 bg-surface p-5 sm:p-6 lg:p-8">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-3xl">
-            <p className="text-xs font-heading uppercase tracking-[0.24em] text-gray-500">
-              Nutrición
-            </p>
-            <h1 className="mt-3 text-3xl font-heading font-bold uppercase text-foreground sm:text-4xl">
-              Gestión de Planes Nutricionales
-            </h1>
-            <p className="mt-3 text-sm leading-7 text-gray-400 sm:text-base">
-              Armá, asigná y revisá planes con una lectura rápida de calorías, tipo de plan,
-              estado y cliente vinculado.
-            </p>
-          </div>
-
-          <div className="grid w-full gap-3 sm:grid-cols-2 lg:w-auto lg:min-w-[30rem] lg:grid-cols-4">
-            {FILTERS.map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setActiveFilter(filter)}
-                className={`inline-flex h-11 items-center justify-center rounded-2xl border px-4 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${getFilterClasses({
-                  active: activeFilter === filter,
-                  tone:
-                    filter === 'Activos'
-                      ? 'success'
-                      : filter === 'Borradores'
-                        ? 'warning'
-                        : filter === 'Inactivos'
-                          ? 'muted'
-                          : 'default',
-                })}`}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
+        <div className="max-w-3xl">
+          <p className="text-xs font-heading uppercase tracking-[0.24em] text-gray-500">
+            Nutrición
+          </p>
+          <h1 className="mt-3 text-3xl font-heading font-bold uppercase text-foreground sm:text-4xl">
+            Gestión de Planes Nutricionales
+          </h1>
+          <p className="mt-3 text-sm leading-7 text-gray-400 sm:text-base">
+            Armá, asigná y revisá planes con una lectura rápida de calorías, tipo de plan,
+            estado y cliente vinculado.
+          </p>
         </div>
       </section>
 
@@ -175,7 +160,10 @@ export const NutritionManagement = () => {
                 Exportar
               </button>
               <button
-                onClick={() => setIsCreatingPlan(true)}
+                onClick={() => {
+                  setSelectedPlan(null);
+                  setIsCreatingPlan(true);
+                }}
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-primary/30 bg-primary px-4 text-xs font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-primary/90"
               >
                 <Plus className="h-4 w-4" />
@@ -238,7 +226,7 @@ export const NutritionManagement = () => {
       </section>
 
       <Card className="border border-gray-800 bg-surface p-4 sm:p-6">
-        <div className="flex flex-col gap-4 border-b border-gray-800 pb-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex flex-col gap-4 border-b border-gray-800 pb-4">
           <div>
             <p className="text-xs font-heading uppercase tracking-[0.2em] text-gray-500">
               Biblioteca de planes
@@ -247,8 +235,31 @@ export const NutritionManagement = () => {
               Catálogo de planes disponibles, su carga diaria y el cliente que los recibe.
             </p>
           </div>
-          <div className="rounded-2xl border border-gray-800 bg-black/30 px-4 py-3 text-xs uppercase tracking-[0.14em] text-gray-400">
-            {filteredPlans.length} planes visibles
+          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {FILTERS.map((filter) => (
+                <button
+                  key={filter}
+                  onClick={() => setActiveFilter(filter)}
+                  className={`inline-flex h-11 items-center justify-center rounded-2xl border px-4 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${getFilterClasses({
+                    active: activeFilter === filter,
+                    tone:
+                      filter === 'Activos'
+                        ? 'success'
+                        : filter === 'Borradores'
+                          ? 'warning'
+                          : filter === 'Inactivos'
+                            ? 'muted'
+                            : 'default',
+                  })}`}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
+            <div className="rounded-2xl border border-gray-800 bg-black/30 px-4 py-3 text-xs uppercase tracking-[0.14em] text-gray-400">
+              {filteredPlans.length} planes visibles
+            </div>
           </div>
         </div>
 
@@ -290,7 +301,13 @@ export const NutritionManagement = () => {
                   {plan.status}
                 </span>
                 <div className="flex justify-end gap-2">
-                  <button className="inline-flex h-9 items-center rounded-xl border border-gray-800 bg-black/25 px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-300 transition-colors hover:border-primary/30 hover:text-white">
+                  <button
+                    onClick={() => {
+                      setSelectedPlan(plan);
+                      setIsCreatingPlan(true);
+                    }}
+                    className="inline-flex h-9 items-center rounded-xl border border-gray-800 bg-black/25 px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-300 transition-colors hover:border-primary/30 hover:text-white"
+                  >
                     Editar
                   </button>
                   <button className="inline-flex h-9 items-center rounded-xl border border-red-500/20 bg-red-500/10 px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-red-400 transition-colors hover:border-red-500/40 hover:text-red-300">
@@ -359,7 +376,13 @@ export const NutritionManagement = () => {
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex items-center justify-end gap-2">
-                        <button className="inline-flex h-9 items-center rounded-xl border border-gray-800 bg-black/25 px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-300 transition-colors hover:border-primary/30 hover:text-white">
+                        <button
+                          onClick={() => {
+                            setSelectedPlan(plan);
+                            setIsCreatingPlan(true);
+                          }}
+                          className="inline-flex h-9 items-center rounded-xl border border-gray-800 bg-black/25 px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-gray-300 transition-colors hover:border-primary/30 hover:text-white"
+                        >
                           Editar
                         </button>
                         <button className="inline-flex h-9 items-center rounded-xl border border-red-500/20 bg-red-500/10 px-3 text-[11px] font-semibold uppercase tracking-[0.12em] text-red-400 transition-colors hover:border-red-500/40 hover:text-red-300">

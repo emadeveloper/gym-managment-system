@@ -103,24 +103,65 @@ function Field({ field, value, onChange, members }) {
   );
 }
 
-export default function NutritionCreateView({ onBack }) {
+function formatInputDate(value) {
+  if (!value || value === 'Pendiente' || value === 'Sin revisión') {
+    return '';
+  }
+
+  const parsedDate = new Date(value);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return '';
+  }
+
+  return parsedDate.toISOString().slice(0, 10);
+}
+
+function buildInitialFormData(initialData) {
+  if (!initialData) {
+    return {
+      name: '',
+      assignedMemberEmail: '',
+      goal: '',
+      type: '',
+      calories: '',
+      protein: '',
+      carbs: '',
+      fat: '',
+      reviewDate: '',
+      status: '',
+      activityLevel: '',
+      restrictions: '',
+      supplements: '',
+      tips: '',
+      createdDate: '',
+    };
+  }
+
+  return {
+    id: initialData.id,
+    name: initialData.name || '',
+    assignedMemberEmail: initialData.assignedMemberEmail || '',
+    goal: initialData.goal || '',
+    type: initialData.type || '',
+    calories: String(initialData.calories || ''),
+    protein: String(initialData.nutritionData?.dailyMacros?.protein || ''),
+    carbs: String(initialData.nutritionData?.dailyMacros?.carbs || ''),
+    fat: String(initialData.nutritionData?.dailyMacros?.fat || ''),
+    reviewDate: formatInputDate(initialData.reviewDate || initialData.nutritionData?.nextReview),
+    status: initialData.status || '',
+    activityLevel: initialData.nutritionData?.user?.activityLevel || '',
+    restrictions: (initialData.nutritionData?.restrictions || []).join(', '),
+    supplements: (initialData.nutritionData?.supplements || []).join(', '),
+    tips: (initialData.nutritionData?.tips || []).join('\n'),
+    createdDate: initialData.nutritionData?.createdDate || '',
+  };
+}
+
+export default function NutritionCreateView({ onBack, initialData = null }) {
   const { members, addNutritionPlan } = useGymData();
-  const [formData, setFormData] = useState({
-    name: '',
-    assignedMemberEmail: '',
-    goal: '',
-    type: '',
-    calories: '',
-    protein: '',
-    carbs: '',
-    fat: '',
-    reviewDate: '',
-    status: '',
-    activityLevel: '',
-    restrictions: '',
-    supplements: '',
-    tips: '',
-  });
+  const isEditing = Boolean(initialData?.id);
+  const [formData, setFormData] = useState(() => buildInitialFormData(initialData));
 
   const assignableMembers = useMemo(
     () => members.filter((member) => member.status !== 'Inactivo'),
@@ -152,11 +193,12 @@ export default function NutritionCreateView({ onBack }) {
               Nutrición
             </p>
             <h1 className="mt-3 text-3xl font-heading font-bold uppercase text-foreground sm:text-4xl">
-              Alta de Nuevo Plan
+              {isEditing ? 'Editar Plan Nutricional' : 'Alta de Nuevo Plan'}
             </h1>
             <p className="mt-3 text-sm leading-7 text-gray-400 sm:text-base">
-              Cargá macros, revisión, restricciones y dejá el plan asignado al cliente correcto
-              desde una sola pantalla.
+              {isEditing
+                ? 'Ajustá macros, revisión y soporte del plan existente con impacto inmediato en el dashboard del cliente.'
+                : 'Cargá macros, revisión, restricciones y dejá el plan asignado al cliente correcto desde una sola pantalla.'}
             </p>
           </div>
 
@@ -292,7 +334,7 @@ export default function NutritionCreateView({ onBack }) {
                   className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-primary/30 bg-primary px-4 text-xs font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-primary/90"
                 >
                   <Save className="h-4 w-4" />
-                  Guardar plan
+                  {isEditing ? 'Actualizar plan' : 'Guardar plan'}
                 </button>
               </div>
             </div>

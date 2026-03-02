@@ -3,6 +3,7 @@ package com.backend.application.usecase;
 import com.backend.application.port.in.command.UpdateUserCommand;
 import com.backend.application.port.out.UserRepositoryPort;
 import com.backend.application.service.usecase.UpdateUserServiceImpl;
+import com.backend.domain.exception.InvalidPasswordException;
 import com.backend.domain.exception.UserNotFoundException;
 import com.backend.domain.model.User;
 import com.backend.domain.valueobject.Email;
@@ -12,7 +13,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;  // ← AGREGAR
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -50,6 +51,7 @@ class UpdateUserServiceImplTest {
         );
 
         when(userRepository.findById(id)).thenReturn(Optional.of(existingUser));
+        when(passwordEncoder.encode("newPassword")).thenReturn("encodedNewPassword");
         when(userRepository.save(any(User.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -59,11 +61,12 @@ class UpdateUserServiceImplTest {
         // ASSERT
         assertNotNull(updatedUser);
         assertEquals("new@email.com", updatedUser.getEmail().value());
-        assertEquals("newPassword", updatedUser.getPassword());
+        assertEquals("encodedNewPassword", updatedUser.getPassword());
         assertNotNull(updatedUser.getUpdatedAt());
 
         verify(userRepository, times(1)).findById(id);
         verify(userRepository, times(1)).save(existingUser);
+        verify(passwordEncoder).encode("newPassword");
     }
 
     @Test
@@ -131,6 +134,7 @@ class UpdateUserServiceImplTest {
         );
 
         when(userRepository.findById(id)).thenReturn(Optional.of(existingUser));
+        when(passwordEncoder.encode("newPassword")).thenReturn("encodedNewPassword");
         when(userRepository.save(any(User.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -139,7 +143,31 @@ class UpdateUserServiceImplTest {
 
         // ASSERT
         assertEquals("old@example.com", result.getEmail().value());
-        assertEquals("newPassword", result.getPassword());
+        assertEquals("encodedNewPassword", result.getPassword());
         assertNotNull(result.getUpdatedAt());
+        verify(passwordEncoder).encode("newPassword");
+    }
+
+    @Test
+    void shouldThrowExceptionWhenPasswordIsTooShort() {
+        UUID id = UUID.randomUUID();
+        User existingUser = new User(
+                new Email("old@example.com"),
+                "encodedPassword",
+                Role.USER
+        );
+
+        UpdateUserCommand command = new UpdateUserCommand(
+                id,
+                null,
+                "123"
+        );
+
+        when(userRepository.findById(id)).thenReturn(Optional.of(existingUser));
+
+        assertThrows(InvalidPasswordException.class, () -> service.updateUser(command));
+
+        verify(passwordEncoder, never()).encode(anyString());
+        verify(userRepository, never()).save(any());
     }
 }

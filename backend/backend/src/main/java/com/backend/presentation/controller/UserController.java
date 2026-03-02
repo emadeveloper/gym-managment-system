@@ -1,19 +1,24 @@
 package com.backend.presentation.controller;
 
-import com.backend.application.port.in.*;
+import com.backend.application.dto.RegisterResponseDto;
+import com.backend.application.port.in.DeleteUserUseCase;
+import com.backend.application.port.in.GetAllUsersUseCase;
+import com.backend.application.port.in.GetUserByIdUseCase;
+import com.backend.application.port.in.UpdatePasswordUseCase;
+import com.backend.application.port.in.UpdateUserUseCase;
 import com.backend.application.port.in.command.DeleteUserCommand;
-
+import com.backend.application.port.in.command.UpdatePasswordCommand;
 import com.backend.application.port.in.command.UpdateUserCommand;
 import com.backend.domain.model.User;
-
+import com.backend.infrastructure.adapter.dto.UpdatePasswordRequestDto;
 import com.backend.presentation.dto.UpdateUserRequest;
-import com.backend.application.dto.RegisterResponseDto;
 import com.backend.presentation.mapper.UserPresentationMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +36,7 @@ public class UserController {
     private final GetUserByIdUseCase getUserById;
     private final GetAllUsersUseCase getAllUsersUseCase;
     private final UpdateUserUseCase updateUserUseCase;
+    private final UpdatePasswordUseCase updatePasswordUseCase;
     private final DeleteUserUseCase deleteUserUseCase;
 
     @Operation(
@@ -103,7 +109,7 @@ public class UserController {
     public ResponseEntity<RegisterResponseDto> updateUser(
             @Parameter(description = "UUID of the user to update")
             @PathVariable UUID id,
-            @RequestBody UpdateUserRequest request) {
+            @Valid @RequestBody UpdateUserRequest request) {
 
         // Convert request + id to Update user command
         UpdateUserCommand command = mapper.toCommand(id, request);
@@ -117,6 +123,34 @@ public class UserController {
         // Return the response
         return ResponseEntity.ok(response);
 
+    }
+
+    @Operation(
+            summary = "Update a user's password",
+            description = "Validates the current password and updates it for the selected user.",
+            operationId = "updateUserPassword",
+            tags = {"Users"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Password updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid request or password mismatch"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "500", description = "Unexpected server error")
+    })
+    @PutMapping("/{id}/password")
+    public ResponseEntity<Void> updatePassword(
+            @Parameter(description = "UUID of the user to update")
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdatePasswordRequestDto request) {
+
+        updatePasswordUseCase.execute(new UpdatePasswordCommand(
+                id,
+                request.oldPassword(),
+                request.newPassword(),
+                request.confirmPassword()
+        ));
+
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(

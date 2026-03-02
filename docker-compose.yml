@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: postgres:16-alpine # <--- Cambiá el 18 por 16
+    image: postgres:16-alpine
     container_name: la-resistencia-db
     restart: unless-stopped
     environment:
@@ -9,8 +9,31 @@ services:
       POSTGRES_PASSWORD: admin123
     ports:
       - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d la_resistencia_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend/backend
+    container_name: la-resistencia-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DATABASE_URL: jdbc:postgresql://postgres:5432/la_resistencia_db
+      DATABASE_USERNAME: admin
+      DATABASE_PASSWORD: admin123
+      JWT_SECRET: ${JWT_SECRET:-ZGV2Smh0U2VjcmV0S2V5Rm9yTG9jYWxEb2NrZXJPbmx5Q2hhbmdlTWVCZWZvcmVQcm9k}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+    ports:
+      - "8080:8080"
 
 volumes:
   postgres_data:

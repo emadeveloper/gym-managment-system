@@ -21,9 +21,11 @@ import java.util.UUID;
  * Contiene lógica de validación y comportamiento de dominio.
  */
 @Getter
-@ToString
+@ToString(of = {"id", "role", "isActive", "profileUpdated", "createdAt", "updatedAt", "lastLoginAt"})
 @EqualsAndHashCode(of = "id")
 public class User {
+
+    private static final int MIN_PASSWORD_LENGTH = 6;
 
     // ============ IDENTIDAD ============
     private final UUID id;
@@ -70,7 +72,7 @@ public class User {
      */
     public User(Email email, String password, Role role) {
         if (email == null) throw new InvalidEmailException("Email cannot be null");
-        if (password == null) throw new InvalidPasswordException("Password cannot be null");
+        validateStoredPassword(password);
         if (role == null) throw new IllegalArgumentException("Role cannot be null");
 
         this.id = UUID.randomUUID();
@@ -96,7 +98,7 @@ public class User {
 
         if (id == null) throw new IllegalArgumentException("Id cannot be null");
         if (email == null) throw new InvalidEmailException("Email cannot be null");
-        if (password == null) throw new InvalidPasswordException("Password cannot be null");
+        validateStoredPassword(password);
         if (role == null) throw new IllegalArgumentException("Role cannot be null");
 
         this.id = id;
@@ -116,8 +118,7 @@ public class User {
         this.lastLoginAt = lastLoginAt;
         this.isActive = isActive != null ? isActive : true;
         this.profileUpdated = profileUpdated != null ? profileUpdated : false;
-        // Inicializar trainerIds: si viene null, crear lista vacía
-        this.trainerIds = trainerIds != null ? trainerIds : new ArrayList<>();
+        this.trainerIds = trainerIds != null ? new ArrayList<>(trainerIds) : new ArrayList<>();
     }
 
     // ============ MÉTODOS DE COMPORTAMIENTO ============
@@ -135,8 +136,7 @@ public class User {
      * Actualizar contraseña
      */
     public void updatePassword(String password) {
-        if (password == null) throw new InvalidPasswordException("Password cannot be null");
-        if (password.length() < 6) throw new InvalidPasswordException("Password must be at least 6 characters");
+        validateStoredPassword(password);
         this.password = password;
         this.updatedAt = Instant.now();
     }
@@ -146,6 +146,12 @@ public class User {
      */
     public void updatePersonalData(String name, String lastName, Integer age,
                                    Integer heightCm, BigDecimal weightKg) {
+        validateRequiredText(name, "Name");
+        validateRequiredText(lastName, "Last name");
+        validatePositive(age, "Age");
+        validatePositive(heightCm, "Height");
+        validatePositive(weightKg, "Weight");
+
         this.name = name;
         this.lastName = lastName;
         this.age = age;
@@ -159,6 +165,8 @@ public class User {
      * Actualizar datos de contacto (para MercadoPago, etc)
      */
     public void updateContactData(String dni, String phone) {
+        validateOptionalText(dni, "DNI");
+        validateOptionalText(phone, "Phone");
         this.dni = dni;
         this.phone = phone;
         this.updatedAt = Instant.now();
@@ -229,18 +237,71 @@ public class User {
      * Validar que el usuario está activo
      */
     public boolean isActiveUser() {
-        return this.isActive;
+        return Boolean.TRUE.equals(this.isActive);
     }
 
     /**
      * Validar que tiene perfil completo
      */
     public boolean hasCompleteProfile() {
-        return this.profileUpdated
-                && this.name != null
-                && this.lastName != null
-                && this.age != null
-                && this.heightCm != null
-                && this.weightKg != null;
+        return Boolean.TRUE.equals(this.profileUpdated)
+                && hasText(this.name)
+                && hasText(this.lastName)
+                && isPositive(this.age)
+                && isPositive(this.heightCm)
+                && isPositive(this.weightKg);
+    }
+
+    public List<UUID> getTrainerIds() {
+        return List.copyOf(this.trainerIds);
+    }
+
+    public static void validateRawPassword(String rawPassword) {
+        if (rawPassword == null) throw new InvalidPasswordException("Password cannot be null");
+        if (rawPassword.isBlank()) throw new InvalidPasswordException("Password cannot be blank");
+        if (rawPassword.length() < MIN_PASSWORD_LENGTH) {
+            throw new InvalidPasswordException("Password must be at least " + MIN_PASSWORD_LENGTH + " characters");
+        }
+    }
+
+    private static void validateStoredPassword(String password) {
+        if (password == null) throw new InvalidPasswordException("Password cannot be null");
+        if (password.isBlank()) throw new InvalidPasswordException("Password cannot be blank");
+    }
+
+    private static void validateRequiredText(String value, String fieldName) {
+        if (!hasText(value)) {
+            throw new IllegalArgumentException(fieldName + " cannot be blank");
+        }
+    }
+
+    private static void validateOptionalText(String value, String fieldName) {
+        if (value != null && value.isBlank()) {
+            throw new IllegalArgumentException(fieldName + " cannot be blank");
+        }
+    }
+
+    private static void validatePositive(Integer value, String fieldName) {
+        if (!isPositive(value)) {
+            throw new IllegalArgumentException(fieldName + " must be greater than zero");
+        }
+    }
+
+    private static void validatePositive(BigDecimal value, String fieldName) {
+        if (!isPositive(value)) {
+            throw new IllegalArgumentException(fieldName + " must be greater than zero");
+        }
+    }
+
+    private static boolean hasText(String value) {
+        return value != null && !value.isBlank();
+    }
+
+    private static boolean isPositive(Integer value) {
+        return value != null && value > 0;
+    }
+
+    private static boolean isPositive(BigDecimal value) {
+        return value != null && value.signum() > 0;
     }
 }

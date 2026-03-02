@@ -14,6 +14,13 @@ backend/.idea/
 backend/*.iml
 backend/*.iws
 backend/build/
+backend/backend/target/
+backend/backend/.mvn/
+backend/backend/*.log
+backend/backend/.idea/
+backend/backend/*.iml
+backend/backend/*.iws
+backend/backend/build/
 
 # Frontend (Node)
 frontend/node_modules/

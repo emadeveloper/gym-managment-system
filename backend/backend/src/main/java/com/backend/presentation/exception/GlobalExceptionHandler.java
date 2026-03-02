@@ -1,8 +1,11 @@
 package com.backend.presentation.exception;
 
 import com.backend.domain.exception.InvalidEmailException;
+import com.backend.domain.exception.InvalidCredentialsException;
+import com.backend.domain.exception.InvalidPasswordException;
 import com.backend.domain.exception.UserAlreadyExistsException;
 import com.backend.domain.exception.UserNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -16,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
 
     /* ---------------------------------------------------------------------- */
@@ -23,13 +27,17 @@ public class GlobalExceptionHandler {
     /* ---------------------------------------------------------------------- */
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Map<String, Object>> handleBadCredentials(BadCredentialsException ex) {
-        System.out.println("Bad credentials caught: " + ex.getMessage());
+    public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex) {
         return buildErrorResponse("Invalid email or password", HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleUserNotFound(UsernameNotFoundException ex) {
+    public ResponseEntity<ApiError> handleUserNotFound(UsernameNotFoundException ex) {
+        return buildErrorResponse("Invalid email or password", HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ApiError> handleInvalidCredentials(InvalidCredentialsException ex) {
         return buildErrorResponse("Invalid email or password", HttpStatus.UNAUTHORIZED);
     }
 
@@ -38,27 +46,31 @@ public class GlobalExceptionHandler {
     /* ---------------------------------------------------------------------- */
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationErrors(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiError> handleValidationErrors(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage())
         );
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("errors", errors);
-
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.badRequest().body(new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                "Validation failed",
+                errors
+        ));
     }
 
     @ExceptionHandler(InvalidEmailException.class)
-    public ResponseEntity<Map<String, Object>> handleInvalidEmail(InvalidEmailException ex) {
+    public ResponseEntity<ApiError> handleInvalidEmail(InvalidEmailException ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<ApiError> handleInvalidPassword(InvalidPasswordException ex) {
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
+    public ResponseEntity<ApiError> handleIllegalArgument(IllegalArgumentException ex) {
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
@@ -67,7 +79,7 @@ public class GlobalExceptionHandler {
     /* ---------------------------------------------------------------------- */
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleUserNotFoundDomain(UserNotFoundException ex) {
+    public ResponseEntity<ApiError> handleUserNotFoundDomain(UserNotFoundException ex) {
         return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
@@ -76,7 +88,7 @@ public class GlobalExceptionHandler {
     /* ---------------------------------------------------------------------- */
 
     @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<Map<String, Object>> handleUserAlreadyExists(UserAlreadyExistsException ex) {
+    public ResponseEntity<ApiError> handleUserAlreadyExists(UserAlreadyExistsException ex) {
         return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
@@ -85,13 +97,8 @@ public class GlobalExceptionHandler {
     /* ---------------------------------------------------------------------- */
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
-        // Log the full exception in production
-
-        System.err.println("🔴 UNHANDLED EXCEPTION: " + ex.getClass().getName());
-        System.err.println("🔴 MESSAGE: " + ex.getMessage());
-        ex.printStackTrace();
-
+    public ResponseEntity<ApiError> handleGenericException(Exception ex) {
+        log.error("Unhandled exception", ex);
         return buildErrorResponse(
                 "An unexpected error occurred. Please try again later.",
                 HttpStatus.INTERNAL_SERVER_ERROR
@@ -102,13 +109,14 @@ public class GlobalExceptionHandler {
     /* HELPER METHOD                                                         */
     /* ---------------------------------------------------------------------- */
 
-    private ResponseEntity<Map<String, Object>> buildErrorResponse(String message, HttpStatus status) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("timestamp", LocalDateTime.now());
-        response.put("status", status.value());
-        response.put("error", status.getReasonPhrase());
-        response.put("message", message);
-
-        return ResponseEntity.status(status).body(response);
+    private ResponseEntity<ApiError> buildErrorResponse(String message, HttpStatus status) {
+        return ResponseEntity.status(status).body(new ApiError(
+                status.value(),
+                message,
+                Map.of(
+                        "error", status.getReasonPhrase(),
+                        "timestamp", LocalDateTime.now().toString()
+                )
+        ));
     }
 }

@@ -13,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -24,6 +25,7 @@ public class LoginServiceImpl implements LoginUseCase {
     private final UserRepositoryPort userRepositoryPort;
 
     @Override
+    @Transactional
     public LoginResponseDto login(String email, String password) {
         // 1. Autenticar (si falla, lanza BadCredentialsException automáticamente)
         Authentication authentication = authenticationManager.authenticate(

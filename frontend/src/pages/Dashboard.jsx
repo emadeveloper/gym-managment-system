@@ -121,7 +121,7 @@ export function Dashboard() {
         />
 
       {/* FLEX CONTAINER - Sidebar + Content */}
-      <div className="flex">
+      <div className="flex min-w-0">
         
         {/* SIDEBAR DESKTOP - Only desktop (hidden lg:flex) */}
         <DashboardSidebar
@@ -133,7 +133,7 @@ export function Dashboard() {
         />
 
         {/* MAIN CONTENT AREA */}
-        <main className="flex-1 min-h-screen">
+        <main className="min-w-0 flex-1 min-h-screen">
           {/* Animation content */}
           <div
             key={activeTab}

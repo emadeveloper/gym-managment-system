@@ -9,6 +9,7 @@ import com.backend.domain.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,7 @@ public class UpdatePasswordServiceImpl implements UpdatePasswordUseCase {
     private final PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional
     public void execute(UpdatePasswordCommand command) {
         // 1. Get the user from domain
         User user = userRepository.findById(command.userId())
@@ -27,6 +29,8 @@ public class UpdatePasswordServiceImpl implements UpdatePasswordUseCase {
         if (!passwordEncoder.matches(command.oldPassword(), user.getPassword())) {
             throw new InvalidPasswordException("The current password is incorrect");
         }
+
+        User.validateRawPassword(command.newPassword());
 
         // 3. Hash the new password BEFORE send it to the domain
         String hashedNewPassword = passwordEncoder.encode(command.newPassword());

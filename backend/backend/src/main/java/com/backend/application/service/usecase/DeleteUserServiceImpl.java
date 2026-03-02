@@ -6,6 +6,7 @@ import com.backend.application.port.out.UserRepositoryPort;
 import com.backend.domain.exception.UserNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
@@ -14,6 +15,7 @@ public class DeleteUserServiceImpl implements DeleteUserUseCase {
     private final UserRepositoryPort userRepository;
 
     @Override
+    @Transactional
     public void deleteUser(DeleteUserCommand command) {
 
         // Check if user exists

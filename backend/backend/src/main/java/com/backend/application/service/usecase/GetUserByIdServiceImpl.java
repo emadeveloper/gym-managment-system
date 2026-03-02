@@ -6,6 +6,7 @@ import com.backend.domain.exception.UserNotFoundException;
 import com.backend.domain.model.User;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -16,6 +17,7 @@ public class GetUserByIdServiceImpl implements GetUserByIdUseCase {
     private final UserRepositoryPort userRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public User getUserById(UUID id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User with id " + id + " not found."));

@@ -118,7 +118,7 @@ export function AdminDashboard() {
       />
 
       {/* FLEX CONTAINER - Sidebar + Content */}
-      <div className="flex">
+      <div className="flex min-w-0">
         
         {/* SIDEBAR DESKTOP - Solo desktop */}
         <AdminSidebar
@@ -130,7 +130,7 @@ export function AdminDashboard() {
         />
 
         {/* MAIN CONTENT AREA */}
-        <main className="flex-1 min-h-screen">
+        <main className="min-w-0 flex-1 min-h-screen">
           {/* Contenido con animación */}
           <div
             key={activeTab}

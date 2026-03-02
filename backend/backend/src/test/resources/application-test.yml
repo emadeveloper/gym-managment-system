@@ -1,29 +1,25 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/backend_test_db
-    driver-class-name: org.postgresql.Driver
-    username: backend_user
-    password: backend_password
-
   jpa:
-    open-in-view: true
+    open-in-view: false
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
     show-sql: false
+  flyway:
+    enabled: true
 
-  jwt:
-    secret: testSecretKeyForTestingPurposesOnly12345678901234567890123456789012345678901234567890
-    expiration: 86400000
+jwt:
+  secret: dGVzdFNlY3JldEtleUZvclRlc3RpbmdQdXJwb3Nlc09ubHkxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTA=
+  expiration: 86400000
 
-  logging:
-    level:
-      com.backend: WARN
-      org.springframework: WARN
-      org.hibernate: WARN
-      org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer: ERROR
+logging:
+  level:
+    com.backend: WARN
+    org.springframework: WARN
+    org.hibernate: WARN
+    org.springframework.security.config.annotation.authentication.configuration.InitializeUserDetailsBeanManagerConfigurer: ERROR
 
-  springdoc:
-    api-docs:
-      enabled: false
-    swagger-ui:
-      enabled: false
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

@@ -12,11 +12,14 @@ import com.backend.domain.valueobject.Email;
 import com.backend.domain.valueobject.Role;
 import com.backend.application.dto.RegisterResponseDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class RegisterUserServiceImpl implements RegisterUserUseCase {
 
@@ -26,20 +29,21 @@ public class RegisterUserServiceImpl implements RegisterUserUseCase {
     private final TokenGeneratorPort tokenGeneratorPort;
 
     @Override
+    @Transactional
     public RegisterResponseDto registerUser(RegisterUserCommand command) {
-
-        if (userRepository.existsByEmail(command.email())) {
-            throw new UserAlreadyExistsException("User with email: " + command.email() + "already exists");
-        }
-        // Create Value object Email
         Email emailVO;
-
         try {
             emailVO = new Email(command.email());
         } catch (IllegalArgumentException e) {
             throw new InvalidEmailException(e.getMessage());
         }
-        // Create entity from domain with command
+
+        User.validateRawPassword(command.password());
+
+        if (userRepository.existsByEmail(emailVO.value())) {
+            throw new UserAlreadyExistsException("User with email: " + emailVO.value() + " already exists");
+        }
+
         User user = new User(
                 emailVO,
                 passwordEncoder.encode(command.password()),
@@ -57,7 +61,11 @@ public class RegisterUserServiceImpl implements RegisterUserUseCase {
         String token = tokenGeneratorPort.generateToken(userDetails);
 
         // Send notification
-        notificationPort.sendWelcomeEmail(user.getEmail().value(), "Welcome to the gym!");
+        try {
+            notificationPort.sendWelcomeEmail(user.getEmail().value(), "Welcome to the gym!");
+        } catch (RuntimeException ex) {
+            log.warn("Welcome email delivery failed for {}", user.getEmail().value(), ex);
+        }
 
         // Return user created
         return new RegisterResponseDto(
