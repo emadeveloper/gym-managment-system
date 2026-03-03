@@ -47,6 +47,10 @@ class UpdateUserServiceImplTest {
         UpdateUserCommand command = new UpdateUserCommand(
                 id,
                 "new@email.com",
+                null,
+                null,
+                null,
+                null,
                 "newPassword"
         );
 
@@ -76,6 +80,10 @@ class UpdateUserServiceImplTest {
         UpdateUserCommand command = new UpdateUserCommand(
                 id,
                 "new@example.com",
+                null,
+                null,
+                null,
+                null,
                 "newpass"
         );
 
@@ -101,6 +109,10 @@ class UpdateUserServiceImplTest {
         UpdateUserCommand command = new UpdateUserCommand(
                 id,
                 "new@example.com",
+                null,
+                null,
+                null,
+                null,
                 null
         );
 
@@ -129,6 +141,10 @@ class UpdateUserServiceImplTest {
 
         UpdateUserCommand command = new UpdateUserCommand(
                 id,
+                null,
+                null,
+                null,
+                null,
                 null,
                 "newPassword"
         );
@@ -160,6 +176,10 @@ class UpdateUserServiceImplTest {
         UpdateUserCommand command = new UpdateUserCommand(
                 id,
                 null,
+                null,
+                null,
+                null,
+                null,
                 "123"
         );
 
@@ -169,5 +189,37 @@ class UpdateUserServiceImplTest {
 
         verify(passwordEncoder, never()).encode(anyString());
         verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void shouldUpdateIdentityAndContactWhenProvided() {
+        UUID id = UUID.randomUUID();
+        User existingUser = new User(
+                new Email("old@example.com"),
+                "encodedPassword",
+                Role.USER
+        );
+
+        UpdateUserCommand command = new UpdateUserCommand(
+                id,
+                null,
+                "Juan",
+                "Perez",
+                "30123456",
+                "+5491112345678",
+                null
+        );
+
+        when(userRepository.findById(id)).thenReturn(Optional.of(existingUser));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        User result = service.updateUser(command);
+
+        assertEquals("Juan", result.getName());
+        assertEquals("Perez", result.getLastName());
+        assertEquals("30123456", result.getDni());
+        assertEquals("+5491112345678", result.getPhone());
+        verify(passwordEncoder, never()).encode(anyString());
+        verify(userRepository).save(existingUser);
     }
 }

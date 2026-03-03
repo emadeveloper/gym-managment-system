@@ -62,6 +62,20 @@ export const userAPI = {
     getById: (id) => api.get(`/users/${id}`),
     update: (id, userData) => api.put(`/users/${id}`, userData),
     delete: (id) => api.delete(`/users/${id}`),
-}
+};
+
+export const routinesAPI = {
+    getAll: () => api.get("/routines"),
+    getMine: () => api.get("/routines/my"),
+    create: (routineData) => api.post("/routines", routineData),
+    update: (id, routineData) => api.put(`/routines/${id}`, routineData),
+};
+
+export const nutritionPlansAPI = {
+    getAll: () => api.get("/nutrition-plans"),
+    getMine: () => api.get("/nutrition-plans/my"),
+    create: (planData) => api.post("/nutrition-plans", planData),
+    update: (id, planData) => api.put(`/nutrition-plans/${id}`, planData),
+};
 
 export default api;

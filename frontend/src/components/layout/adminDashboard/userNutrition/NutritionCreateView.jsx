@@ -162,6 +162,7 @@ export default function NutritionCreateView({ onBack, initialData = null }) {
   const { members, addNutritionPlan } = useGymData();
   const isEditing = Boolean(initialData?.id);
   const [formData, setFormData] = useState(() => buildInitialFormData(initialData));
+  const [submitError, setSubmitError] = useState('');
 
   const assignableMembers = useMemo(
     () => members.filter((member) => member.status !== 'Inactivo'),
@@ -173,15 +174,21 @@ export default function NutritionCreateView({ onBack, initialData = null }) {
     setFormData((currentData) => ({ ...currentData, [name]: value }));
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    setSubmitError('');
 
     if (!formData.name || !formData.assignedMemberEmail || !formData.goal) {
+      setSubmitError('Completá los datos base antes de guardar el plan.');
       return;
     }
 
-    addNutritionPlan(formData);
-    onBack();
+    try {
+      await addNutritionPlan(formData);
+      onBack();
+    } catch (error) {
+      setSubmitError(error.response?.data?.message || 'No se pudo guardar el plan nutricional.');
+    }
   };
 
   return (
@@ -251,6 +258,11 @@ export default function NutritionCreateView({ onBack, initialData = null }) {
       </section>
 
       <form className="space-y-4" onSubmit={handleSubmit}>
+        {submitError ? (
+          <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            {submitError}
+          </div>
+        ) : null}
         {FIELD_GROUPS.map((group) => (
           <Card key={group.title} className="border border-gray-800 bg-surface p-5 sm:p-6">
             <div className="border-b border-gray-800 pb-4">

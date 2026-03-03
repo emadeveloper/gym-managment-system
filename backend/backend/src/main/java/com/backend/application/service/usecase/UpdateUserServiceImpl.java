@@ -28,6 +28,14 @@ public class UpdateUserServiceImpl implements UpdateUserUseCase {
             existingUser.updateEmail(new Email(command.email()));
         }
 
+        if (command.name() != null || command.lastName() != null) {
+            existingUser.updateIdentity(command.name(), command.lastName());
+        }
+
+        if (command.dni() != null || command.phone() != null) {
+            existingUser.updateContactData(command.dni(), command.phone());
+        }
+
         if (command.password() != null) {
             User.validateRawPassword(command.password());
             existingUser.updatePassword(passwordEncoder.encode(command.password()));

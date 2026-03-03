@@ -141,6 +141,20 @@ public class User {
         this.updatedAt = Instant.now();
     }
 
+    public void updateIdentity(String name, String lastName) {
+        if (name != null) {
+            validateRequiredText(name, "Name");
+            this.name = name;
+        }
+
+        if (lastName != null) {
+            validateRequiredText(lastName, "Last name");
+            this.lastName = lastName;
+        }
+
+        this.updatedAt = Instant.now();
+    }
+
     /**
      * Actualizar datos personales
      */
@@ -165,10 +179,16 @@ public class User {
      * Actualizar datos de contacto (para MercadoPago, etc)
      */
     public void updateContactData(String dni, String phone) {
-        validateOptionalText(dni, "DNI");
-        validateOptionalText(phone, "Phone");
-        this.dni = dni;
-        this.phone = phone;
+        if (dni != null) {
+            validateOptionalText(dni, "DNI");
+            this.dni = dni;
+        }
+
+        if (phone != null) {
+            validateOptionalText(phone, "Phone");
+            this.phone = phone;
+        }
+
         this.updatedAt = Instant.now();
     }
 

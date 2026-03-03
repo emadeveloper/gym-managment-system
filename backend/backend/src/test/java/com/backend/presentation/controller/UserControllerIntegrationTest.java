@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -27,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Testcontainers(disabledWithoutDocker = true)
 class UserControllerIntegrationTest extends PostgresContainerTestSupport {
 
@@ -61,13 +63,29 @@ class UserControllerIntegrationTest extends PostgresContainerTestSupport {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new UpdateUserRequest(
                                 "updated@example.com",
+                                "Juan",
+                                "Perez",
+                                "30123456",
+                                "+5491112345678",
                                 null
                         ))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("updated@example.com"));
+                .andExpect(jsonPath("$.email").value("updated@example.com"))
+                .andExpect(jsonPath("$.name").value("Juan Perez"));
+
+        MvcResult refreshedSessionResult = mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"email":"updated@example.com","password":"Password123"}
+                                """))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        JsonNode refreshedPayload = objectMapper.readTree(refreshedSessionResult.getResponse().getContentAsString());
+        String refreshedToken = refreshedPayload.get("token").asText();
 
         mockMvc.perform(put("/api/v1/users/{id}/password", session.userId())
-                        .header("Authorization", "Bearer " + session.token())
+                        .header("Authorization", "Bearer " + refreshedToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new UpdatePasswordRequestDto(
                                 "Password123",

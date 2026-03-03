@@ -1,11 +1,9 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
 import mockNutritionData, { nutritionVariations } from '../components/layout/nutrition/mockNutritionData';
-import { authAPI, userAPI } from '../services/api';
+import { authAPI, nutritionPlansAPI, routinesAPI, userAPI } from '../services/api';
 
 const MEMBER_META_STORAGE_KEY = 'lr_member_meta';
-const ROUTINES_STORAGE_KEY = 'lr_routines';
-const NUTRITION_STORAGE_KEY = 'lr_nutrition_plans';
 
 const DEFAULT_MEMBERS = [
   {
@@ -224,13 +222,115 @@ function formatNameFromEmail(email = '') {
 }
 
 function formatDisplayDate(dateValue) {
+  if (!dateValue) {
+    return 'Pendiente';
+  }
+
+  const parsedDate = new Date(dateValue);
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return 'Pendiente';
+  }
+
   return dateValue
-    ? new Date(dateValue).toLocaleDateString('es-AR', {
+    ? parsedDate.toLocaleDateString('es-AR', {
         day: '2-digit',
         month: 'long',
         year: 'numeric',
       })
     : 'Pendiente';
+}
+
+function splitTextValue(value, separator = ',') {
+  if (!value) {
+    return [];
+  }
+
+  return value
+    .split(separator)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function resolveAssignedMemberName(email, fallbackName, memberMeta) {
+  const normalizedEmail = email?.toLowerCase();
+  return memberMeta[normalizedEmail]?.name || fallbackName || formatNameFromEmail(email);
+}
+
+function mapRoutineRecord(apiRoutine, memberMeta = {}) {
+  return {
+    id: apiRoutine.id,
+    name: apiRoutine.name,
+    goal: apiRoutine.goal,
+    level: apiRoutine.level,
+    duration: apiRoutine.duration,
+    sessionsPerWeek: Number(apiRoutine.sessionsPerWeek),
+    weeks: Number(apiRoutine.weeks) || 0,
+    restWindow: apiRoutine.restWindow || '',
+    status: apiRoutine.status,
+    coach: apiRoutine.coach,
+    focusArea: apiRoutine.focusArea,
+    equipment: apiRoutine.equipment,
+    notesTag: apiRoutine.notesTag || '',
+    notes: apiRoutine.notes || '',
+    assignedMemberEmail: apiRoutine.assignedMemberEmail || '',
+    assignedMemberName: resolveAssignedMemberName(
+      apiRoutine.assignedMemberEmail,
+      apiRoutine.assignedMemberName,
+      memberMeta,
+    ),
+    exercises: Number(apiRoutine.exercises) || 0,
+  };
+}
+
+function mapNutritionPlanRecord(apiPlan, memberMeta = {}) {
+  const goalMap = {
+    'Pérdida de grasa': nutritionVariations.fatloss.dailyMacros,
+    Hipertrofia: nutritionVariations.muscleGain.dailyMacros,
+    Mantenimiento: nutritionVariations.maintenance.dailyMacros,
+    Rendimiento: nutritionVariations.elite.dailyMacros,
+    'Bienestar general': nutritionVariations.maintenance.dailyMacros,
+  };
+  const fallbackMacros = goalMap[apiPlan.goal] || nutritionVariations.maintenance.dailyMacros;
+  const macros = {
+    calories: Number(apiPlan.calories) || fallbackMacros.calories,
+    protein: Number(apiPlan.protein) || fallbackMacros.protein,
+    carbs: Number(apiPlan.carbs) || fallbackMacros.carbs,
+    fat: Number(apiPlan.fat) || fallbackMacros.fat,
+  };
+  const reviewDate = formatDisplayDate(apiPlan.reviewDate);
+
+  const assignedMemberName = resolveAssignedMemberName(
+    apiPlan.assignedMemberEmail,
+    apiPlan.assignedMemberName,
+    memberMeta,
+  );
+
+  return {
+    id: apiPlan.id,
+    name: apiPlan.name,
+    goal: apiPlan.goal,
+    calories: macros.calories,
+    type: apiPlan.type,
+    status: apiPlan.status,
+    assignedMemberEmail: apiPlan.assignedMemberEmail || '',
+    assignedMemberName,
+    reviewDate,
+    nutritionData: {
+      ...mockNutritionData,
+      user: {
+        name: assignedMemberName,
+        goal: apiPlan.goal,
+        activityLevel: apiPlan.activityLevel || 'Moderado',
+      },
+      dailyMacros: macros,
+      restrictions: splitTextValue(apiPlan.restrictions),
+      supplements: splitTextValue(apiPlan.supplements),
+      tips: splitTextValue(apiPlan.tips, '\n'),
+      createdDate: formatDisplayDate(apiPlan.createdDate),
+      nextReview: reviewDate,
+    },
+  };
 }
 
 function mergeMemberRecord(apiUser, meta = {}) {
@@ -275,22 +375,12 @@ export function GymDataProvider({ children }) {
     readStorage(MEMBER_META_STORAGE_KEY, DEFAULT_MEMBER_META),
   );
   const [members, setMembers] = useState(() => buildMembersFromMetadata(DEFAULT_MEMBER_META));
-  const [routines, setRoutines] = useState(() => readStorage(ROUTINES_STORAGE_KEY, DEFAULT_ROUTINES));
-  const [nutritionPlans, setNutritionPlans] = useState(() =>
-    readStorage(NUTRITION_STORAGE_KEY, DEFAULT_NUTRITION_PLANS),
-  );
+  const [routines, setRoutines] = useState([]);
+  const [nutritionPlans, setNutritionPlans] = useState([]);
 
   useEffect(() => {
     writeStorage(MEMBER_META_STORAGE_KEY, memberMeta);
   }, [memberMeta]);
-
-  useEffect(() => {
-    writeStorage(ROUTINES_STORAGE_KEY, routines);
-  }, [routines]);
-
-  useEffect(() => {
-    writeStorage(NUTRITION_STORAGE_KEY, nutritionPlans);
-  }, [nutritionPlans]);
 
   useEffect(() => {
     let isActive = true;
@@ -337,14 +427,66 @@ export function GymDataProvider({ children }) {
     };
   }, [user, memberMeta]);
 
+  useEffect(() => {
+    let isActive = true;
+
+    async function syncAssignments() {
+      if (!user?.email) {
+        if (isActive) {
+          setRoutines([]);
+          setNutritionPlans([]);
+        }
+        return;
+      }
+
+      const routineRequest = user.role === 'ADMIN' ? routinesAPI.getAll() : routinesAPI.getMine();
+      const nutritionRequest =
+        user.role === 'ADMIN' ? nutritionPlansAPI.getAll() : nutritionPlansAPI.getMine();
+
+      try {
+        const [routineResponse, nutritionResponse] = await Promise.all([
+          routineRequest,
+          nutritionRequest,
+        ]);
+
+        if (!isActive) {
+          return;
+        }
+
+        setRoutines(routineResponse.data.map((routine) => mapRoutineRecord(routine, memberMeta)));
+        setNutritionPlans(
+          nutritionResponse.data.map((plan) => mapNutritionPlanRecord(plan, memberMeta)),
+        );
+      } catch {
+        if (isActive) {
+          setRoutines([]);
+          setNutritionPlans([]);
+        }
+      }
+    }
+
+    syncAssignments();
+
+    return () => {
+      isActive = false;
+    };
+  }, [user, memberMeta]);
+
   const addMember = async (memberData) => {
     const fullName = `${memberData.firstName} ${memberData.lastName}`.trim();
     const normalizedEmail = memberData.email.toLowerCase();
     const response = await authAPI.register(memberData.email, memberData.password);
     const createdUser = response.data.user;
+    const profileResponse = await userAPI.update(createdUser.id, {
+      name: memberData.firstName.trim(),
+      lastName: memberData.lastName.trim(),
+      dni: memberData.dni || null,
+      phone: memberData.phone || null,
+    });
+    const hydratedUser = profileResponse.data;
     const nextMeta = {
-      id: createdUser.id,
-      name: fullName || formatNameFromEmail(memberData.email),
+      id: hydratedUser.id,
+      name: hydratedUser.name || fullName || formatNameFromEmail(memberData.email),
       plan: memberData.plan || 'Pendiente',
       status: memberData.status || 'Pendiente',
       lastCheckIn: 'Recién creado',
@@ -356,7 +498,7 @@ export function GymDataProvider({ children }) {
       startDate: memberData.startDate || '',
       paymentMethod: memberData.paymentMethod || '',
       notes: memberData.notes || '',
-      role: createdUser.role,
+      role: hydratedUser.role,
     };
 
     setMemberMeta((currentMeta) => ({
@@ -364,7 +506,7 @@ export function GymDataProvider({ children }) {
       [normalizedEmail]: nextMeta,
     }));
 
-    const createdMember = mergeMemberRecord(createdUser, nextMeta);
+    const createdMember = mergeMemberRecord(hydratedUser, nextMeta);
     setMembers((currentMembers) => {
       const existingMemberIndex = currentMembers.findIndex(
         (member) => member.email.toLowerCase() === normalizedEmail,
@@ -382,41 +524,40 @@ export function GymDataProvider({ children }) {
     return createdMember;
   };
 
-  const addRoutine = (routineData) => {
-    const assignedMember = members.find(
-      (member) => member.email.toLowerCase() === routineData.assignedMemberEmail.toLowerCase(),
-    );
-
-    const nextRoutine = {
+  const addRoutine = async (routineData) => {
+    const payload = {
       name: routineData.name,
+      assignedMemberEmail: routineData.assignedMemberEmail.toLowerCase(),
       goal: routineData.goal,
       level: routineData.level,
       duration: routineData.duration,
       sessionsPerWeek: Number(routineData.sessionsPerWeek),
-      weeks: Number(routineData.weeks) || 0,
-      restWindow: routineData.restWindow,
+      weeks: Number(routineData.weeks) || 1,
+      restWindow: routineData.restWindow || '',
       status: routineData.status,
       coach: routineData.coach,
+      exercises:
+        Number(routineData.exercises) || Math.max(4, Number(routineData.sessionsPerWeek || 0) * 2),
       focusArea: routineData.focusArea,
       equipment: routineData.equipment,
-      notesTag: routineData.notesTag,
-      notes: routineData.notes,
-      assignedMemberEmail: routineData.assignedMemberEmail,
-      assignedMemberName: assignedMember?.name || formatNameFromEmail(routineData.assignedMemberEmail),
-      exercises: Number(routineData.exercises) || Math.max(4, Number(routineData.sessionsPerWeek) * 2),
+      notesTag: routineData.notesTag || '',
+      notes: routineData.notes || '',
     };
+    const response = routineData.id
+      ? await routinesAPI.update(routineData.id, payload)
+      : await routinesAPI.create(payload);
+    const finalRoutine = mapRoutineRecord(response.data, memberMeta);
 
-    const routineId = routineData.id || Date.now();
-    const finalRoutine = { id: routineId, ...nextRoutine };
+    setRoutines((currentRoutines) => {
+      const exists = currentRoutines.some((routine) => routine.id === finalRoutine.id);
+      if (exists) {
+        return currentRoutines.map((routine) =>
+          routine.id === finalRoutine.id ? finalRoutine : routine,
+        );
+      }
+      return [finalRoutine, ...currentRoutines];
+    });
 
-    if (routineData.id) {
-      setRoutines((currentRoutines) =>
-        currentRoutines.map((routine) => (routine.id === routineData.id ? finalRoutine : routine)),
-      );
-      return finalRoutine;
-    }
-
-    setRoutines((currentRoutines) => [finalRoutine, ...currentRoutines]);
     return finalRoutine;
   };
 
@@ -427,11 +568,7 @@ export function GymDataProvider({ children }) {
         routine.assignedMemberEmail.toLowerCase() === email?.toLowerCase(),
     );
 
-  const addNutritionPlan = (planData) => {
-    const assignedMember = members.find(
-      (member) => member.email.toLowerCase() === planData.assignedMemberEmail.toLowerCase(),
-    );
-
+  const addNutritionPlan = async (planData) => {
     const goalMap = {
       'Pérdida de grasa': nutritionVariations.fatloss.dailyMacros,
       Hipertrofia: nutritionVariations.muscleGain.dailyMacros,
@@ -440,68 +577,35 @@ export function GymDataProvider({ children }) {
       'Bienestar general': nutritionVariations.maintenance.dailyMacros,
     };
     const fallbackMacros = goalMap[planData.goal] || nutritionVariations.maintenance.dailyMacros;
-    const macros = {
+    const payload = {
+      name: planData.name,
+      assignedMemberEmail: planData.assignedMemberEmail.toLowerCase(),
+      goal: planData.goal,
+      type: planData.type,
       calories: Number(planData.calories) || fallbackMacros.calories,
       protein: Number(planData.protein) || fallbackMacros.protein,
       carbs: Number(planData.carbs) || fallbackMacros.carbs,
       fat: Number(planData.fat) || fallbackMacros.fat,
-    };
-    const memberName =
-      assignedMember?.name || formatNameFromEmail(planData.assignedMemberEmail);
-    const today = new Date();
-    const reviewDate = formatDisplayDate(planData.reviewDate);
-
-    const nextPlan = {
-      name: planData.name,
-      goal: planData.goal,
-      calories: macros.calories,
-      type: planData.type,
+      reviewDate: planData.reviewDate || '',
       status: planData.status,
-      assignedMemberEmail: planData.assignedMemberEmail,
-      assignedMemberName: memberName,
-      reviewDate,
-      nutritionData: {
-        ...mockNutritionData,
-        user: {
-          name: memberName,
-          goal: planData.goal,
-          activityLevel: planData.activityLevel || 'Moderado',
-        },
-        dailyMacros: macros,
-        restrictions: planData.restrictions
-          ? planData.restrictions
-              .split(',')
-              .map((item) => item.trim())
-              .filter(Boolean)
-          : mockNutritionData.restrictions,
-        supplements: planData.supplements
-          ? planData.supplements
-              .split(',')
-              .map((item) => item.trim())
-              .filter(Boolean)
-          : mockNutritionData.supplements,
-        tips: planData.tips
-          ? planData.tips
-              .split('\n')
-              .map((item) => item.trim())
-              .filter(Boolean)
-          : mockNutritionData.tips,
-        createdDate: planData.createdDate || formatDisplayDate(today),
-        nextReview: reviewDate,
-      },
+      activityLevel: planData.activityLevel || 'Moderado',
+      restrictions: planData.restrictions || '',
+      supplements: planData.supplements || '',
+      tips: planData.tips || '',
     };
+    const response = planData.id
+      ? await nutritionPlansAPI.update(planData.id, payload)
+      : await nutritionPlansAPI.create(payload);
+    const finalPlan = mapNutritionPlanRecord(response.data, memberMeta);
 
-    const planId = planData.id || Date.now();
-    const finalPlan = { id: planId, ...nextPlan };
+    setNutritionPlans((currentPlans) => {
+      const exists = currentPlans.some((plan) => plan.id === finalPlan.id);
+      if (exists) {
+        return currentPlans.map((plan) => (plan.id === finalPlan.id ? finalPlan : plan));
+      }
+      return [finalPlan, ...currentPlans];
+    });
 
-    if (planData.id) {
-      setNutritionPlans((currentPlans) =>
-        currentPlans.map((plan) => (plan.id === planData.id ? finalPlan : plan)),
-      );
-      return finalPlan;
-    }
-
-    setNutritionPlans((currentPlans) => [finalPlan, ...currentPlans]);
     return finalPlan;
   };
 

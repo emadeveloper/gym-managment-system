@@ -25,15 +25,27 @@ public class UserPresentationMapper {
         return new UpdateUserCommand(
                 id,
                 request.email(),
+                request.name(),
+                request.lastName(),
+                request.dni(),
+                request.phone(),
                 request.password()
         );
     }
 
     public RegisterResponseDto toResponse(User user) {
+        String displayName = null;
+        if (user.getName() != null && !user.getName().isBlank()) {
+            displayName = user.getName();
+            if (user.getLastName() != null && !user.getLastName().isBlank()) {
+                displayName = displayName + " " + user.getLastName();
+            }
+        }
+
         return new RegisterResponseDto(
                 user.getId(),
                 user.getEmail().value(),
-                user.getName(),
+                displayName,
                 user.getRole().name(),
                 null
         );
