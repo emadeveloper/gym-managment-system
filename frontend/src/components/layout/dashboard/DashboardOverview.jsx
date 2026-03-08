@@ -4,41 +4,67 @@ import { Button } from '../../ui/Button';
 import EmptyState from './EmptyState';
 import MembershipProgressCard from './MembershipProgressCard';
 
-import { Check, Dumbbell, Flame, CalendarDays, HandFist, Apple, Award, } from 'lucide-react';
+import { Apple, Award, CalendarDays, Dumbbell, Target } from 'lucide-react';
 
-const DashboardOverview = ({ user }) => {
-  // Mock data - Eventually replace with API calls
+const DashboardOverview = ({ user, dashboardData = {} }) => {
+  const defaultDashboardData = {
+    membershipStatus: {
+      active: true,
+      plan: 'Premium Mensual',
+      renewalDate: '15 de Marzo, 2026',
+      daysLeft: 41,
+      monthsActive: 6,
+    },
+    currentRoutine: {
+      name: 'Fuerza Full Body',
+      daysPerWeek: 4,
+      focus: 'Fuerza y recomposición corporal',
+      completedThisWeek: 2,
+      todayWorkout: 'Pecho y tríceps',
+    },
+    goals: [
+      'Perder 5kg en 3 meses',
+      'Mejorar RM en sentadilla y peso muerto',
+      'Entrenar 4 veces por semana de forma constante',
+    ],
+    nutrition: {
+      status: 'Plan básico asignado',
+      calories: '2.200 kcal/día',
+      protein: '150g proteína',
+    },
+    nextClasses: [
+      { name: 'HIIT Training', time: 'Hoy a las 17:30', available: true },
+      { name: 'Strenght Training', time: 'Mañana a las 19:00', available: true },
+    ],
+  };
+
   const membershipStatus = {
-    active: true, // CAMBIAR A true/false PARA VER DIFERENTES ESTADOS
-    plan: 'Premium Mensual',
-    renewalDate: '15 de Marzo, 2026',
-    daysLeft: 41,
+    ...defaultDashboardData.membershipStatus,
+    ...(dashboardData.membershipStatus || {}),
   };
+  const currentRoutine = dashboardData.currentRoutine === null
+    ? null
+    : {
+        ...defaultDashboardData.currentRoutine,
+        ...(dashboardData.currentRoutine || {}),
+      };
+  const goals = Array.isArray(dashboardData.goals) ? dashboardData.goals : defaultDashboardData.goals;
+  const nutrition = dashboardData.nutrition === null
+    ? null
+    : {
+        ...defaultDashboardData.nutrition,
+        ...(dashboardData.nutrition || {}),
+      };
+  const nextClasses = Array.isArray(dashboardData.nextClasses)
+    ? dashboardData.nextClasses
+    : defaultDashboardData.nextClasses;
 
-  // Simular diferentes estados de datos
-  const currentRoutine = {
-    name: 'Fuerza Full Body',
-    daysPerWeek: 4,
-    focus: 'Fuerza y recomposición corporal',
-    completedThisWeek: 2,
-  };
-
-  const goals = [
-    'Perder 5kg en 3 meses',
-    'Mejorar RM en sentadilla y peso muerto',
-    'Entrenar 4 veces por semana de forma constante',
-  ];
-
-  const nutrition = {
-    status: 'Plan básico asignado',
-    calories: '2.200 kcal/día',
-    protein: '150g proteína',
-  };
-
-  const nextClasses = [
-    { name: 'HIIT Training', time: 'Hoy a las 17:30', available: true },
-    { name: 'Strenght Training', time: 'Mañana a las 19:00', available: true },
-  ];
+  const dashboardUserName = user?.name || 'Emanuel Martinez';
+  const todayMessage = currentRoutine?.todayWorkout
+    ? `Hoy toca ${currentRoutine.todayWorkout}.`
+    : 'Hoy no tenés una rutina asignada. Hablá con tu entrenador para activarla.';
+  const primaryGoal = goals?.[0] || 'Definir un objetivo con tu coach';
+  const nutritionPlan = nutrition?.status || 'Sin plan nutricional asignado';
 
   return (
     <div className="space-y-8">
@@ -48,10 +74,10 @@ const DashboardOverview = ({ user }) => {
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 justify-center items-center">
           <div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-foreground mb-2 pb-4">
-              Bienvenido {user?.name || 'a la Resistencia!'}
+              Bienvenido {dashboardUserName}
             </h1>
             <p className="text-sm sm:text-base text-gray-400">
-              Tu panel de control en La Resistencia. Acá podés ver tu membresía, rutina, objetivos y nutrición.
+              {todayMessage}
             </p>
           </div>
         </div>
@@ -60,88 +86,86 @@ const DashboardOverview = ({ user }) => {
       {/* Quick Stats - Key Info - Solo si hay membresía activa */}
       {membershipStatus.active && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
-          {/* Entrenamientos esta semana */}
-          <Card className="bg-surface border border-gray-800">
+          {/* Tu rutina asignada */}
+          <Card className="bg-surface border border-gray-800 hover:border-primary/50 transition-colors">
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
-                Esta semana
+                Rutina asignada
               </h4>
-              <Check className='text-primary' />
+              <Dumbbell className='text-primary' />
             </div>
             {currentRoutine ? (
               <>
-                <p className="text-2xl sm:text-3xl font-heading font-bold text-foreground">
-                  {currentRoutine.completedThisWeek}/{currentRoutine.daysPerWeek}
+                <p className="text-lg sm:text-xl font-heading font-bold text-foreground">
+                  {currentRoutine.name}
                 </p>
                 <p className="text-xs sm:text-sm text-gray-400 mt-1">
-                  Entrenamientos completados
+                  {currentRoutine.daysPerWeek} días por semana
                 </p>
               </>
             ) : (
               <>
-                <p className="text-2xl sm:text-3xl font-heading font-bold text-gray-500">
-                  0/0
+                <p className="text-lg sm:text-xl font-heading font-bold text-gray-500">
+                  Sin rutina
                 </p>
                 <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                  Sin rutina asignada
+                  Solicitá una rutina personalizada
                 </p>
               </>
             )}
           </Card>
 
-          {/* Próxima clase */}
-          <Card className="bg-surface border border-gray-800">
+          {/* Plan nutricional */}
+          <Card className="bg-surface border border-gray-800 hover:border-primary/50 transition-colors">
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
-                Próxima clase
+                Plan nutricional
               </h4>
-              <CalendarDays className='text-primary'/>
+              <Apple className='text-primary'/>
             </div>
-            {nextClasses.length > 0 ? (
+            {nutrition ? (
               <>
                 <p className="text-sm sm:text-base font-heading font-bold text-foreground">
-                  {nextClasses[0]?.name}
+                  {nutritionPlan}
                 </p>
                 <p className="text-xs sm:text-sm text-gray-400 mt-1">
-                  {nextClasses[0]?.time}
+                  {nutrition.protein}
                 </p>
               </>
             ) : (
               <>
                 <p className="text-sm sm:text-base font-heading font-bold text-gray-500">
-                  No disponible
+                  Sin plan cargado
                 </p>
                 <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                  Sin clases disponibles
+                  Pedí acompañamiento nutricional
                 </p>
               </>
             )}
           </Card>
 
-          {/* Calorías objetivo */}
-          <Card className="bg-surface border border-gray-800">
+          {/* Objetivo actual */}
+          <Card className="bg-surface border border-gray-800 hover:border-primary/50 transition-colors">
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
-                Calorías objetivo
+                Objetivo actual
               </h4>
-              <Flame className='text-primary'/>
+              <Target className='text-primary'/>
             </div>
-            {nutrition ? (
+            {goals.length > 0 ? (
               <>
-                <p className="text-2xl sm:text-3xl font-heading font-bold text-foreground">
-                  {nutrition.calories.split(' ')[0]}
+                <p className="text-sm sm:text-base font-heading font-bold text-foreground">
+                  {primaryGoal}
                 </p>
-                <p className="text-xs sm:text-sm text-gray-400 mt-1">
-                  kcal/día
-                </p>
+                <p className="text-xs sm:text-sm text-gray-400 mt-1">Seguimiento activo</p>
               </>
             ) : (
               <>
-                <p className="text-2xl sm:text-3xl font-heading font-bold text-gray-500">
-                  --
+                <p className="text-sm sm:text-base font-heading font-bold text-gray-500">
+                  Sin objetivo definido
                 </p>
                 <p className="text-xs sm:text-sm text-gray-500 mt-1">
-                  Sin plan nutricional
+                  Configuralo desde tu perfil
                 </p>
               </>
             )}
