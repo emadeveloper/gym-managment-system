@@ -128,6 +128,44 @@ export const UsersManagement = () => {
     },
   ];
 
+  const handleExportCsv = () => {
+    const csvHeaders = [
+      'Nombre',
+      'Email',
+      'Plan',
+      'Ultimo check-in',
+      'Rutina actual',
+      'Estado rutina',
+      'Plan nutricional',
+      'Estado plan',
+      'Estado miembro',
+    ];
+
+    const csvRows = filteredUsers.map((user) => [
+      user.name,
+      user.email,
+      user.plan,
+      user.lastCheckIn,
+      user.currentRoutine?.name || 'Sin rutina',
+      user.currentRoutine?.status === 'Activa' ? 'Activa' : 'Inactiva',
+      user.currentNutritionPlan?.name || 'Sin plan',
+      user.currentNutritionPlan?.status === 'Activo' ? 'Activo' : 'Inactivo',
+      user.status,
+    ]);
+
+    const escapeCsv = (value) => `"${String(value).replaceAll('"', '""')}"`;
+    const csvContent = [csvHeaders, ...csvRows].map((row) => row.map(escapeCsv).join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    const dateLabel = new Date().toISOString().slice(0, 10);
+
+    link.href = url;
+    link.setAttribute('download', `roster-miembros-${dateLabel}.csv`);
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   if (isCreatingUser) {
     return <UsersCreateView onBack={() => setIsCreatingUser(false)} />;
   }
@@ -150,36 +188,7 @@ export const UsersManagement = () => {
         </div>
       </section>
 
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.3fr)_minmax(18rem,0.7fr)]">
-        <Card className="border border-gray-800 bg-surface p-4 sm:p-5">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-            <label className="flex flex-1 items-center gap-3 rounded-2xl border border-gray-800 bg-black/30 px-4 py-3">
-              <Search className="h-4 w-4 text-gray-500" />
-              <input
-                type="text"
-                placeholder="Buscar por nombre, email o plan..."
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                className="w-full bg-transparent text-sm text-gray-200 placeholder:text-gray-500"
-              />
-            </label>
-
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <button className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-gray-800 bg-black/30 px-4 text-xs font-semibold uppercase tracking-[0.12em] text-gray-300 transition-colors hover:border-primary/30 hover:text-white">
-                <Download className="h-4 w-4" />
-                Exportar CSV
-              </button>
-              <button
-                onClick={() => setIsCreatingUser(true)}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-primary/30 bg-primary px-4 text-xs font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-primary/90"
-              >
-                <Plus className="h-4 w-4" />
-                Nuevo usuario
-              </button>
-            </div>
-          </div>
-        </Card>
-
+      <section>
         <Card className="border border-gray-800 bg-surface p-4 sm:p-5">
           <p className="text-xs font-heading uppercase tracking-[0.2em] text-gray-500">
             Pulso del día
@@ -235,34 +244,100 @@ export const UsersManagement = () => {
         })}
       </section>
 
-      <Card className="border border-gray-800 bg-surface p-4 sm:p-6">
-        <div className="flex flex-col gap-4 border-b border-gray-800 pb-4">
+      <Card className="overflow-hidden border border-gray-800 bg-surface p-4 sm:p-6">
+        <div className="relative border-b border-gray-800 pb-5">
+          <div className="pointer-events-none absolute inset-0 rounded-3xl bg-[radial-gradient(circle_at_top_right,rgba(239,68,68,0.14),transparent_60%)]" />
+          <div className="relative flex flex-col gap-4">
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+              <div>
+                <p className="text-xs font-heading uppercase tracking-[0.2em] text-gray-500">
+                  Roster de miembros
+                </p>
+                <p className="mt-2 text-sm text-gray-400">
+                  Vista rápida de usuarios, plan, actividad reciente y acciones disponibles.
+                </p>
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <button
+                  onClick={handleExportCsv}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-gray-800 bg-black/30 px-4 text-xs font-semibold uppercase tracking-[0.12em] text-gray-300 transition-colors hover:border-primary/30 hover:text-white"
+                >
+                  <Download className="h-4 w-4" />
+                  Exportar CSV
+                </button>
+                <button
+                  onClick={() => setIsCreatingUser(true)}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-2xl border border-primary/30 bg-primary px-4 text-xs font-semibold uppercase tracking-[0.12em] text-white transition-colors hover:bg-primary/90"
+                >
+                  <Plus className="h-4 w-4" />
+                  Nuevo usuario
+                </button>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+              <label className="flex flex-1 items-center gap-3 rounded-2xl border border-gray-800 bg-black/30 px-4 py-3">
+                <Search className="h-4 w-4 text-gray-500" />
+                <input
+                  type="text"
+                  placeholder="Buscar por nombre, email o plan..."
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  className="w-full bg-transparent text-sm text-gray-200 placeholder:text-gray-500"
+                />
+              </label>
+              <div className="grid gap-2 sm:grid-cols-3">
+                {FILTERS.map((filter) => (
+                  <button
+                    key={filter.label}
+                    onClick={() => setActiveFilter(filter.label)}
+                    className={`inline-flex h-11 items-center justify-center rounded-2xl border px-4 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${getFilterClasses({
+                      ...filter,
+                      active: activeFilter === filter.label,
+                    })}`}
+                  >
+                    {filter.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+              <div className="grid grid-cols-3 gap-2">
+                <div className="rounded-2xl border border-gray-800 bg-surface-light px-3 py-2 text-center">
+                  <p className="text-base font-heading font-bold text-white">{members.length}</p>
+                  <p className="mt-1 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                    Miembros
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-gray-800 bg-surface-light px-3 py-2 text-center">
+                  <p className="text-base font-heading font-bold text-emerald-400">{activeMembers}</p>
+                  <p className="mt-1 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                    Activos
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-gray-800 bg-surface-light px-3 py-2 text-center">
+                  <p className="text-base font-heading font-bold text-primary">{pendingMembers}</p>
+                  <p className="mt-1 text-[10px] uppercase tracking-[0.12em] text-gray-500">
+                    Pendientes
+                  </p>
+                </div>
+              </div>
+              <div className="rounded-2xl border border-gray-800 bg-black/30 px-4 py-3 text-xs uppercase tracking-[0.14em] text-gray-400">
+                {filteredUsers.length} registros visibles
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4">
           <div>
             <p className="text-xs font-heading uppercase tracking-[0.2em] text-gray-500">
-              Roster de miembros
+              Tabla de miembros
             </p>
             <p className="mt-2 text-sm text-gray-400">
-              Vista rápida de usuarios, plan, actividad reciente y acciones disponibles.
+              Lista detallada con estado de rutinas, nutrición y acciones administrativas.
             </p>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-            <div className="grid gap-3 sm:grid-cols-3">
-              {FILTERS.map((filter) => (
-                <button
-                  key={filter.label}
-                  onClick={() => setActiveFilter(filter.label)}
-                  className={`inline-flex h-11 items-center justify-center rounded-2xl border px-4 text-xs font-semibold uppercase tracking-[0.14em] transition-colors ${getFilterClasses({
-                    ...filter,
-                    active: activeFilter === filter.label,
-                  })}`}
-                >
-                  {filter.label}
-                </button>
-              ))}
-            </div>
-            <div className="rounded-2xl border border-gray-800 bg-black/30 px-4 py-3 text-xs uppercase tracking-[0.14em] text-gray-400">
-              {filteredUsers.length} registros visibles
-            </div>
           </div>
         </div>
 

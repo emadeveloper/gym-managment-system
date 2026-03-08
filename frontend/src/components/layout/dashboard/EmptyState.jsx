@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card } from '../../ui/Card';
 import { Button } from '../../ui/Button';
+import { normalizeEmptyStateIcon } from './emptyStateIcon';
 
 const EmptyState = ({
     icon = '📭',
@@ -11,13 +12,15 @@ const EmptyState = ({
     variant = 'default',
     className = '',
 }) => {
+    const normalizedIcon = normalizeEmptyStateIcon(icon);
+
     return (
         <Card className={`bg-surface border border-gray-800 flex flex-col h-full ${className}`}>
             {/* Content wrapper */}
             <div>
                 {/* Icon large */}
                 <div className="flex justify-center mb-4">
-                    <span className="text-6xl">{icon}</span>
+                    <span className="text-6xl">{normalizedIcon}</span>
                 </div>
 
                 {/* Title */}
