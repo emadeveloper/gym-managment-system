@@ -72,7 +72,7 @@ export function Login() {
       if (storedUser?.role === 'ADMIN') {
         navigate('/admin');
       } else {
-        navigate('/dashboard');
+        navigate('/home');
       }
     } else {
       setServerError(result.error);

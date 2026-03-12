@@ -4,7 +4,7 @@ import { Button } from "../ui/Button";
 import { useScrollToSection } from "../../hooks/useScrollToSection";
 import { useAuth } from "../../context/AuthContext";
 import {
-  LayoutGrid,
+  Home,
   Dumbbell,
   Calendar,
   User,
@@ -20,6 +20,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const activeDashboardTab = new URLSearchParams(location.search).get("tab") || "overview";
+  const homeDashboardPath = { pathname: "/home", search: "?tab=overview" };
   const userInitials = user?.name
     ? user.name
         .trim()
@@ -64,34 +65,34 @@ const Navbar = () => {
   // ========== MENU FOR AUTH USERS ==========
   const menuItemsAuthenticated = [
     {
-      label: "Resumen",
-      to: "/dashboard",
-      icon: LayoutGrid,
-      matches: location.pathname === "/dashboard" && activeDashboardTab === "overview",
+      label: "Home",
+      to: homeDashboardPath,
+      icon: Home,
+      matches: location.pathname === "/home" && activeDashboardTab === "overview",
     },
     {
       label: "Rutinas",
-      to: { pathname: "/dashboard", search: "?tab=routines" },
+      to: { pathname: "/home", search: "?tab=routines" },
       icon: Dumbbell,
-      matches: location.pathname === "/dashboard" && activeDashboardTab === "routines",
+      matches: location.pathname === "/home" && activeDashboardTab === "routines",
     },
     {
       label: "Nutrición",
-      to: { pathname: "/dashboard", search: "?tab=nutrition" },
+      to: { pathname: "/home", search: "?tab=nutrition" },
       icon: Shield,
-      matches: location.pathname === "/dashboard" && activeDashboardTab === "nutrition",
+      matches: location.pathname === "/home" && activeDashboardTab === "nutrition",
     },
     {
       label: "Clases",
-      to: { pathname: "/dashboard", search: "?tab=classes" },
+      to: { pathname: "/home", search: "?tab=classes" },
       icon: Calendar,
-      matches: location.pathname === "/dashboard" && activeDashboardTab === "classes",
+      matches: location.pathname === "/home" && activeDashboardTab === "classes",
     },
     {
       label: "Perfil",
-      to: { pathname: "/dashboard", search: "?tab=profile" },
+      to: { pathname: "/home", search: "?tab=profile" },
       icon: User,
-      matches: location.pathname === "/dashboard" && activeDashboardTab === "profile",
+      matches: location.pathname === "/home" && activeDashboardTab === "profile",
     },
   ];
 
@@ -108,7 +109,7 @@ const Navbar = () => {
 
   const goToProfile = () => {
     navigate({
-      pathname: "/dashboard",
+      pathname: "/home",
       search: "?tab=profile",
     });
     setIsMenuOpen(false);
@@ -127,7 +128,7 @@ const Navbar = () => {
         <div className="hidden md:block">
           <div className="grid min-h-24 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-6">
             <button
-              onClick={() => navigate(user ? "/dashboard" : "/")}
+              onClick={() => navigate(user ? "/home?tab=overview" : "/")}
               className="flex shrink-0 items-center"
             >
               <span className="font-heading text-2xl font-bold uppercase tracking-tight text-white lg:text-3xl">
@@ -224,7 +225,7 @@ const Navbar = () => {
         <div className="flex h-16 items-center justify-between md:hidden">
           <div className="flex-1 flex justify-center">
             <button
-              onClick={() => navigate(user ? "/dashboard" : "/")}
+              onClick={() => navigate(user ? "/home?tab=overview" : "/")}
               className="flex items-center"
             >
               <span className="font-heading text-lg font-bold uppercase tracking-tight text-white">

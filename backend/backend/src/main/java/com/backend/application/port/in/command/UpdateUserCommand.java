@@ -7,6 +7,7 @@ public record UpdateUserCommand(
         String email,
         String name,
         String lastName,
+        Integer age,
         String dni,
         String phone,
         String password

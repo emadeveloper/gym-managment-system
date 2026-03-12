@@ -76,6 +76,11 @@ export function AuthProvider({ children }) {
         setError(null);
     };
 
+    const updateCurrentUser = (nextUser) => {
+        saveUser(nextUser);
+        setUser(nextUser);
+    };
+
     /**
      * Verificar si el usuario tiene un rol específico
      * @param {string} role - Rol a verificar (ej: 'ADMIN', 'USER')
@@ -101,6 +106,7 @@ export function AuthProvider({ children }) {
         login,
         register,
         logout,
+        updateCurrentUser,
         hasRole,
         hasAnyRole,
         isAuthenticated: isAuthenticated() && !!user,

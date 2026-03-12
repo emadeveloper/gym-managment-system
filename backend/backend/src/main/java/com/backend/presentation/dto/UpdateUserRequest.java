@@ -1,6 +1,7 @@
 package com.backend.presentation.dto;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 public record UpdateUserRequest(
@@ -12,6 +13,9 @@ public record UpdateUserRequest(
 
         @Size(min = 1, message = "Last name cannot be blank")
         String lastName,
+
+        @Positive(message = "Age must be positive")
+        Integer age,
 
         @Size(min = 1, message = "DNI cannot be blank")
         String dni,

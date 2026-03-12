@@ -72,6 +72,10 @@ public class RegisterUserServiceImpl implements RegisterUserUseCase {
                 savedUser.getId(),
                 savedUser.getEmail().value(),
                 savedUser.getName(),
+                savedUser.getLastName(),
+                savedUser.getAge(),
+                savedUser.getDni(),
+                savedUser.getPhone(),
                 savedUser.getRole().name(),
                 token
         );

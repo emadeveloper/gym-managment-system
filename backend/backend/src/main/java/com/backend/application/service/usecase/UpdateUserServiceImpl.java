@@ -32,6 +32,16 @@ public class UpdateUserServiceImpl implements UpdateUserUseCase {
             existingUser.updateIdentity(command.name(), command.lastName());
         }
 
+        if (command.age() != null) {
+            existingUser.updatePersonalData(
+                    existingUser.getName(),
+                    existingUser.getLastName(),
+                    command.age(),
+                    existingUser.getHeightCm(),
+                    existingUser.getWeightKg()
+            );
+        }
+
         if (command.dni() != null || command.phone() != null) {
             existingUser.updateContactData(command.dni(), command.phone());
         }

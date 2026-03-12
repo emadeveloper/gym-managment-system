@@ -44,10 +44,10 @@ export function AdminDashboard() {
             Solo administradores pueden acceder a esta sección.
           </p>
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate('/home')}
             className="px-6 py-2 bg-primary text-white rounded-lg font-heading uppercase hover:bg-red-700 transition-colors"
           >
-            Volver al Dashboard
+            Volver al Home
           </button>
         </div>
       </div>

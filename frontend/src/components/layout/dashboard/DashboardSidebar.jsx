@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from '../../ui/Button';
 import Logo from '../../../docs/img/la-resistencia-logo-2.jpg';
 import {
-  LayoutGrid,
+  Home,
   Dumbbell,
   Salad,
   Calendar,
@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 
 const ICON_MAP = {
-  overview: LayoutGrid,
+  overview: Home,
   routines: Dumbbell,
   nutrition: Salad,
   classes: Calendar,
@@ -24,7 +24,7 @@ const DashboardSidebar = ({ tabs, activeTab, setActiveTab, onLogout, user }) => 
       <div className="p-6 border-b border-gray-700">
         <img src={Logo} alt="La-Resistencia-logo-2" className="rounded-full" />
         <p className="text-xs text-gray-500 mt-1 pt-2 text-center">
-          Dashboard de entrenamiento
+          Home de entrenamiento
         </p>
       </div>
 
@@ -39,6 +39,7 @@ const DashboardSidebar = ({ tabs, activeTab, setActiveTab, onLogout, user }) => 
         {tabs.map((tab) => {
           const IconComponent = ICON_MAP[tab.id];
           const isActive = activeTab === tab.id;
+          const tabLabel = tab.id === 'overview' ? 'Home' : tab.label;
 
           return (
             <button
@@ -57,7 +58,7 @@ const DashboardSidebar = ({ tabs, activeTab, setActiveTab, onLogout, user }) => 
                   }`}
                 />
               )}
-              <span className="font-semibold text-sm truncate">{tab.label}</span>
+              <span className="font-semibold text-sm truncate">{tabLabel}</span>
             </button>
           );
         })}

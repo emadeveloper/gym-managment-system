@@ -37,17 +37,17 @@ const ProtectedRoute = ({ requiredRole, component: Component }) => {
             Rol requerido: <span className="font-semibold text-gray-300">{requiredRole}</span>
           </p>
           <a
-            href="/dashboard"
+            href="/home"
             className="inline-block px-6 py-2 bg-primary text-white rounded-lg font-heading uppercase hover:bg-red-700 transition-colors"
           >
-            Volver al Dashboard
+            Volver al Home
           </a>
         </div>
       </div>
     );
   }
 
-  return <Component />;
+  return React.createElement(Component);
 };
 
 export default ProtectedRoute;

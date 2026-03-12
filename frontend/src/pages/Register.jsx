@@ -82,7 +82,7 @@ export function Register() {
       if (storedUser?.role === 'ADMIN') {
         navigate('/admin');
       } else {
-        navigate('/dashboard');  // La mayoría de usuarios nuevos serán USER
+        navigate('/home');  // La mayoría de usuarios nuevos serán USER
       }
     } else {
       setServerError(result.error || "Registration failed");

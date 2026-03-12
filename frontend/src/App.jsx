@@ -2,6 +2,7 @@ import { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { GymDataProvider } from './context/GymDataContext';
+import { ToastProvider } from './context/ToastProvider';
 import ProtectedRoute  from './context/ProtectedRoute';
 
 const Home = lazy(() =>
@@ -34,30 +35,32 @@ function RouteFallback() {
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <GymDataProvider>
-          <Suspense fallback={<RouteFallback />}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+      <ToastProvider>
+        <AuthProvider>
+          <GymDataProvider>
+            <Suspense fallback={<RouteFallback />}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
 
-              <Route
-                path="/dashboard"
-                element={<ProtectedRoute component={Dashboard} />}
-              />
+                <Route
+                  path="/home"
+                  element={<ProtectedRoute component={Dashboard} />}
+                />
 
-              <Route
-                path="/admin"
-                element={<ProtectedRoute requiredRole="ADMIN" component={AdminDashboard} />}
-              />
+                <Route
+                  path="/admin"
+                  element={<ProtectedRoute requiredRole="ADMIN" component={AdminDashboard} />}
+                />
 
-              <Route path="/404" element={<NotFound />} />
-              <Route path="*" element={<Navigate to="/404" replace />} />
-            </Routes>
-          </Suspense>
-        </GymDataProvider>
-      </AuthProvider>
+                <Route path="/404" element={<NotFound />} />
+                <Route path="*" element={<Navigate to="/404" replace />} />
+              </Routes>
+            </Suspense>
+          </GymDataProvider>
+        </AuthProvider>
+      </ToastProvider>
     </BrowserRouter>
   );
 }
