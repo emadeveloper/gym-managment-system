@@ -38,6 +38,23 @@ const DEFAULT_MEMBERS = [
     status: 'Activo',
     lastCheckIn: 'Hoy · 06:30',
   },
+  {
+    id: 5,
+    name: 'Valentina Ríos',
+    email: 'valentina.rios@example.com',
+    role: 'USER',
+    plan: 'Elite Performance',
+    status: 'Activo',
+    lastCheckIn: 'Hoy · 07:05',
+    phone: '+54 9 387 512-8891',
+    dni: '39124567',
+    birthDate: '1995-08-21',
+    emergencyName: 'Santiago Ríos',
+    emergencyPhone: '+54 9 387 510-2234',
+    startDate: '2025-07-10',
+    paymentMethod: 'Débito automático',
+    notes: 'Objetivo principal: recomposición corporal y mejora de rendimiento.',
+  },
 ];
 
 const DEFAULT_ROUTINES = [
@@ -100,6 +117,22 @@ const DEFAULT_ROUTINES = [
     exercises: 7,
     weeks: 5,
     focusArea: 'Core y cardio',
+  },
+  {
+    id: 5,
+    name: 'Power Build 4D',
+    level: 'Avanzado',
+    duration: '70 min',
+    sessionsPerWeek: 5,
+    status: 'Activa',
+    goal: 'Rendimiento',
+    coach: 'Sofía Herrera',
+    assignedMemberEmail: 'valentina.rios@example.com',
+    assignedMemberName: 'Valentina Ríos',
+    exercises: 12,
+    weeks: 12,
+    focusArea: 'Piernas + Empuje',
+    todayWorkout: 'Piernas',
   },
 ];
 
@@ -170,14 +203,53 @@ const DEFAULT_NUTRITION_PLANS = [
       nextReview: 'Pendiente',
     },
   },
+  {
+    id: 4,
+    name: 'Performance Lean Pro',
+    goal: 'Rendimiento',
+    calories: 2450,
+    type: 'Personalizado',
+    status: 'Activo',
+    assignedMemberEmail: 'valentina.rios@example.com',
+    assignedMemberName: 'Valentina Ríos',
+    reviewDate: '21 de Junio, 2026',
+    nutritionData: {
+      ...mockNutritionData,
+      user: {
+        name: 'Valentina Ríos',
+        goal: 'Rendimiento',
+        activityLevel: 'Alto',
+      },
+      dailyMacros: { ...nutritionVariations.elite.dailyMacros, calories: 2450 },
+      restrictions: ['Sin lactosa'],
+      supplements: ['Creatina 5g', 'Omega 3'],
+      tips: [
+        'Priorizá proteínas en cada comida.',
+        'Hidratación mínima de 2.5L diarios.',
+        'Ajustá carbohidratos según intensidad de entreno.',
+      ],
+      createdDate: '21 de Marzo, 2026',
+      nextReview: '21 de Junio, 2026',
+    },
+  },
 ];
 
 const DEFAULT_MEMBER_META = DEFAULT_MEMBERS.reduce((accumulator, member) => {
   accumulator[member.email.toLowerCase()] = {
+    id: member.id,
     name: member.name,
     plan: member.plan,
     status: member.status,
     lastCheckIn: member.lastCheckIn,
+    phone: member.phone || '',
+    dni: member.dni || '',
+    birthDate: member.birthDate || '',
+    emergencyName: member.emergencyName || '',
+    emergencyPhone: member.emergencyPhone || '',
+    startDate: member.startDate || '',
+    paymentMethod: member.paymentMethod || '',
+    notes: member.notes || '',
+    role: member.role || 'USER',
   };
 
   return accumulator;
@@ -271,6 +343,7 @@ function mapRoutineRecord(apiRoutine, memberMeta = {}) {
     coach: apiRoutine.coach,
     focusArea: apiRoutine.focusArea,
     equipment: apiRoutine.equipment,
+    todayWorkout: apiRoutine.todayWorkout || '',
     notesTag: apiRoutine.notesTag || '',
     notes: apiRoutine.notes || '',
     assignedMemberEmail: apiRoutine.assignedMemberEmail || '',
@@ -333,6 +406,34 @@ function mapNutritionPlanRecord(apiPlan, memberMeta = {}) {
   };
 }
 
+function resolveFallbackRoutines(currentUser, memberMeta = {}) {
+  const mappedRoutines = DEFAULT_ROUTINES.map((routine) => mapRoutineRecord(routine, memberMeta));
+
+  if (currentUser?.role === 'ADMIN') {
+    return mappedRoutines;
+  }
+
+  return mappedRoutines.filter(
+    (routine) =>
+      routine.assignedMemberEmail &&
+      routine.assignedMemberEmail.toLowerCase() === currentUser?.email?.toLowerCase(),
+  );
+}
+
+function resolveFallbackNutritionPlans(currentUser, memberMeta = {}) {
+  const mappedPlans = DEFAULT_NUTRITION_PLANS.map((plan) => mapNutritionPlanRecord(plan, memberMeta));
+
+  if (currentUser?.role === 'ADMIN') {
+    return mappedPlans;
+  }
+
+  return mappedPlans.filter(
+    (plan) =>
+      plan.assignedMemberEmail &&
+      plan.assignedMemberEmail.toLowerCase() === currentUser?.email?.toLowerCase(),
+  );
+}
+
 function mergeMemberRecord(apiUser, meta = {}) {
   const email = apiUser?.email || meta.email || '';
 
@@ -371,9 +472,10 @@ function buildMembersFromMetadata(memberMeta) {
 
 export function GymDataProvider({ children }) {
   const { user } = useAuth();
-  const [memberMeta, setMemberMeta] = useState(() =>
-    readStorage(MEMBER_META_STORAGE_KEY, DEFAULT_MEMBER_META),
-  );
+  const [memberMeta, setMemberMeta] = useState(() => ({
+    ...DEFAULT_MEMBER_META,
+    ...readStorage(MEMBER_META_STORAGE_KEY, {}),
+  }));
   const [members, setMembers] = useState(() => buildMembersFromMetadata(DEFAULT_MEMBER_META));
   const [routines, setRoutines] = useState([]);
   const [nutritionPlans, setNutritionPlans] = useState([]);
@@ -459,8 +561,8 @@ export function GymDataProvider({ children }) {
         );
       } catch {
         if (isActive) {
-          setRoutines([]);
-          setNutritionPlans([]);
+          setRoutines(resolveFallbackRoutines(user, memberMeta));
+          setNutritionPlans(resolveFallbackNutritionPlans(user, memberMeta));
         }
       }
     }

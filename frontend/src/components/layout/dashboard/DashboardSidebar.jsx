@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button } from '../../ui/Button';
 import Logo from '../../../docs/img/la-resistencia-logo-2.jpg';
+import ActiveSessionCard from './ActiveSessionCard';
 import {
   Home,
   Dumbbell,
@@ -66,15 +67,7 @@ const DashboardSidebar = ({ tabs, activeTab, setActiveTab, onLogout, user }) => 
 
       {/* FOOTER */}
       <div className="border-t border-gray-700 p-6 space-y-4">
-        <div className="p-3 bg-surface-light rounded-lg border border-gray-700">
-          <p className="text-xs uppercase tracking-widest text-gray-500 font-heading font-bold mb-2">
-            Sesión activa
-          </p>
-          <p className="text-sm font-semibold text-foreground truncate">
-            {user?.name || user?.email || 'Usuario'}
-          </p>
-          <p className="text-xs text-gray-400 truncate mt-1">{user?.email}</p>
-        </div>
+        <ActiveSessionCard user={user} />
 
         <Button
           variant="secondary"

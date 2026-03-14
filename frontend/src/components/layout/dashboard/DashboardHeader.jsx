@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Button } from '../../ui/Button';
 import Logo from '../../../docs/img/la-resistencia-logo-1.jpg';
+import ActiveSessionCard from './ActiveSessionCard';
 import {
-  LayoutGrid,
+  Home,
   Dumbbell,
   Salad,
   Calendar,
@@ -10,7 +11,7 @@ import {
 } from 'lucide-react';
 
 const ICON_MAP = {
-  overview: LayoutGrid,
+  overview: Home,
   routines: Dumbbell,
   nutrition: Salad,
   classes: Calendar,
@@ -85,7 +86,7 @@ const DashboardHeader = ({ tabs, activeTab, setActiveTab, onLogout, user }) => {
                   className="rounded-full"
                 />
                 <p className="text-xs text-gray-500 mt-1 pt-2 text-center">
-                  Dashboard de Entrenamiento
+                  Home de entrenamiento
                 </p>
               </div>
 
@@ -120,17 +121,7 @@ const DashboardHeader = ({ tabs, activeTab, setActiveTab, onLogout, user }) => {
 
               <div className="my-4 border-t border-gray-700" />
 
-              <div className="p-4 bg-surface-light rounded-lg border border-gray-700">
-                <p className="text-xs uppercase tracking-widest text-gray-500 font-heading font-bold mb-3">
-                  Sesión activa
-                </p>
-                <p className="text-sm font-semibold text-foreground truncate pt-2">
-                  {user?.name || user?.email || 'Usuario'}
-                </p>
-                <p className="text-xs text-gray-400 truncate mt-2 pt-1">
-                  {user?.email}
-                </p>
-              </div>
+              <ActiveSessionCard user={user} />
 
               <Button
                 variant="secondary"

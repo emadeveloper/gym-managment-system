@@ -8,6 +8,8 @@ import {
   Dumbbell,
   Calendar,
   User,
+  LogIn,
+  UserPlus,
   BookOpen,
   Users,
   Shield,
@@ -205,14 +207,16 @@ const Navbar = () => {
                   <Link to="/login">
                     <Button
                       variant="secondary"
-                      className="rounded-full border-white/8 bg-black/35 px-6 py-3 font-heading uppercase tracking-[0.08em] hover:border-primary/30 hover:bg-white/5"
+                      className="inline-flex items-center gap-2 rounded-full border-white/8 bg-black/35 px-6 py-3 font-heading uppercase tracking-[0.08em] hover:border-primary/30 hover:bg-white/5"
                     >
-                      Contacto
+                      <LogIn className="h-4 w-4" aria-hidden="true" />
+                      Iniciar sesión
                     </Button>
                   </Link>
                   <Link to="/register">
-                    <Button className="rounded-full px-6 py-3 font-heading uppercase tracking-[0.08em]">
-                      Empezar
+                    <Button className="inline-flex items-center gap-2 rounded-full px-6 py-3 font-heading uppercase tracking-[0.08em]">
+                      <UserPlus className="h-4 w-4" aria-hidden="true" />
+                      Crear cuenta
                     </Button>
                   </Link>
                 </>
@@ -348,12 +352,19 @@ const Navbar = () => {
                 ) : (
                   <>
                     <Link to="/login" onClick={closeMenu}>
-                      <Button variant="secondary" className="mb-2 w-full rounded-full border-white/8 bg-black/55 hover:bg-black/75">
-                        Contacto
+                      <Button
+                        variant="secondary"
+                        className="mb-2 inline-flex w-full items-center justify-center gap-2 rounded-full border-white/8 bg-black/55 hover:bg-black/75"
+                      >
+                        <LogIn className="h-4 w-4" aria-hidden="true" />
+                        Iniciar sesión
                       </Button>
                     </Link>
                     <Link to="/register" onClick={closeMenu}>
-                      <Button className="w-full rounded-full">Empezar</Button>
+                      <Button className="inline-flex w-full items-center justify-center gap-2 rounded-full">
+                        <UserPlus className="h-4 w-4" aria-hidden="true" />
+                        Crear cuenta
+                      </Button>
                     </Link>
                   </>
                 )}

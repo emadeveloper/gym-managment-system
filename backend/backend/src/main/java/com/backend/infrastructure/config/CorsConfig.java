@@ -16,10 +16,9 @@ public class CorsConfig {
 
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Allowed Origins
-        configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:5173",
-                "http://localhost:3000",
+        // Allow common local frontend ports (Vite/React) and production domain
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+                "http://localhost:*",
                 "https://myproductiondomain.com"
         ));
 

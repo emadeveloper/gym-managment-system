@@ -70,6 +70,36 @@ class AuthControllerIntegrationTest extends PostgresContainerTestSupport {
     }
 
     @Test
+    void shouldRejectRegistrationWithInvalidEmailFormat() throws Exception {
+        RegisterUserRequest request = new RegisterUserRequest(
+                "invalid-email-format",
+                "Password123"
+        );
+
+        mockMvc.perform(post("/api/v1/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Validation failed"))
+                .andExpect(jsonPath("$.details.email").exists());
+    }
+
+    @Test
+    void shouldRejectRegistrationWithShortPassword() throws Exception {
+        RegisterUserRequest request = new RegisterUserRequest(
+                "shortpass@example.com",
+                "123"
+        );
+
+        mockMvc.perform(post("/api/v1/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Validation failed"))
+                .andExpect(jsonPath("$.details.password").exists());
+    }
+
+    @Test
     void shouldLoginSuccessfully() throws Exception {
         // ARRANGE - Register user first
         RegisterUserRequest registerRequest = new RegisterUserRequest(

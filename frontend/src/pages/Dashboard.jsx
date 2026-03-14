@@ -58,7 +58,7 @@ export function Dashboard() {
   const tabs = [
     {
       id: 'overview',
-      label: 'Dashboard',
+      label: 'Home',
       icon: '',  // ← String emoji, NO componente
       description: 'Tu resumen personal',
     },

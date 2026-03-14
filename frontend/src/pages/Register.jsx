@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../hooks/useToast';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
@@ -9,6 +10,7 @@ import Logo from "../docs/img/la-resistencia-logo-1.jpg"
 export function Register() {
   const navigate = useNavigate();
   const { register, loading } = useAuth();
+  const toast = useToast();
   
   const [formData, setFormData] = useState({
     email: '',
@@ -17,7 +19,6 @@ export function Register() {
   });
   
   const [errors, setErrors] = useState({});
-  const [serverError, setServerError] = useState('');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -63,29 +64,17 @@ export function Register() {
     
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
+      toast.info('Please review the highlighted fields.', 'Validation warning');
       return;
     }
-    
-    setServerError('');
     
     const result = await register(formData.email, formData.password);
     
     if (result?.success) {
-      /**
-       * ✅ SOLUCIÓN FINAL: Obtener el rol del localStorage
-       * 
-       * Los usuarios nuevos por defecto tienen rol 'USER'
-       * Pero por si acaso, verificamos
-       */
-      const storedUser = JSON.parse(localStorage.getItem('user'));
-      
-      if (storedUser?.role === 'ADMIN') {
-        navigate('/admin');
-      } else {
-        navigate('/home');  // La mayoría de usuarios nuevos serán USER
-      }
+      toast.success('Tu cuenta fue creada correctamente.', 'Cuenta creada');
+      navigate(result?.user?.role === 'ADMIN' ? '/admin' : '/home');
     } else {
-      setServerError(result.error || "Registration failed");
+      toast.error(result?.error || 'Registration failed', 'Atención');
     }
   };
 
@@ -112,12 +101,6 @@ export function Register() {
             Sign up to get started
           </p>
         </div>
-
-        {serverError && (
-          <div className="mb-2.5 sm:mb-4 lg:mb-3 p-2.5 sm:p-3 lg:p-2.5 bg-gym-red/10 border border-gym-red rounded-lg">
-            <p className="text-sm sm:text-sm lg:text-xs text-gym-red font-medium">{serverError}</p>
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-4 lg:space-y-3">
           <Input
