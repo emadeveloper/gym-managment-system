@@ -94,7 +94,8 @@ public class RoutineManagementService {
                 entity.getNotesTag(),
                 entity.getNotes(),
                 assignedUser != null ? assignedUser.getEmail() : "",
-                assignedUser != null ? resolveName(assignedUser) : ""
+                assignedUser != null ? resolveName(assignedUser) : "",
+                entity.getSourceTemplateId()
         );
     }
 

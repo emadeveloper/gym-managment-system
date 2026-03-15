@@ -19,6 +19,7 @@ public record RoutineResponse(
         String notesTag,
         String notes,
         String assignedMemberEmail,
-        String assignedMemberName
+        String assignedMemberName,
+        UUID sourceTemplateId
 ) {
 }

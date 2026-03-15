@@ -1,7 +1,14 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
 import mockNutritionData, { nutritionVariations } from '../components/layout/nutrition/mockNutritionData';
-import { authAPI, nutritionPlansAPI, routinesAPI, userAPI } from '../services/api';
+import {
+  authAPI,
+  exercisesAPI,
+  nutritionPlansAPI,
+  routineTemplatesAPI,
+  routinesAPI,
+  userAPI,
+} from '../services/api';
 
 const MEMBER_META_STORAGE_KEY = 'lr_member_meta';
 const CLASSES_STORAGE_KEY = 'lr_classes';
@@ -378,6 +385,7 @@ function mapRoutineRecord(apiRoutine, memberMeta = {}) {
     todayWorkout: apiRoutine.todayWorkout || '',
     notesTag: apiRoutine.notesTag || '',
     notes: apiRoutine.notes || '',
+    sourceTemplateId: apiRoutine.sourceTemplateId || null,
     assignedMemberEmail: apiRoutine.assignedMemberEmail || '',
     assignedMemberName: resolveAssignedMemberName(
       apiRoutine.assignedMemberEmail,
@@ -435,6 +443,37 @@ function mapNutritionPlanRecord(apiPlan, memberMeta = {}) {
       createdDate: formatDisplayDate(apiPlan.createdDate),
       nextReview: reviewDate,
     },
+  };
+}
+
+function mapRoutineTemplateRecord(apiTemplate) {
+  return {
+    id: apiTemplate.id,
+    name: apiTemplate.name,
+    objective: apiTemplate.objective,
+    level: apiTemplate.level,
+    daysPerWeek: Number(apiTemplate.daysPerWeek) || 0,
+    estimatedDurationWeeks: Number(apiTemplate.estimatedDurationWeeks) || 0,
+    description: apiTemplate.description || '',
+    active: apiTemplate.active !== false,
+    days: Array.isArray(apiTemplate.days) ? apiTemplate.days : [],
+  };
+}
+
+function mapExerciseRecord(apiExercise) {
+  return {
+    id: apiExercise.id,
+    name: apiExercise.name,
+    slug: apiExercise.slug,
+    muscleGroup: apiExercise.muscleGroup,
+    equipment: apiExercise.equipment,
+    exerciseType: apiExercise.exerciseType,
+    description: apiExercise.description,
+    instructions: apiExercise.instructions,
+    commonMistakes: apiExercise.commonMistakes || '',
+    thumbnailUrl: apiExercise.thumbnailUrl || '',
+    videoUrl: apiExercise.videoUrl || '',
+    active: apiExercise.active !== false,
   };
 }
 
@@ -510,6 +549,8 @@ export function GymDataProvider({ children }) {
   }));
   const [members, setMembers] = useState(() => buildMembersFromMetadata(DEFAULT_MEMBER_META));
   const [routines, setRoutines] = useState([]);
+  const [routineTemplates, setRoutineTemplates] = useState([]);
+  const [exerciseLibrary, setExerciseLibrary] = useState([]);
   const [nutritionPlans, setNutritionPlans] = useState([]);
   const [classes, setClasses] = useState(() => readStorage(CLASSES_STORAGE_KEY, DEFAULT_CLASSES));
 
@@ -565,6 +606,45 @@ export function GymDataProvider({ children }) {
       isActive = false;
     };
   }, [user, memberMeta]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function syncRoutineAssets() {
+      if (!user?.email || user.role !== 'ADMIN') {
+        if (isActive) {
+          setRoutineTemplates([]);
+          setExerciseLibrary([]);
+        }
+        return;
+      }
+
+      try {
+        const [templateResponse, exerciseResponse] = await Promise.all([
+          routineTemplatesAPI.getAll(),
+          exercisesAPI.getAll(),
+        ]);
+
+        if (!isActive) {
+          return;
+        }
+
+        setRoutineTemplates(templateResponse.data.map(mapRoutineTemplateRecord));
+        setExerciseLibrary(exerciseResponse.data.map(mapExerciseRecord));
+      } catch {
+        if (isActive) {
+          setRoutineTemplates([]);
+          setExerciseLibrary([]);
+        }
+      }
+    }
+
+    syncRoutineAssets();
+
+    return () => {
+      isActive = false;
+    };
+  }, [user]);
 
   useEffect(() => {
     let isActive = true;
@@ -698,6 +778,62 @@ export function GymDataProvider({ children }) {
     });
 
     return finalRoutine;
+  };
+
+  const createRoutineTemplate = async (templateData) => {
+    const response = await routineTemplatesAPI.create(templateData);
+    const mappedTemplate = mapRoutineTemplateRecord(response.data);
+    setRoutineTemplates((current) => [mappedTemplate, ...current]);
+    return mappedTemplate;
+  };
+
+  const cloneRoutineTemplate = async (templateId, name) => {
+    const response = await routineTemplatesAPI.clone(templateId, name);
+    const mappedTemplate = mapRoutineTemplateRecord(response.data);
+    setRoutineTemplates((current) => [mappedTemplate, ...current]);
+    return mappedTemplate;
+  };
+
+  const updateRoutineTemplate = async (templateId, templateData) => {
+    const response = await routineTemplatesAPI.update(templateId, templateData);
+    const mappedTemplate = mapRoutineTemplateRecord(response.data);
+    setRoutineTemplates((current) =>
+      current.map((template) => (template.id === templateId ? mappedTemplate : template)),
+    );
+    return mappedTemplate;
+  };
+
+  const deleteRoutineTemplate = async (templateId) => {
+    await routineTemplatesAPI.remove(templateId);
+    setRoutineTemplates((current) => current.filter((template) => template.id !== templateId));
+  };
+
+  const assignRoutineTemplate = async (templateId, assignmentData) => {
+    const response = await routineTemplatesAPI.assign(templateId, assignmentData);
+    const mappedRoutine = mapRoutineRecord(response.data, memberMeta);
+    setRoutines((current) => [mappedRoutine, ...current]);
+    return mappedRoutine;
+  };
+
+  const createExercise = async (exerciseData) => {
+    const response = await exercisesAPI.create(exerciseData);
+    const mappedExercise = mapExerciseRecord(response.data);
+    setExerciseLibrary((current) => [mappedExercise, ...current]);
+    return mappedExercise;
+  };
+
+  const updateExercise = async (exerciseId, exerciseData) => {
+    const response = await exercisesAPI.update(exerciseId, exerciseData);
+    const mappedExercise = mapExerciseRecord(response.data);
+    setExerciseLibrary((current) =>
+      current.map((exercise) => (exercise.id === exerciseId ? mappedExercise : exercise)),
+    );
+    return mappedExercise;
+  };
+
+  const deleteExercise = async (exerciseId) => {
+    await exercisesAPI.remove(exerciseId);
+    setExerciseLibrary((current) => current.filter((exercise) => exercise.id !== exerciseId));
   };
 
   const getAssignedRoutinesForUser = (email) =>
@@ -847,10 +983,20 @@ export function GymDataProvider({ children }) {
   const value = {
     members,
     routines,
+    routineTemplates,
+    exerciseLibrary,
     nutritionPlans,
     classes,
     addMember,
     addRoutine,
+    createRoutineTemplate,
+    cloneRoutineTemplate,
+    updateRoutineTemplate,
+    deleteRoutineTemplate,
+    assignRoutineTemplate,
+    createExercise,
+    updateExercise,
+    deleteExercise,
     addNutritionPlan,
     addClass,
     enrollInClass,

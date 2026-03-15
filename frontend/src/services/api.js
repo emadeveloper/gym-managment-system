@@ -76,6 +76,23 @@ export const routinesAPI = {
     update: (id, routineData) => api.put(`/routines/${id}`, routineData),
 };
 
+export const routineTemplatesAPI = {
+    getAll: () => api.get("/routine-templates"),
+    create: (templateData) => api.post("/routine-templates", templateData),
+    update: (id, templateData) => api.put(`/routine-templates/${id}`, templateData),
+    remove: (id) => api.delete(`/routine-templates/${id}`),
+    clone: (id, name) => api.post(`/routine-templates/${id}/clone`, { name }),
+    assign: (id, assignmentData) => api.post(`/routine-templates/${id}/assign`, assignmentData),
+};
+
+export const exercisesAPI = {
+    getAll: (params = {}) => api.get("/exercises", { params }),
+    getPaged: (params = {}) => api.get("/exercises/paged", { params }),
+    create: (exerciseData) => api.post("/exercises", exerciseData),
+    update: (id, exerciseData) => api.put(`/exercises/${id}`, exerciseData),
+    remove: (id) => api.delete(`/exercises/${id}`),
+};
+
 export const nutritionPlansAPI = {
     getAll: () => api.get("/nutrition-plans"),
     getMine: () => api.get("/nutrition-plans/my"),

@@ -2,10 +2,16 @@ package com.backend.infrastructure.config;
 
 import com.backend.domain.valueobject.Role;
 import com.backend.infrastructure.adapter.out.persistence.entity.NutritionPlanJpaEntity;
+import com.backend.infrastructure.adapter.out.persistence.entity.RoutineTemplateJpaEntity;
 import com.backend.infrastructure.adapter.out.persistence.entity.RoutineJpaEntity;
+import com.backend.infrastructure.adapter.out.persistence.entity.ExerciseJpaEntity;
+import com.backend.infrastructure.adapter.out.persistence.repository.SpringDataExerciseRepository;
 import com.backend.infrastructure.adapter.out.persistence.entity.UserJpaEntity;
 import com.backend.infrastructure.adapter.out.persistence.repository.SpringDataNutritionPlanRepository;
 import com.backend.infrastructure.adapter.out.persistence.repository.SpringDataRoutineRepository;
+import com.backend.infrastructure.adapter.out.persistence.repository.SpringDataRoutineTemplateDayRepository;
+import com.backend.infrastructure.adapter.out.persistence.repository.SpringDataRoutineTemplateExerciseRepository;
+import com.backend.infrastructure.adapter.out.persistence.repository.SpringDataRoutineTemplateRepository;
 import com.backend.infrastructure.adapter.out.persistence.repository.SpringDataUserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +26,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,6 +42,18 @@ class DevDemoDataInitializerTest {
     private SpringDataNutritionPlanRepository nutritionPlanRepository;
 
     @Mock
+    private SpringDataExerciseRepository exerciseRepository;
+
+    @Mock
+    private SpringDataRoutineTemplateRepository routineTemplateRepository;
+
+    @Mock
+    private SpringDataRoutineTemplateDayRepository routineTemplateDayRepository;
+
+    @Mock
+    private SpringDataRoutineTemplateExerciseRepository routineTemplateExerciseRepository;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     private DevDemoDataInitializer initializer;
@@ -45,6 +64,10 @@ class DevDemoDataInitializerTest {
                 userRepository,
                 routineRepository,
                 nutritionPlanRepository,
+                exerciseRepository,
+                routineTemplateRepository,
+                routineTemplateDayRepository,
+                routineTemplateExerciseRepository,
                 passwordEncoder
         );
     }
@@ -66,6 +89,12 @@ class DevDemoDataInitializerTest {
                 .thenReturn(Optional.of(existingDemoUser));
         when(userRepository.save(any(UserJpaEntity.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
+        when(exerciseRepository.findByNameIgnoreCase(anyString()))
+                .thenReturn(Optional.of(new ExerciseJpaEntity()));
+        when(routineTemplateRepository.findByNameIgnoreCase("Plantilla base pecho y triceps"))
+                .thenReturn(Optional.of(new RoutineTemplateJpaEntity()));
+        when(routineTemplateDayRepository.findByRoutineTemplateIdOrderByDayOrderAsc(any()))
+                .thenReturn(List.of(new com.backend.infrastructure.adapter.out.persistence.entity.RoutineTemplateDayJpaEntity()));
         when(routineRepository.findAllByAssignedUserEmailIgnoreCase("demo.member@laresistencia.dev"))
                 .thenReturn(List.of(new RoutineJpaEntity()));
         when(nutritionPlanRepository.findAllByAssignedUserEmailIgnoreCase("demo.member@laresistencia.dev"))

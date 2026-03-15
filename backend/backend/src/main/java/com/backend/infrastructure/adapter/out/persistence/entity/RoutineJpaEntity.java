@@ -68,6 +68,9 @@ public class RoutineJpaEntity {
     @Column(columnDefinition = "TEXT")
     private String notes;
 
+    @Column(name = "source_template_id")
+    private UUID sourceTemplateId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "assigned_user_id")
     private UserJpaEntity assignedUser;
