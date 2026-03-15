@@ -17,23 +17,14 @@ const cardButton = 'mt-5 min-h-11 w-full text-sm uppercase font-heading';
 
 function PassportCard({ icon, title, subtitle, children, actionText, onAction }) {
   const iconElement = icon
-    ? React.createElement(icon, { className: 'h-5 w-5', 'aria-hidden': 'true' })
+    ? React.createElement(icon, { className: 'h-6 w-6', 'aria-hidden': 'true' })
     : null;
 
   return (
     <section className={cardShell}>
-      <div className="flex items-center justify-between">
-        <div className="flex h-11 w-11 items-center justify-center rounded-full border border-primary/40 bg-primary/10 text-primary">
-          {iconElement}
-        </div>
-        <div className="rounded-full border border-gray-600 px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-gray-400">
-          Dashboard
-        </div>
-      </div>
-
-      <div className="mt-4 text-center">
+      <div className="pt-1 text-center">
         <h3 className="text-3xl font-heading font-bold text-foreground sm:text-4xl">{title}</h3>
-        <p className="mt-2 text-base text-gray-400">{subtitle}</p>
+        <p className="mt-3 text-sm uppercase tracking-[0.12em] text-gray-400">{subtitle}</p>
       </div>
 
       <div className="mt-5 text-center">{children}</div>
@@ -42,6 +33,12 @@ function PassportCard({ icon, title, subtitle, children, actionText, onAction })
         <Button className={cardButton} onClick={onAction}>
           {actionText}
         </Button>
+      ) : null}
+
+      {iconElement ? (
+        <div className="mt-4 flex justify-center text-primary">
+          {iconElement}
+        </div>
       ) : null}
     </section>
   );
@@ -133,10 +130,16 @@ const DashboardOverview = ({ user, dashboardData = {} }) => {
             actionText="Ver rutina completa"
             onAction={() => navigate('/home?tab=routines')}
           >
-            <p className="text-sm text-gray-300">Enfoque</p>
-            <p className="mt-1 text-lg font-semibold text-foreground">{currentRoutine.focus}</p>
-            <p className="mt-4 text-sm text-gray-300">Frecuencia</p>
-            <p className="mt-1 text-lg font-semibold text-foreground">{currentRoutine.daysPerWeek} días por semana</p>
+            <div className="space-y-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.12em] text-gray-400">Enfoque</p>
+                <p className="mt-1 text-lg font-semibold text-foreground">{currentRoutine.focus}</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.12em] text-gray-400">Frecuencia</p>
+                <p className="mt-1 text-lg font-semibold text-foreground">{currentRoutine.daysPerWeek} días por semana</p>
+              </div>
+            </div>
           </PassportCard>
         ) : (
           <EmptyState
@@ -156,8 +159,10 @@ const DashboardOverview = ({ user, dashboardData = {} }) => {
             actionText="Ver plan nutricional"
             onAction={() => navigate('/home?tab=nutrition')}
           >
-            <p className="text-sm text-gray-300">Calorías diarias</p>
-            <p className="mt-1 text-2xl font-heading font-bold text-foreground">{nutrition.calories}</p>
+            <div className="space-y-2">
+              <p className="text-xs uppercase tracking-[0.12em] text-gray-400">Calorías diarias</p>
+              <p className="text-2xl font-heading font-bold text-foreground">{nutrition.calories}</p>
+            </div>
           </PassportCard>
         ) : (
           <EmptyState
@@ -177,8 +182,10 @@ const DashboardOverview = ({ user, dashboardData = {} }) => {
             actionText="Editar objetivos"
             onAction={() => navigate('/home?tab=profile')}
           >
-            <p className="text-lg font-semibold text-foreground">{goals[0]}</p>
-            <p className="mt-4 text-sm text-gray-400">{goals.length} objetivos activos</p>
+            <div className="space-y-3">
+              <p className="text-lg font-semibold text-foreground">{goals[0]}</p>
+              <p className="text-xs uppercase tracking-[0.12em] text-gray-400">{goals.length} objetivos activos</p>
+            </div>
           </PassportCard>
         ) : (
           <EmptyState
@@ -198,12 +205,16 @@ const DashboardOverview = ({ user, dashboardData = {} }) => {
           onAction={() => navigate('/home?tab=profile')}
         >
           {membershipStatus.active ? (
-            <>
-              <p className="text-sm text-gray-300">Renovación</p>
-              <p className="mt-1 text-lg font-semibold text-foreground">{membershipStatus.renewalDate}</p>
-              <p className="mt-4 text-sm text-gray-300">Días restantes</p>
-              <p className="mt-1 text-2xl font-heading font-bold text-primary">{membershipStatus.daysLeft}</p>
-            </>
+            <div className="space-y-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.12em] text-gray-400">Renovación</p>
+                <p className="mt-1 text-lg font-semibold text-foreground">{membershipStatus.renewalDate}</p>
+              </div>
+              <div>
+                <p className="text-xs uppercase tracking-[0.12em] text-gray-400">Días restantes</p>
+                <p className="mt-1 text-2xl font-heading font-bold text-primary">{membershipStatus.daysLeft}</p>
+              </div>
+            </div>
           ) : (
             <>
               <p className="text-lg font-semibold text-yellow-400">Membresía inactiva</p>
@@ -214,18 +225,9 @@ const DashboardOverview = ({ user, dashboardData = {} }) => {
 
         {nextClasses.length > 0 ? (
           <section className={`${cardShell} lg:col-span-2`}>
-            <div className="flex items-center justify-between">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full border border-primary/40 bg-primary/10 text-primary">
-                <CalendarDays className="h-5 w-5" aria-hidden="true" />
-              </div>
-              <div className="rounded-full border border-gray-600 px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-gray-400">
-                Agenda
-              </div>
-            </div>
-
-            <div className="mt-4 text-center">
+            <div className="pt-1 text-center">
               <h3 className="text-3xl font-heading font-bold text-foreground sm:text-4xl">Próximas clases</h3>
-              <p className="mt-2 text-base text-gray-400">Reservá tu próximo bloque</p>
+              <p className="mt-3 text-sm uppercase tracking-[0.12em] text-gray-400">Reservá tu próximo bloque</p>
             </div>
 
             <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -239,6 +241,10 @@ const DashboardOverview = ({ user, dashboardData = {} }) => {
                   <Button className={cardButton}>Reservar</Button>
                 </article>
               ))}
+            </div>
+
+            <div className="mt-4 flex justify-center text-primary">
+              <CalendarDays className="h-6 w-6" aria-hidden="true" />
             </div>
           </section>
         ) : (

@@ -62,9 +62,15 @@ const DashboardHeader = ({ tabs, activeTab, setActiveTab, onLogout, user }) => {
             />
           </div>
 
-          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary border border-primary text-sm font-bold text-white uppercase">
+          <button
+            type="button"
+            onClick={() => handleTabClick('profile')}
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-primary border border-primary text-sm font-bold text-white uppercase"
+            aria-label="Ir al perfil"
+            title="Ir al perfil"
+          >
             {user?.name?.charAt(0) || user?.email?.charAt(0) || 'U'}
-          </div>
+          </button>
         </div>
       </header>
 
