@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useGymData } from '../context/GymDataContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -24,6 +24,7 @@ export function Dashboard() {
   const { getAssignedNutritionForUser } = useGymData();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const contentStartRef = useRef(null);
   const validTabs = ['overview', 'routines', 'nutrition', 'classes', 'profile'];
   const requestedTab = searchParams.get('tab');
   const normalizedTab = validTabs.includes(requestedTab) ? requestedTab : 'overview';
@@ -34,6 +35,23 @@ export function Dashboard() {
       setActiveTab(normalizedTab);
     }
   }, [activeTab, normalizedTab]);
+
+  useEffect(() => {
+    if (!contentStartRef.current) {
+      return;
+    }
+
+    const mobileOffset = 152;
+    const desktopOffset = 112;
+    const offset = window.innerWidth < 1024 ? mobileOffset : desktopOffset;
+    const targetY =
+      contentStartRef.current.getBoundingClientRect().top + window.scrollY - offset;
+
+    window.scrollTo({
+      top: Math.max(0, targetY),
+      behavior: 'smooth',
+    });
+  }, [activeTab]);
 
   const handleLogout = () => {
     logout();
@@ -139,6 +157,7 @@ export function Dashboard() {
             key={activeTab}
             className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12 animate-fadeIn"
           >
+            <div ref={contentStartRef} />
             <Suspense fallback={<TabFallback />}>
               {renderContent()}
             </Suspense>

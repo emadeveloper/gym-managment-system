@@ -62,7 +62,7 @@ const DashboardHeader = ({ tabs, activeTab, setActiveTab, onLogout, user }) => {
             />
           </div>
 
-          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/20 border border-primary/30 text-sm font-bold text-primary uppercase">
+          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary border border-primary text-sm font-bold text-white uppercase">
             {user?.name?.charAt(0) || user?.email?.charAt(0) || 'U'}
           </div>
         </div>

@@ -8,6 +8,7 @@ import AdminHeader from './components/AdminHeader';
 const UsersManagement = lazy(() => import('./users/UsersManagement'));
 const RoutinesManagement = lazy(() => import('./userRoutines/RoutinesManagement'));
 const NutritionManagement = lazy(() => import('./userNutrition/NutritionManagement'));
+const ClassesManagement = lazy(() => import('./userClasses/ClassesManagement'));
 const Analytics = lazy(() => import('./analytics/Analytics'));
 
 function AdminTabFallback() {
@@ -80,6 +81,12 @@ export function AdminDashboard() {
       description: 'Gestión de planes nutricionales',
     },
     {
+      id: 'classes',
+      label: 'Clases',
+      icon: '📅',
+      description: 'Gestión de clases',
+    },
+    {
       id: 'analytics',
       label: 'Analytics',
       icon: '📊',
@@ -98,6 +105,8 @@ export function AdminDashboard() {
         return <RoutinesManagement />;
       case 'nutrition':
         return <NutritionManagement />;
+      case 'classes':
+        return <ClassesManagement />;
       case 'analytics':
         return <Analytics />;
       default:

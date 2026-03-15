@@ -45,17 +45,18 @@ const Nutrition = ({ user, nutritionData = null }) => {
             <p className="text-xs font-heading uppercase tracking-[0.24em] text-gray-500">
               Nutrición
             </p>
-            <h1 className="mt-3 text-3xl font-heading font-bold uppercase text-foreground sm:text-4xl">
-              Tu plan nutricional
-            </h1>
+            <div className='flex justify-between items-center'>
+              <h1 className="mt-3 text-3xl font-heading font-bold uppercase text-foreground sm:text-4xl ">
+                Tu plan nutricional
+              </h1>
+              <div className="flex h-14 w-14 items-center justify-center rounded-3xl text-primary">
+              <Apple className="h-9 w-9 text-primary" />
+            </div>
+            </div>
             <p className="mt-3 text-sm leading-7 text-gray-400 sm:text-base">
               Plan personalizado con macros, horarios, comidas y soporte diario para
               sostener el objetivo sin improvisar.
             </p>
-          </div>
-
-          <div className="flex h-14 w-14 items-center justify-center rounded-3xl border border-primary/20 bg-primary/10 text-primary">
-            <Apple className="h-7 w-7" />
           </div>
         </div>
       </section>

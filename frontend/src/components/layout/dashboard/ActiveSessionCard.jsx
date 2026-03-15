@@ -17,7 +17,7 @@ const ActiveSessionCard = ({ user, className = '' }) => {
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-primary/35 bg-primary/15 text-sm font-bold uppercase text-primary">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-primary bg-primary text-sm font-bold uppercase text-white">
           {initials || <UserRound className="h-4 w-4" aria-hidden="true" />}
         </div>
 

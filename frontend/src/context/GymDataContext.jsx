@@ -4,6 +4,7 @@ import mockNutritionData, { nutritionVariations } from '../components/layout/nut
 import { authAPI, nutritionPlansAPI, routinesAPI, userAPI } from '../services/api';
 
 const MEMBER_META_STORAGE_KEY = 'lr_member_meta';
+const CLASSES_STORAGE_KEY = 'lr_classes';
 
 const DEFAULT_MEMBERS = [
   {
@@ -255,6 +256,37 @@ const DEFAULT_MEMBER_META = DEFAULT_MEMBERS.reduce((accumulator, member) => {
   return accumulator;
 }, {});
 
+const DEFAULT_CLASSES = [
+  {
+    id: 'class-hiit-2026-03-18',
+    date: '2026-03-18',
+    startTime: '18:00',
+    endTime: '18:50',
+    name: 'HIIT Training',
+    title: 'HIIT Metabólico',
+    classType: 'Cardio + resistencia',
+    coach: 'Carlos López',
+    description:
+      'Bloque intenso por estaciones para mejorar capacidad aeróbica, resistencia y quema calórica.',
+    capacity: 16,
+    enrollments: [],
+  },
+  {
+    id: 'class-strength-2026-03-20',
+    date: '2026-03-20',
+    startTime: '19:00',
+    endTime: '20:00',
+    name: 'Strength Training',
+    title: 'Fuerza Base',
+    classType: 'Fuerza',
+    coach: 'María García',
+    description:
+      'Trabajo técnico de básicos con progresión de cargas para ganar fuerza útil y controlar la ejecución.',
+    capacity: 14,
+    enrollments: [],
+  },
+];
+
 const GymDataContext = createContext(null);
 
 function readStorage(key, fallbackValue) {
@@ -479,10 +511,15 @@ export function GymDataProvider({ children }) {
   const [members, setMembers] = useState(() => buildMembersFromMetadata(DEFAULT_MEMBER_META));
   const [routines, setRoutines] = useState([]);
   const [nutritionPlans, setNutritionPlans] = useState([]);
+  const [classes, setClasses] = useState(() => readStorage(CLASSES_STORAGE_KEY, DEFAULT_CLASSES));
 
   useEffect(() => {
     writeStorage(MEMBER_META_STORAGE_KEY, memberMeta);
   }, [memberMeta]);
+
+  useEffect(() => {
+    writeStorage(CLASSES_STORAGE_KEY, classes);
+  }, [classes]);
 
   useEffect(() => {
     let isActive = true;
@@ -719,13 +756,104 @@ export function GymDataProvider({ children }) {
         plan.status === 'Activo',
     ) || null;
 
+  const addClass = async (classData) => {
+    const newClass = {
+      id: `class-${Date.now()}`,
+      date: classData.date,
+      startTime: classData.startTime,
+      endTime: classData.endTime || '',
+      name: classData.name.trim(),
+      title: classData.title.trim(),
+      classType: classData.classType.trim(),
+      coach: classData.coach?.trim() || 'Staff La Resistencia',
+      description: classData.description.trim(),
+      capacity: Math.max(1, Number(classData.capacity) || 1),
+      enrollments: [],
+    };
+
+    setClasses((currentClasses) =>
+      [...currentClasses, newClass].sort(
+        (first, second) =>
+          `${first.date}T${first.startTime}`.localeCompare(`${second.date}T${second.startTime}`),
+      ),
+    );
+
+    return newClass;
+  };
+
+  const enrollInClass = async ({ classId, user: currentUser, fullName, phone, notes }) => {
+    if (!currentUser?.email) {
+      throw new Error('Necesitás iniciar sesión para inscribirte.');
+    }
+
+    const normalizedEmail = currentUser.email.toLowerCase();
+    let enrolledClass = null;
+    let enrollmentRecord = null;
+    let enrollmentError = null;
+
+    setClasses((currentClasses) =>
+      currentClasses.map((classItem) => {
+        if (classItem.id !== classId) {
+          return classItem;
+        }
+
+        const alreadyEnrolled = classItem.enrollments.some(
+          (enrollment) => enrollment.memberEmail.toLowerCase() === normalizedEmail,
+        );
+
+        if (alreadyEnrolled) {
+          enrollmentError = new Error('Ya estás inscripto en esta clase.');
+          return classItem;
+        }
+
+        if (classItem.enrollments.length >= classItem.capacity) {
+          enrollmentError = new Error('No quedan cupos disponibles para esta clase.');
+          return classItem;
+        }
+
+        enrollmentRecord = {
+          id: `enrollment-${Date.now()}`,
+          memberEmail: normalizedEmail,
+          memberName:
+            fullName?.trim() || currentUser.name?.trim() || formatNameFromEmail(currentUser.email),
+          phone: phone?.trim() || '',
+          notes: notes?.trim() || '',
+          createdAt: new Date().toISOString(),
+        };
+
+        enrolledClass = {
+          ...classItem,
+          enrollments: [...classItem.enrollments, enrollmentRecord],
+        };
+
+        return enrolledClass;
+      }),
+    );
+
+    if (enrollmentError) {
+      throw enrollmentError;
+    }
+
+    if (!enrolledClass) {
+      throw new Error('No encontramos la clase seleccionada.');
+    }
+
+    return {
+      classData: enrolledClass,
+      enrollment: enrollmentRecord,
+    };
+  };
+
   const value = {
     members,
     routines,
     nutritionPlans,
+    classes,
     addMember,
     addRoutine,
     addNutritionPlan,
+    addClass,
+    enrollInClass,
     getAssignedRoutinesForUser,
     getAssignedNutritionForUser,
   };

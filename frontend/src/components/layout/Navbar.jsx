@@ -184,7 +184,7 @@ const Navbar = () => {
                   <button
                     type="button"
                     onClick={goToProfile}
-                    className="hidden h-11 w-11 items-center justify-center rounded-full border border-white/8 bg-black/35 text-sm font-semibold uppercase tracking-[0.08em] text-gray-200 transition-all duration-300 hover:border-primary/40 hover:bg-white/5 hover:text-white xl:inline-flex"
+                    className="hidden h-11 w-11 items-center justify-center rounded-full border border-primary bg-primary text-sm font-semibold uppercase tracking-[0.08em] text-white transition-all duration-300 hover:bg-primary/90 xl:inline-flex"
                     aria-label="Ir al perfil"
                     title={user.name || user.email || "Ir al perfil"}
                   >
@@ -332,7 +332,7 @@ const Navbar = () => {
                       <button
                         type="button"
                         onClick={goToProfile}
-                        className="flex h-10 w-10 items-center justify-center rounded-full border border-primary/25 bg-primary/10 text-sm font-semibold uppercase tracking-[0.08em] text-white"
+                        className="flex h-10 w-10 items-center justify-center rounded-full border border-primary bg-primary text-sm font-semibold uppercase tracking-[0.08em] text-white"
                         aria-label="Ir al perfil"
                       >
                         {userInitials ? userInitials : <User className="h-4 w-4" />}

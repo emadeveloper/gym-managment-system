@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Button } from '../../../ui/Button';
 import Logo from '../../../../docs/img/la-resistencia-logo-1.jpg';
-import { Users, Dumbbell, Salad, BarChart3 } from 'lucide-react';
+import { Users, Dumbbell, Salad, BarChart3, CalendarDays } from 'lucide-react';
 
 const ICON_MAP = {
   users: Users,
   routines: Dumbbell,
   nutrition: Salad,
+  classes: CalendarDays,
   analytics: BarChart3,
 };
 
