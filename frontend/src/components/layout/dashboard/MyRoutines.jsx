@@ -28,12 +28,12 @@ function SummaryMetric({ icon, label, value }) {
     : null;
 
   return (
-    <div className="rounded-3xl border border-gray-800 bg-black/25 p-4">
-      <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-gray-400">
+    <div className="rounded-3xl border border-gray-800 bg-black/25 p-4 text-center">
+      <div className="flex items-center justify-center gap-2 text-[11px] uppercase tracking-[0.14em] text-gray-400">
         {iconElement}
         {label}
       </div>
-      <p className="mt-3 text-2xl font-heading font-bold text-white">{value}</p>
+      <p className="mt-3 text-xl font-heading font-bold text-white">{value}</p>
     </div>
   );
 }
@@ -113,31 +113,29 @@ const MyRoutines = ({ user }) => {
 
   return (
     <div className="space-y-6 lg:space-y-8">
-      <section className="relative overflow-hidden rounded-3xl border border-gray-800 bg-[linear-gradient(120deg,#0f1115_0%,#161a21_60%,#1d1010_100%)] p-5 sm:p-7 lg:p-8">
-        <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-primary/15 blur-3xl" aria-hidden="true" />
+      <section className="relative overflow-hidden rounded-3xl border border-gray-800 bg-surface p-5 sm:p-7 lg:p-8">
+        <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full blur-3xl" aria-hidden="true" />
         <div className="relative z-10">
-          <div className="flex flex-wrap items-start justify-between gap-5">
+          <div className="flex flex-wrap items-start justify-between">
             <div className="max-w-3xl">
-              <p className="text-xs uppercase tracking-[0.22em] text-gray-500">Mi plan de entrenamiento</p>
-              <h1 className="mt-3 text-3xl font-heading font-bold uppercase text-white sm:text-4xl">
-                {selectedRoutine.name}
-              </h1>
-              <p className="mt-3 text-sm leading-7 text-gray-300 sm:text-base">
-                Vista completa de ejercicios, series, repeticiones y peso por serie. Esta vista consume la data
-                del backend y, cuando no hay detalle cargado, muestra un mock para validar la interfaz en todos
-                los dispositivos.
+              <p className="text-sm uppercase tracking-[0.22em] text-gray-500 text-center pb-2">Mi plan de entrenamiento actual</p>
+              <div className='flex justify-between items-center gap-6 text-center'>
+                <h1 className="mt-3 text-3xl font-heading font-bold uppercase text-white sm:text-4xl">
+                  {selectedRoutine.name} 
+                </h1>
+                  <Dumbbell className="h-9 w-9 text-primary" aria-hidden="true" />
+              </div>
+              <p className="mt-3 text-sm leading-7 text-gray-300 sm:text-base pt-3">
+                {selectedRoutine.routineDescription}
               </p>
-            </div>
-            <div className="rounded-3xl border border-primary/30 bg-primary/10 p-4 text-primary">
-              <Dumbbell className="h-7 w-7" aria-hidden="true" />
-            </div>
+            </div> 
           </div>
 
           <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
             <SummaryMetric icon={CalendarClock} label="Frecuencia" value={`${selectedRoutine.sessionsPerWeek} dias`} />
             <SummaryMetric icon={TimerReset} label="Duracion" value={selectedRoutine.duration} />
             <SummaryMetric icon={BarChart3} label="Ejercicios" value={summary.totalExercises} />
-            <SummaryMetric icon={Weight} label="Tonelaje estimado" value={`${selectedRoutine.estimatedTonnageKg} kg`} />
+            <SummaryMetric icon={Weight} label="Enfoque" value={selectedRoutine.focusArea} />
           </div>
         </div>
       </section>
@@ -152,14 +150,14 @@ const MyRoutines = ({ user }) => {
                 key={routine.id}
                 type="button"
                 onClick={() => setSelectedRoutineId(routine.id)}
-                className={`min-h-11 shrink-0 rounded-2xl border px-4 py-3 text-left transition-colors ${
+                className={`min-h-11 shrink-0 rounded-2xl border px-4 py-3 text-center transition-colors ${
                   isSelected
-                    ? 'border-primary/60 bg-primary/10 text-white'
+                    ? 'border-primary/60 bg-primary text-white'
                     : 'border-gray-700 bg-black/25 text-gray-300 hover:border-primary/40 hover:text-white'
                 }`}
               >
-                <p className="text-sm font-semibold">{routine.name}</p>
-                <p className="text-xs uppercase tracking-[0.12em] text-gray-400">{routine.goal}</p>
+                <p className="text-center text-sm font-semibold">{routine.name}</p>
+                <p className="text-center text-xs uppercase tracking-[0.12em] text-white">{routine.goal}</p>
               </button>
             );
           })}

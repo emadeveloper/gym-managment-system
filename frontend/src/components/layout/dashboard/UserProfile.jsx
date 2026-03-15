@@ -3,7 +3,9 @@ import { Card } from '../../ui/Card';
 import { Button } from '../../ui/Button';
 import { userAPI } from '../../../services/api';
 import { useAuth } from '../../../context/AuthContext';
+import { useGymData } from '../../../context/GymDataContext';
 import { useToast } from '../../../hooks/useToast';
+import { useNavigate } from 'react-router-dom';
 import {
   KeyRound,
   ShieldCheck,
@@ -22,6 +24,8 @@ function formatName(firstName = '', lastName = '') {
 
 const UserProfile = ({ user, onLogout }) => {
   const { updateCurrentUser } = useAuth();
+  const { members } = useGymData();
+  const navigate = useNavigate();
   const toast = useToast();
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -49,6 +53,13 @@ const UserProfile = ({ user, onLogout }) => {
     const fullName = formatName(profileForm.name, profileForm.lastName);
     return fullName || user?.name || 'Mi perfil';
   }, [profileForm.lastName, profileForm.name, user?.name]);
+  const currentMember = useMemo(
+    () => members.find((member) => member.email?.toLowerCase() === user?.email?.toLowerCase()) || null,
+    [members, user?.email],
+  );
+  const membershipPlan = currentMember?.plan || 'Sin membresía activa';
+  const membershipStatus = currentMember?.status || 'Pendiente';
+  const hasMembership = Boolean(currentMember?.plan && currentMember.plan !== 'Pendiente');
 
   useEffect(() => {
     let isActive = true;
@@ -206,6 +217,15 @@ const UserProfile = ({ user, onLogout }) => {
     }
   };
 
+  const handleManageMembership = () => {
+    if (hasMembership) {
+      navigate('/home?tab=overview');
+      return;
+    }
+
+    toast.info('Aún no tenés una membresía activa. Contactá al staff para activarla.', 'Membresía');
+  };
+
   return (
     <div className="space-y-6">
       <section className="rounded-[2rem] border border-gray-700 bg-surface p-5 text-center sm:p-6">
@@ -343,6 +363,21 @@ const UserProfile = ({ user, onLogout }) => {
         </form>
 
         <div className="space-y-4">
+          <Card className="rounded-[2rem] border border-gray-700 bg-surface p-5 sm:p-6">
+            <p className="text-xs uppercase tracking-[0.14em] text-gray-500">Membresía</p>
+            <p className="mt-2 text-xl font-heading font-bold text-foreground">{membershipPlan}</p>
+            <p className="mt-1 text-sm text-gray-400">Estado: {membershipStatus}</p>
+            <p className="mt-3 text-sm text-gray-400">
+              Gestioná tu plan para mantener acceso a rutinas, clases y seguimiento.
+            </p>
+            <Button
+              className="mt-4 min-h-11 w-full text-sm uppercase font-heading"
+              onClick={handleManageMembership}
+            >
+              Gestionar Membresía
+            </Button>
+          </Card>
+
           <form onSubmit={handlePasswordSubmit}>
             <Card className={cardShell}>
               <div className="mb-5 flex items-center justify-between border-b border-gray-700 pb-4">

@@ -51,6 +51,7 @@ class UpdateUserServiceImplTest {
                 null,
                 null,
                 null,
+                null,
                 "newPassword"
         );
 
@@ -84,6 +85,7 @@ class UpdateUserServiceImplTest {
                 null,
                 null,
                 null,
+                null,
                 "newpass"
         );
 
@@ -109,6 +111,7 @@ class UpdateUserServiceImplTest {
         UpdateUserCommand command = new UpdateUserCommand(
                 id,
                 "new@example.com",
+                null,
                 null,
                 null,
                 null,
@@ -141,6 +144,7 @@ class UpdateUserServiceImplTest {
 
         UpdateUserCommand command = new UpdateUserCommand(
                 id,
+                null,
                 null,
                 null,
                 null,
@@ -180,6 +184,7 @@ class UpdateUserServiceImplTest {
                 null,
                 null,
                 null,
+                null,
                 "123"
         );
 
@@ -205,6 +210,7 @@ class UpdateUserServiceImplTest {
                 null,
                 "Juan",
                 "Perez",
+                null,
                 "30123456",
                 "+5491112345678",
                 null

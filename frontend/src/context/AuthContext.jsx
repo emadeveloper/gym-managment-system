@@ -3,18 +3,6 @@ import { getToken, isAuthenticated, getUser, removeToken, removeUser, saveToken,
 import { authAPI } from '../services/api';
 
 const AuthContext = createContext(null);
-const MOCK_LOGIN_USERS = {
-    'valentina.rios@example.com': {
-        password: 'Valentina123!',
-        user: {
-            id: 'mock-valentina-001',
-            email: 'valentina.rios@example.com',
-            name: 'Valentina Ríos',
-            role: 'USER',
-        },
-        token: 'mock-token-valentina-001',
-    },
-};
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
@@ -50,16 +38,6 @@ export function AuthProvider({ children }) {
 
             return { success: true };
         } catch (err) {
-            const normalizedEmail = (email || '').trim().toLowerCase();
-            const mockCredentials = MOCK_LOGIN_USERS[normalizedEmail];
-
-            if (mockCredentials && mockCredentials.password === password) {
-                saveToken(mockCredentials.token);
-                saveUser(mockCredentials.user);
-                setUser(mockCredentials.user);
-                return { success: true };
-            }
-
             const errorMessage = err.response?.data?.message || "Login Failed";
             setError(errorMessage);
             return { success: false, error: errorMessage };
@@ -84,7 +62,7 @@ export function AuthProvider({ children }) {
             return { success: true, user: userData };
         } catch (err) {
             const apiError = err.response?.data;
-            const validationDetails = apiError?.details;
+            const validationDetails = apiError?.errors;
             const firstValidationMessage = validationDetails && typeof validationDetails === 'object'
                 ? Object.values(validationDetails)[0]
                 : null;

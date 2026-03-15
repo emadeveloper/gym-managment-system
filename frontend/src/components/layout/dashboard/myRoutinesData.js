@@ -206,6 +206,12 @@ export function buildRoutineViewModel(routines = []) {
   return routines.map((routine) => {
     const blocks = normalizeBlocks(routine);
     const estimatedTonnageKg = calculateTonnage(blocks);
+    const routineDescription =
+      routine.notes?.trim() ||
+      routine.notesTag?.trim() ||
+      (routine.focusArea
+        ? `Rutina orientada a ${routine.goal?.toLowerCase() || 'rendimiento'}, con foco en ${routine.focusArea.toLowerCase()}.`
+        : `Rutina orientada a ${routine.goal?.toLowerCase() || 'rendimiento'} y progreso sostenido.`);
 
     return {
       id: routine.id || routine.name,
@@ -216,6 +222,7 @@ export function buildRoutineViewModel(routines = []) {
       duration: routine.duration || '60 min',
       sessionsPerWeek: Number(routine.sessionsPerWeek) || 3,
       focusArea: routine.focusArea || routine.goal || 'General',
+      routineDescription,
       blocks,
       estimatedTonnageKg,
     };

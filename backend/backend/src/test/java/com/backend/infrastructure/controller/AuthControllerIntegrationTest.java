@@ -81,7 +81,7 @@ class AuthControllerIntegrationTest extends PostgresContainerTestSupport {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Validation failed"))
-                .andExpect(jsonPath("$.details.email").exists());
+                .andExpect(jsonPath("$.errors.email").exists());
     }
 
     @Test
@@ -96,7 +96,7 @@ class AuthControllerIntegrationTest extends PostgresContainerTestSupport {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Validation failed"))
-                .andExpect(jsonPath("$.details.password").exists());
+                .andExpect(jsonPath("$.errors.password").exists());
     }
 
     @Test
@@ -145,6 +145,21 @@ class AuthControllerIntegrationTest extends PostgresContainerTestSupport {
         mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("La contraseña es incorrecta"));
+    }
+
+    @Test
+    void shouldRejectLoginWhenEmailDoesNotExist() throws Exception {
+        LoginRequestDto loginRequest = new LoginRequestDto(
+                "missing-user@example.com",
+                "AnyPassword123"
+        );
+
+        mockMvc.perform(post("/api/v1/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("El email no existe"));
     }
 }

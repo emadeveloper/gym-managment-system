@@ -25,6 +25,9 @@ public class DevDemoDataInitializer implements CommandLineRunner {
     private static final UUID DEMO_USER_ID = UUID.fromString("9f4c2ce5-37f1-44f8-8725-c6f1890f7f11");
     private static final String DEMO_USER_EMAIL = "demo.member@laresistencia.dev";
     private static final String DEMO_USER_PASSWORD = "DemoUser123!";
+    private static final UUID ADMIN_USER_ID = UUID.fromString("e5dcb1d4-b31f-4e72-b944-f8275f0d3ef7");
+    private static final String ADMIN_USER_EMAIL = "valentina.rios.admin@laresistencia.dev";
+    private static final String ADMIN_USER_PASSWORD = "AdminValentina123!";
     private static final String DEMO_ROUTINE_NAME = "Pecho y triceps - fuerza progresiva";
     private static final String DEMO_NUTRITION_PLAN_NAME = "Plan nutricional para ganar masa muscular";
 
@@ -36,9 +39,35 @@ public class DevDemoDataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
+        ensureAdminUser();
         UserJpaEntity demoUser = ensureDemoUser();
         ensureDemoRoutine(demoUser);
         ensureDemoNutritionPlan(demoUser);
+    }
+
+    private UserJpaEntity ensureAdminUser() {
+        return userRepository.findByEmail(ADMIN_USER_EMAIL)
+                .map(existingUser -> {
+                    existingUser.setPassword(passwordEncoder.encode(ADMIN_USER_PASSWORD));
+                    existingUser.setRole(Role.ADMIN);
+                    existingUser.setName("Valentina");
+                    existingUser.setLastName("Rios");
+                    existingUser.setIsActive(true);
+                    existingUser.setProfileUpdated(true);
+                    return userRepository.save(existingUser);
+                })
+                .orElseGet(() -> {
+                    UserJpaEntity adminUser = new UserJpaEntity();
+                    adminUser.setId(ADMIN_USER_ID);
+                    adminUser.setEmail(ADMIN_USER_EMAIL);
+                    adminUser.setPassword(passwordEncoder.encode(ADMIN_USER_PASSWORD));
+                    adminUser.setRole(Role.ADMIN);
+                    adminUser.setName("Valentina");
+                    adminUser.setLastName("Rios");
+                    adminUser.setIsActive(true);
+                    adminUser.setProfileUpdated(true);
+                    return userRepository.save(adminUser);
+                });
     }
 
     private UserJpaEntity ensureDemoUser() {

@@ -75,7 +75,14 @@ export function Login() {
         navigate('/home');
       }
     } else {
-      setServerError(result.error);
+      const loginError = result.error || 'No se pudo iniciar sesión';
+      setServerError(loginError);
+
+      if (loginError === 'La contraseña es incorrecta') {
+        setErrors((prev) => ({ ...prev, password: loginError }));
+      } else if (loginError === 'El email no existe') {
+        setErrors((prev) => ({ ...prev, email: loginError }));
+      }
     }
   };
 

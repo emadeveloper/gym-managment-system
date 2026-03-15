@@ -65,6 +65,7 @@ class UserControllerIntegrationTest extends PostgresContainerTestSupport {
                                 "updated@example.com",
                                 "Juan",
                                 "Perez",
+                                30,
                                 "30123456",
                                 "+5491112345678",
                                 null
