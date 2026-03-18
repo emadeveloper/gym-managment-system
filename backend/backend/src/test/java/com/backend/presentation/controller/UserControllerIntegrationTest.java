@@ -65,14 +65,15 @@ class UserControllerIntegrationTest extends PostgresContainerTestSupport {
                                 "updated@example.com",
                                 "Juan",
                                 "Perez",
-                                30,
+                                null,
                                 "30123456",
                                 "+5491112345678",
                                 null
                         ))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("updated@example.com"))
-                .andExpect(jsonPath("$.name").value("Juan Perez"));
+                .andExpect(jsonPath("$.name").value("Juan"))
+                .andExpect(jsonPath("$.lastName").value("Perez"));
 
         MvcResult refreshedSessionResult = mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)

@@ -47,8 +47,11 @@ public class ExerciseJpaEntity {
     @Column(name = "common_mistakes", columnDefinition = "TEXT")
     private String commonMistakes;
 
-    @Column(name = "thumbnail_url", columnDefinition = "TEXT")
-    private String thumbnailUrl;
+    @Column(name = "thumbnail_path", columnDefinition = "TEXT")
+    private String thumbnailPath;
+
+    @Column(name = "thumbnail_alt", length = 220)
+    private String thumbnailAlt;
 
     @Column(name = "video_url", columnDefinition = "TEXT")
     private String videoUrl;
@@ -64,4 +67,3 @@ public class ExerciseJpaEntity {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 }
-

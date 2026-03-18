@@ -158,14 +158,28 @@ function normalizeSet(setData = {}) {
   };
 }
 
+function toExerciseAssetPath(name = '') {
+  const slug = String(name)
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+  return slug ? `/exercises/${slug}.webp` : '';
+}
+
 function normalizeExercise(exercise = {}) {
   const rawSets = Array.isArray(exercise.sets) ? exercise.sets : [];
+  const thumbnailPath = exercise.thumbnailPath || exercise.thumbnailUrl || toExerciseAssetPath(exercise.name);
 
   return {
     name: exercise.name || 'Ejercicio sin nombre',
     focus: exercise.focus || exercise.muscleGroup || 'General',
     tempo: exercise.tempo || '2-0-2',
     notes: exercise.notes || '',
+    thumbnailPath,
+    thumbnailAlt: exercise.thumbnailAlt || exercise.name || 'Imagen de ejercicio',
     sets: rawSets.length > 0 ? rawSets.map(normalizeSet) : [normalizeSet()],
   };
 }

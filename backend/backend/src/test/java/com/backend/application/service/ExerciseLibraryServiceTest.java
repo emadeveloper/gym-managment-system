@@ -16,6 +16,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -43,7 +44,8 @@ class ExerciseLibraryServiceTest {
                 "Principal empuje horizontal",
                 "Escapulas retraidas",
                 "No rebotar barra",
-                "https://img.test/banca.png",
+                "/exercises/press-banca-con-barra.webp",
+                "Press banca con barra",
                 "https://video.test/banca",
                 true
         ));
@@ -64,6 +66,7 @@ class ExerciseLibraryServiceTest {
                 "Compuesto",
                 "desc",
                 "cues",
+                null,
                 null,
                 null,
                 null,
@@ -94,6 +97,7 @@ class ExerciseLibraryServiceTest {
                 "Compuesto",
                 "Desc",
                 "Cues",
+                null,
                 null,
                 null,
                 null,
@@ -135,5 +139,63 @@ class ExerciseLibraryServiceTest {
         assertEquals(1, result.size());
         assertEquals("Press banca", result.get(0).name());
     }
-}
 
+    @Test
+    void shouldReturnThumbnailFieldsOnCreate() {
+        when(exerciseRepository.existsByNameIgnoreCase("Press inclinado con mancuernas")).thenReturn(false);
+        when(exerciseRepository.save(any(ExerciseJpaEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ExerciseResponse response = service.create(new ExerciseRequest(
+                "Press inclinado con mancuernas",
+                "Pecho",
+                "Mancuernas",
+                "Compuesto",
+                "Banco inclinado para foco superior",
+                "Controla el recorrido",
+                null,
+                " /exercises/press-inclinado-mancuernas.webp ",
+                " Press inclinado con mancuernas ",
+                null,
+                true
+        ));
+
+        assertEquals("/exercises/press-inclinado-mancuernas.webp", response.thumbnailPath());
+        assertEquals("Press inclinado con mancuernas", response.thumbnailAlt());
+    }
+
+    @Test
+    void shouldClearThumbnailFieldsWhenBlankOnUpdate() {
+        UUID exerciseId = UUID.randomUUID();
+        ExerciseJpaEntity existing = new ExerciseJpaEntity();
+        existing.setId(exerciseId);
+        existing.setName("Press inclinado");
+        existing.setMuscleGroup("Pecho");
+        existing.setEquipment("Barra");
+        existing.setExerciseType("Compuesto");
+        existing.setDescription("desc");
+        existing.setInstructions("cues");
+        existing.setThumbnailPath("/exercises/old.webp");
+        existing.setThumbnailAlt("Anterior");
+        existing.setActive(true);
+
+        when(exerciseRepository.findById(exerciseId)).thenReturn(Optional.of(existing));
+        when(exerciseRepository.save(any(ExerciseJpaEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        ExerciseResponse response = service.update(exerciseId, new ExerciseRequest(
+                "Press inclinado",
+                "Pecho",
+                "Mancuernas",
+                "Compuesto",
+                "Desc",
+                "Cues",
+                null,
+                " ",
+                " ",
+                null,
+                true
+        ));
+
+        assertNull(response.thumbnailPath());
+        assertNull(response.thumbnailAlt());
+    }
+}

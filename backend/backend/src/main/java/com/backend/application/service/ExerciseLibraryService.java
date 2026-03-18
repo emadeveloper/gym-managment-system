@@ -116,7 +116,8 @@ public class ExerciseLibraryService {
         entity.setDescription(normalizeRequired(request.description()));
         entity.setInstructions(normalizeRequired(request.instructions()));
         entity.setCommonMistakes(blankToNull(request.commonMistakes()));
-        entity.setThumbnailUrl(blankToNull(request.thumbnailUrl()));
+        entity.setThumbnailPath(blankToNull(request.thumbnailPath()));
+        entity.setThumbnailAlt(blankToNull(request.thumbnailAlt()));
         entity.setVideoUrl(blankToNull(request.videoUrl()));
         entity.setActive(request.active() == null ? Boolean.TRUE : request.active());
     }
@@ -132,7 +133,8 @@ public class ExerciseLibraryService {
                 entity.getDescription(),
                 entity.getInstructions(),
                 entity.getCommonMistakes(),
-                entity.getThumbnailUrl(),
+                entity.getThumbnailPath(),
+                entity.getThumbnailAlt(),
                 entity.getVideoUrl(),
                 entity.getActive()
         );

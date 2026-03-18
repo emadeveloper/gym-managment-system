@@ -90,7 +90,9 @@ class DevDemoDataInitializerTest {
         when(userRepository.save(any(UserJpaEntity.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
         when(exerciseRepository.findByNameIgnoreCase(anyString()))
-                .thenReturn(Optional.of(new ExerciseJpaEntity()));
+                .thenReturn(Optional.empty());
+        when(exerciseRepository.save(any(ExerciseJpaEntity.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
         when(routineTemplateRepository.findByNameIgnoreCase("Plantilla base pecho y triceps"))
                 .thenReturn(Optional.of(new RoutineTemplateJpaEntity()));
         when(routineTemplateDayRepository.findByRoutineTemplateIdOrderByDayOrderAsc(any()))

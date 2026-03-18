@@ -471,7 +471,8 @@ function mapExerciseRecord(apiExercise) {
     description: apiExercise.description,
     instructions: apiExercise.instructions,
     commonMistakes: apiExercise.commonMistakes || '',
-    thumbnailUrl: apiExercise.thumbnailUrl || '',
+    thumbnailPath: apiExercise.thumbnailPath || '',
+    thumbnailAlt: apiExercise.thumbnailAlt || apiExercise.name || '',
     videoUrl: apiExercise.videoUrl || '',
     active: apiExercise.active !== false,
   };

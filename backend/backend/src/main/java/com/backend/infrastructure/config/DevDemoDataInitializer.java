@@ -140,20 +140,38 @@ public class DevDemoDataInitializer implements CommandLineRunner {
             String description,
             String instructions
     ) {
-        return exerciseRepository.findByNameIgnoreCase(name)
+        String slug = name.toLowerCase().replace(" ", "-");
+        String thumbnailPath = "/exercises/" + slug + ".webp";
+        if ("Press inclinado con mancuernas".equalsIgnoreCase(name)) {
+            thumbnailPath = "/exercises/press-inclinado-mancuernas.webp";
+        }
+
+        ExerciseJpaEntity exercise = exerciseRepository.findByNameIgnoreCase(name)
                 .orElseGet(() -> {
-                    ExerciseJpaEntity exercise = new ExerciseJpaEntity();
-                    exercise.setId(UUID.randomUUID());
-                    exercise.setName(name);
-                    exercise.setSlug(name.toLowerCase().replace(" ", "-"));
-                    exercise.setMuscleGroup(muscleGroup);
-                    exercise.setEquipment(equipment);
-                    exercise.setExerciseType(exerciseType);
-                    exercise.setDescription(description);
-                    exercise.setInstructions(instructions);
-                    exercise.setActive(true);
-                    return exerciseRepository.save(exercise);
+                    ExerciseJpaEntity newExercise = new ExerciseJpaEntity();
+                    newExercise.setId(UUID.randomUUID());
+                    newExercise.setName(name);
+                    newExercise.setSlug(slug);
+                    newExercise.setMuscleGroup(muscleGroup);
+                    newExercise.setEquipment(equipment);
+                    newExercise.setExerciseType(exerciseType);
+                    newExercise.setDescription(description);
+                    newExercise.setInstructions(instructions);
+                    newExercise.setActive(true);
+                    return newExercise;
                 });
+
+        boolean changed = false;
+        if (exercise.getThumbnailPath() == null || exercise.getThumbnailPath().isBlank()) {
+            exercise.setThumbnailPath(thumbnailPath);
+            changed = true;
+        }
+        if (exercise.getThumbnailAlt() == null || exercise.getThumbnailAlt().isBlank()) {
+            exercise.setThumbnailAlt(name);
+            changed = true;
+        }
+
+        return changed ? exerciseRepository.save(exercise) : exercise;
     }
 
     private void ensureDemoTemplate(List<ExerciseJpaEntity> catalog) {

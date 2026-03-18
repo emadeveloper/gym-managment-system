@@ -10,9 +10,9 @@ public record ExerciseRequest(
         @NotBlank String description,
         @NotBlank String instructions,
         String commonMistakes,
-        String thumbnailUrl,
+        String thumbnailPath,
+        String thumbnailAlt,
         String videoUrl,
         Boolean active
 ) {
 }
-

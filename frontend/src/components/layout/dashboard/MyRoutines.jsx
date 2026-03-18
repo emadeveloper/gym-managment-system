@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Card } from '../../ui/Card';
 import { Button } from '../../ui/Button';
 import {
@@ -39,50 +39,73 @@ function SummaryMetric({ icon, label, value }) {
 }
 
 function ExerciseCard({ exercise, exerciseIndex }) {
+  const [imageError, setImageError] = useState(false);
+  const hasImage = Boolean(exercise.thumbnailPath) && !imageError;
+
+  useEffect(() => {
+    setImageError(false);
+  }, [exercise.thumbnailPath]);
+
   return (
-    <article className="rounded-3xl border border-gray-800 bg-surface-light p-4 sm:p-5">
-      <header className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-gray-800 pb-4">
-        <div>
-          <p className="text-[11px] uppercase tracking-[0.16em] text-gray-500">
-            Ejercicio {exerciseIndex + 1}
+    <article className="overflow-hidden rounded-3xl border border-gray-800 bg-surface-light">
+      <div className="grid min-h-[440px] grid-cols-1 grid-rows-2 md:min-h-[280px] md:grid-cols-2 md:grid-rows-1">
+        <div className="relative min-h-0 border-b border-gray-800 bg-black/25 md:border-b-0 md:border-r">
+          {hasImage ? (
+            <img
+              src={exercise.thumbnailPath}
+              alt={exercise.thumbnailAlt || exercise.name}
+              loading="lazy"
+              decoding="async"
+              onError={() => setImageError(true)}
+              className="h-full w-full object-cover aspect-[4/3] md:aspect-auto"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center px-4 text-center text-[11px] uppercase tracking-[0.12em] text-gray-500">
+              Imagen no disponible
+            </div>
+          )}
+        </div>
+        <div className="h-full min-h-0 p-4 sm:p-5">
+          <header className="mb-4 border-b border-gray-800 pb-4 text-center">
+            <p className="text-[11px] uppercase tracking-[0.16em] text-gray-500">
+              Ejercicio {exerciseIndex + 1}
+            </p>
+            <h4 className="mt-1 text-base font-heading font-bold text-white sm:text-lg">
+              {exercise.name}
+            </h4>
+            <p className="mt-2 text-xs uppercase tracking-[0.12em] text-gray-400">{exercise.focus}</p>
+          </header>
+
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="text-left text-xs uppercase tracking-[0.12em] text-gray-500">
+                  <th className="px-2 py-2 font-semibold">Serie</th>
+                  <th className="px-2 py-2 font-semibold">Reps</th>
+                  <th className="px-2 py-2 font-semibold">Peso</th>
+                  <th className="px-2 py-2 font-semibold">Descanso</th>
+                  <th className="px-2 py-2 font-semibold">RPE</th>
+                </tr>
+              </thead>
+              <tbody>
+                {exercise.sets.map((setData, setIndex) => (
+                  <tr key={`${exercise.name}-${setIndex}`} className="border-t border-gray-800 text-gray-200">
+                    <td className="px-2 py-3 font-semibold">#{setIndex + 1}</td>
+                    <td className="px-2 py-3">{setData.reps}</td>
+                    <td className="px-2 py-3">{setData.weightKg} kg</td>
+                    <td className="px-2 py-3">{setData.rest}</td>
+                    <td className="px-2 py-3">{setData.rpe}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <p className="mt-4 text-center text-xs uppercase tracking-[0.1em] text-gray-500">
+            Tempo sugerido: <span className="text-gray-300">{exercise.tempo}</span>
           </p>
-          <h4 className="mt-1 text-base font-heading font-bold text-white sm:text-lg">
-            {exercise.name}
-          </h4>
         </div>
-        <div className="rounded-full border border-gray-700 px-3 py-1 text-xs text-gray-300">
-          {exercise.focus}
-        </div>
-      </header>
-
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-sm">
-          <thead>
-            <tr className="text-left text-xs uppercase tracking-[0.12em] text-gray-500">
-              <th className="px-2 py-2 font-semibold">Serie</th>
-              <th className="px-2 py-2 font-semibold">Reps</th>
-              <th className="px-2 py-2 font-semibold">Peso</th>
-              <th className="px-2 py-2 font-semibold">Descanso</th>
-              <th className="px-2 py-2 font-semibold">RPE</th>
-            </tr>
-          </thead>
-          <tbody>
-            {exercise.sets.map((setData, setIndex) => (
-              <tr key={`${exercise.name}-${setIndex}`} className="border-t border-gray-800 text-gray-200">
-                <td className="px-2 py-3 font-semibold">#{setIndex + 1}</td>
-                <td className="px-2 py-3">{setData.reps}</td>
-                <td className="px-2 py-3">{setData.weightKg} kg</td>
-                <td className="px-2 py-3">{setData.rest}</td>
-                <td className="px-2 py-3">{setData.rpe}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
       </div>
-
-      <p className="mt-4 text-xs uppercase tracking-[0.1em] text-gray-500">
-        Tempo sugerido: <span className="text-gray-300">{exercise.tempo}</span>
-      </p>
     </article>
   );
 }
