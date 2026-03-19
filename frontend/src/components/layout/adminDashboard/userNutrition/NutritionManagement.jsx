@@ -14,7 +14,7 @@ export const NutritionManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const deferredSearchTerm = useDeferredValue(searchTerm);
   const [activeFilter, setActiveFilter] = useState('Todos');
-  const { nutritionPlans } = useGymData();
+  const { nutritionPlans, nutritionTemplates } = useGymData();
 
   const filteredPlans = useMemo(
     () =>
@@ -47,6 +47,7 @@ export const NutritionManagement = () => {
   const activePlans = nutritionPlans.filter((plan) => plan.status === 'Activo').length;
   const customPlans = nutritionPlans.filter((plan) => plan.type === 'Personalizado').length;
   const assignedPlans = nutritionPlans.filter((plan) => plan.assignedMemberEmail).length;
+  const activeTemplates = nutritionTemplates.filter((template) => template.active).length;
   const averageCalories =
     nutritionPlans.length > 0
       ? Math.round(
@@ -72,21 +73,21 @@ export const NutritionManagement = () => {
         accent: 'text-emerald-400',
       },
       {
+        label: 'Plantillas activas',
+        value: String(activeTemplates),
+        detail: 'Base reusable del catálogo',
+        icon: Salad,
+        accent: 'text-primary',
+      },
+      {
         label: 'Calorías promedio',
         value: `${averageCalories} kcal`,
         detail: 'Carga media diaria',
         icon: Flame,
         accent: 'text-primary',
       },
-      {
-        label: 'Próximas revisiones',
-        value: String(assignedPlans),
-        detail: 'Controles agendados o pendientes',
-        icon: CalendarClock,
-        accent: 'text-white',
-      },
     ],
-    [nutritionPlans.length, assignedPlans, activePlans, averageCalories],
+    [nutritionPlans.length, assignedPlans, activePlans, activeTemplates, averageCalories],
   );
 
   if (isCreatingPlan) {
@@ -110,7 +111,7 @@ export const NutritionManagement = () => {
           <p className="text-xs font-heading uppercase tracking-[0.24em] text-gray-500">Nutrición</p>
           <h1 className="mt-3 text-3xl font-heading font-bold uppercase text-foreground sm:text-4xl">Gestión de Planes Nutricionales</h1>
           <p className="mt-3 text-sm leading-7 text-gray-400 sm:text-base">
-            Armá, asigná y revisá planes con una lectura rápida de calorías, tipo de plan, estado y cliente vinculado.
+            Armá y asigná planes con apoyo del catálogo base de plantillas, manteniendo control rápido de calorías, estado y cliente vinculado.
           </p>
         </div>
       </section>
@@ -137,7 +138,7 @@ export const NutritionManagement = () => {
         <Card className="border border-gray-800 bg-surface p-4 sm:p-5">
           <p className="text-xs font-heading uppercase tracking-[0.2em] text-gray-500">Promedio</p>
           <p className="mt-3 text-4xl font-heading font-bold text-foreground">{averageCalories} kcal</p>
-          <p className="mt-2 text-sm text-gray-400">Media calórica del catálogo actual.</p>
+          <p className="mt-2 text-sm text-gray-400">Media calórica de planes asignados y editables.</p>
         </Card>
       </section>
 

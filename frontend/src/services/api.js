@@ -100,4 +100,12 @@ export const nutritionPlansAPI = {
     update: (id, planData) => api.put(`/nutrition-plans/${id}`, planData),
 };
 
+export const nutritionTemplatesAPI = {
+    getAll: () => api.get("/nutrition-templates"),
+    create: (templateData) => api.post("/nutrition-templates", templateData),
+    update: (id, templateData) => api.put(`/nutrition-templates/${id}`, templateData),
+    remove: (id) => api.delete(`/nutrition-templates/${id}`),
+    assign: (id, assignmentData) => api.post(`/nutrition-templates/${id}/assign`, assignmentData),
+};
+
 export default api;

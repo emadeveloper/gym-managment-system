@@ -2,24 +2,20 @@ package com.backend.presentation.dto;
 
 import java.util.UUID;
 
-public record NutritionPlanResponse(
+public record NutritionTemplateResponse(
         UUID id,
         String name,
         String goal,
-        Integer calories,
         String type,
-        String status,
-        String createdDate,
-        String reviewDate,
-        String activityLevel,
+        Integer calories,
         Integer protein,
         Integer carbs,
         Integer fat,
+        String activityLevel,
         String restrictions,
         String supplements,
         String tips,
-        String assignedMemberEmail,
-        String assignedMemberName,
-        UUID sourceTemplateId
+        String description,
+        Boolean active
 ) {
 }

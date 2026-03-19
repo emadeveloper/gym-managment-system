@@ -46,6 +46,11 @@ export function NutritionTable({ plans, onEdit }) {
               <span className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${getStatusClasses(plan.status)}`}>
                 {plan.status}
               </span>
+              {plan.sourceTemplateId ? (
+                <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">
+                  Desde plantilla
+                </span>
+              ) : null}
               <div className="flex justify-end gap-2">
                 <button
                   onClick={() => onEdit(plan)}
@@ -89,7 +94,16 @@ export function NutritionTable({ plans, onEdit }) {
                   <td className="px-5 py-4 text-gray-300">{plan.calories} kcal</td>
                   <td className="px-5 py-4"><span className="inline-flex items-center rounded-full border border-gray-800 bg-black/25 px-3 py-1 text-[11px] uppercase tracking-[0.12em] text-gray-300">{plan.type}</span></td>
                   <td className="px-5 py-4 text-gray-300">{plan.assignedMemberName || 'Sin asignar'}</td>
-                  <td className="px-5 py-4"><span className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${getStatusClasses(plan.status)}`}>{plan.status}</span></td>
+                  <td className="px-5 py-4">
+                    <div className="flex flex-wrap gap-2">
+                      <span className={`inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] ${getStatusClasses(plan.status)}`}>{plan.status}</span>
+                      {plan.sourceTemplateId ? (
+                        <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-primary">
+                          Plantilla
+                        </span>
+                      ) : null}
+                    </div>
+                  </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center justify-end gap-2">
                       <button

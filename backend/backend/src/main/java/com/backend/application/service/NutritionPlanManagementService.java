@@ -95,7 +95,8 @@ public class NutritionPlanManagementService {
                 entity.getSupplements(),
                 entity.getTips(),
                 assignedUser != null ? assignedUser.getEmail() : "",
-                assignedUser != null ? resolveName(assignedUser) : ""
+                assignedUser != null ? resolveName(assignedUser) : "",
+                entity.getSourceTemplateId()
         );
     }
 

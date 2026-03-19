@@ -5,6 +5,7 @@ import {
   authAPI,
   exercisesAPI,
   nutritionPlansAPI,
+  nutritionTemplatesAPI,
   routineTemplatesAPI,
   routinesAPI,
   userAPI,
@@ -426,6 +427,7 @@ function mapNutritionPlanRecord(apiPlan, memberMeta = {}) {
     calories: macros.calories,
     type: apiPlan.type,
     status: apiPlan.status,
+    sourceTemplateId: apiPlan.sourceTemplateId || null,
     assignedMemberEmail: apiPlan.assignedMemberEmail || '',
     assignedMemberName,
     reviewDate,
@@ -443,6 +445,25 @@ function mapNutritionPlanRecord(apiPlan, memberMeta = {}) {
       createdDate: formatDisplayDate(apiPlan.createdDate),
       nextReview: reviewDate,
     },
+  };
+}
+
+function mapNutritionTemplateRecord(apiTemplate) {
+  return {
+    id: apiTemplate.id,
+    name: apiTemplate.name,
+    goal: apiTemplate.goal,
+    type: apiTemplate.type,
+    calories: Number(apiTemplate.calories) || 0,
+    protein: Number(apiTemplate.protein) || 0,
+    carbs: Number(apiTemplate.carbs) || 0,
+    fat: Number(apiTemplate.fat) || 0,
+    activityLevel: apiTemplate.activityLevel || 'Moderado',
+    restrictions: splitTextValue(apiTemplate.restrictions),
+    supplements: splitTextValue(apiTemplate.supplements),
+    tips: splitTextValue(apiTemplate.tips, '\n'),
+    description: apiTemplate.description || '',
+    active: apiTemplate.active !== false,
   };
 }
 
@@ -553,6 +574,7 @@ export function GymDataProvider({ children }) {
   const [routineTemplates, setRoutineTemplates] = useState([]);
   const [exerciseLibrary, setExerciseLibrary] = useState([]);
   const [nutritionPlans, setNutritionPlans] = useState([]);
+  const [nutritionTemplates, setNutritionTemplates] = useState([]);
   const [classes, setClasses] = useState(() => readStorage(CLASSES_STORAGE_KEY, DEFAULT_CLASSES));
 
   useEffect(() => {
@@ -611,19 +633,21 @@ export function GymDataProvider({ children }) {
   useEffect(() => {
     let isActive = true;
 
-    async function syncRoutineAssets() {
+    async function syncCatalogAssets() {
       if (!user?.email || user.role !== 'ADMIN') {
         if (isActive) {
           setRoutineTemplates([]);
           setExerciseLibrary([]);
+          setNutritionTemplates([]);
         }
         return;
       }
 
       try {
-        const [templateResponse, exerciseResponse] = await Promise.all([
+        const [templateResponse, exerciseResponse, nutritionTemplateResponse] = await Promise.all([
           routineTemplatesAPI.getAll(),
           exercisesAPI.getAll(),
+          nutritionTemplatesAPI.getAll(),
         ]);
 
         if (!isActive) {
@@ -632,15 +656,17 @@ export function GymDataProvider({ children }) {
 
         setRoutineTemplates(templateResponse.data.map(mapRoutineTemplateRecord));
         setExerciseLibrary(exerciseResponse.data.map(mapExerciseRecord));
+        setNutritionTemplates(nutritionTemplateResponse.data.map(mapNutritionTemplateRecord));
       } catch {
         if (isActive) {
           setRoutineTemplates([]);
           setExerciseLibrary([]);
+          setNutritionTemplates([]);
         }
       }
     }
 
-    syncRoutineAssets();
+    syncCatalogAssets();
 
     return () => {
       isActive = false;
@@ -885,6 +911,18 @@ export function GymDataProvider({ children }) {
     return finalPlan;
   };
 
+  const assignNutritionTemplate = async (templateId, assignmentData) => {
+    const payload = {
+      assignedMemberEmail: assignmentData.assignedMemberEmail.toLowerCase(),
+      status: assignmentData.status,
+      reviewDate: assignmentData.reviewDate || '',
+    };
+    const response = await nutritionTemplatesAPI.assign(templateId, payload);
+    const finalPlan = mapNutritionPlanRecord(response.data, memberMeta);
+    setNutritionPlans((currentPlans) => [finalPlan, ...currentPlans]);
+    return finalPlan;
+  };
+
   const getAssignedNutritionForUser = (email) =>
     nutritionPlans.find(
       (plan) =>
@@ -987,6 +1025,7 @@ export function GymDataProvider({ children }) {
     routineTemplates,
     exerciseLibrary,
     nutritionPlans,
+    nutritionTemplates,
     classes,
     addMember,
     addRoutine,
@@ -999,6 +1038,7 @@ export function GymDataProvider({ children }) {
     updateExercise,
     deleteExercise,
     addNutritionPlan,
+    assignNutritionTemplate,
     addClass,
     enrollInClass,
     getAssignedRoutinesForUser,

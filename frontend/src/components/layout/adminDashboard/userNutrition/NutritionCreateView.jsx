@@ -120,6 +120,7 @@ function formatInputDate(value) {
 function buildInitialFormData(initialData) {
   if (!initialData) {
     return {
+      selectedTemplateId: '',
       name: '',
       assignedMemberEmail: '',
       goal: '',
@@ -140,6 +141,7 @@ function buildInitialFormData(initialData) {
 
   return {
     id: initialData.id,
+    selectedTemplateId: initialData.sourceTemplateId || '',
     name: initialData.name || '',
     assignedMemberEmail: initialData.assignedMemberEmail || '',
     goal: initialData.goal || '',
@@ -159,7 +161,7 @@ function buildInitialFormData(initialData) {
 }
 
 export default function NutritionCreateView({ onBack, initialData = null }) {
-  const { members, addNutritionPlan } = useGymData();
+  const { members, nutritionTemplates, addNutritionPlan, assignNutritionTemplate } = useGymData();
   const isEditing = Boolean(initialData?.id);
   const [formData, setFormData] = useState(() => buildInitialFormData(initialData));
   const [submitError, setSubmitError] = useState('');
@@ -174,6 +176,27 @@ export default function NutritionCreateView({ onBack, initialData = null }) {
     setFormData((currentData) => ({ ...currentData, [name]: value }));
   };
 
+  const handleTemplateChange = (event) => {
+    const selectedTemplateId = event.target.value;
+    const selectedTemplate = nutritionTemplates.find((template) => template.id === selectedTemplateId);
+
+    setFormData((currentData) => ({
+      ...currentData,
+      selectedTemplateId,
+      name: selectedTemplate?.name || currentData.name,
+      goal: selectedTemplate?.goal || currentData.goal,
+      type: selectedTemplate?.type || currentData.type,
+      calories: String(selectedTemplate?.calories || currentData.calories || ''),
+      protein: String(selectedTemplate?.protein || currentData.protein || ''),
+      carbs: String(selectedTemplate?.carbs || currentData.carbs || ''),
+      fat: String(selectedTemplate?.fat || currentData.fat || ''),
+      activityLevel: selectedTemplate?.activityLevel || currentData.activityLevel,
+      restrictions: selectedTemplate?.restrictions?.join(', ') || '',
+      supplements: selectedTemplate?.supplements?.join(', ') || '',
+      tips: selectedTemplate?.tips?.join('\n') || '',
+    }));
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     setSubmitError('');
@@ -184,7 +207,11 @@ export default function NutritionCreateView({ onBack, initialData = null }) {
     }
 
     try {
-      await addNutritionPlan(formData);
+      if (!isEditing && formData.selectedTemplateId) {
+        await assignNutritionTemplate(formData.selectedTemplateId, formData);
+      } else {
+        await addNutritionPlan(formData);
+      }
       onBack();
     } catch (error) {
       setSubmitError(error.response?.data?.message || 'No se pudo guardar el plan nutricional.');
@@ -262,6 +289,40 @@ export default function NutritionCreateView({ onBack, initialData = null }) {
           <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
             {submitError}
           </div>
+        ) : null}
+
+        {!isEditing ? (
+          <Card className="border border-gray-800 bg-surface p-5 sm:p-6">
+            <div className="border-b border-gray-800 pb-4">
+              <p className="text-xs font-heading uppercase tracking-[0.2em] text-gray-500">
+                Catálogo base
+              </p>
+              <p className="mt-2 text-sm text-gray-400">
+                Podés arrancar desde una plantilla global y luego asignarla al cliente, o cargar un plan manual desde cero.
+              </p>
+            </div>
+
+            <div className="mt-5 space-y-2">
+              <label className="block text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-500">
+                Plantilla nutricional
+              </label>
+              <select
+                name="selectedTemplateId"
+                value={formData.selectedTemplateId}
+                onChange={handleTemplateChange}
+                className="h-12 w-full rounded-2xl border border-gray-800 bg-black/25 px-4 text-sm text-gray-100 outline-none transition-colors focus:border-primary/40"
+              >
+                <option value="" className="text-gray-400">
+                  Crear plan manual
+                </option>
+                {nutritionTemplates.map((template) => (
+                  <option key={template.id} value={template.id} className="text-gray-100">
+                    {template.name} · {template.goal}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </Card>
         ) : null}
         {FIELD_GROUPS.map((group) => (
           <Card key={group.title} className="border border-gray-800 bg-surface p-5 sm:p-6">

@@ -2,10 +2,7 @@ package com.backend.infrastructure.adapter.out.persistence.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,38 +11,31 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
-@Table(name = "nutrition_plans")
+@Table(name = "nutrition_templates")
 @Getter
 @Setter
 @NoArgsConstructor
-public class NutritionPlanJpaEntity {
+public class NutritionTemplateJpaEntity {
 
     @Id
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 180)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 160)
     private String goal;
+
+    @Column(nullable = false, length = 120)
+    private String type;
 
     @Column(nullable = false)
     private Integer calories;
 
-    @Column(nullable = false)
-    private String type;
-
-    @Column(nullable = false)
-    private String status;
-
-    @Column(name = "review_date")
-    private LocalDate reviewDate;
-
-    @Column(name = "activity_level")
+    @Column(name = "activity_level", nullable = false, length = 120)
     private String activityLevel;
 
     @Column(nullable = false)
@@ -66,12 +56,11 @@ public class NutritionPlanJpaEntity {
     @Column(columnDefinition = "TEXT")
     private String tips;
 
-    @Column(name = "source_template_id")
-    private UUID sourceTemplateId;
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assigned_user_id")
-    private UserJpaEntity assignedUser;
+    @Column(nullable = false)
+    private Boolean active = true;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
