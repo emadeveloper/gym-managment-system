@@ -42,11 +42,15 @@ public class SecurityConfig {
         String[] publicEndpoints = apiDocsEnabled
                 ? new String[]{
                         "/api/v1/auth/**",
+                        "/api/v1/billing/webhooks/mercadopago",
                         "/swagger-ui/**",
                         "/v3/api-docs/**",
                         "/swagger-ui.html"
                 }
-                : new String[]{"/api/v1/auth/**"};
+                : new String[]{
+                        "/api/v1/auth/**",
+                        "/api/v1/billing/webhooks/mercadopago"
+                };
 
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource))

@@ -3,6 +3,9 @@ package com.backend.presentation.exception;
 import com.backend.domain.exception.InvalidEmailException;
 import com.backend.domain.exception.InvalidCredentialsException;
 import com.backend.domain.exception.InvalidPasswordException;
+import com.backend.domain.exception.InvalidWebhookSignatureException;
+import com.backend.domain.exception.SubscriptionAlreadyActiveException;
+import com.backend.domain.exception.SubscriptionNotFoundException;
 import com.backend.domain.exception.UserAlreadyExistsException;
 import com.backend.domain.exception.UserNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -74,6 +77,11 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InvalidWebhookSignatureException.class)
+    public ResponseEntity<ApiError> handleInvalidWebhookSignature(InvalidWebhookSignatureException ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
     /* ---------------------------------------------------------------------- */
     /* NOT FOUND ERRORS (404 Not Found)                                     */
     /* ---------------------------------------------------------------------- */
@@ -83,12 +91,22 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(SubscriptionNotFoundException.class)
+    public ResponseEntity<ApiError> handleSubscriptionNotFound(SubscriptionNotFoundException ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
     /* ---------------------------------------------------------------------- */
     /* CONFLICT ERRORS (409 Conflict)                                       */
     /* ---------------------------------------------------------------------- */
 
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<ApiError> handleUserAlreadyExists(UserAlreadyExistsException ex) {
+        return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(SubscriptionAlreadyActiveException.class)
+    public ResponseEntity<ApiError> handleSubscriptionAlreadyActive(SubscriptionAlreadyActiveException ex) {
         return buildErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
     }
 

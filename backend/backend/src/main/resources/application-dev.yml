@@ -36,3 +36,16 @@ springdoc:
   swagger-ui:
     enabled: true
     path: /swagger-ui.html
+
+mercadopago:
+  enabled: ${MERCADOPAGO_ENABLED:false}
+  access-token: ${MERCADOPAGO_ACCESS_TOKEN:}
+  webhook-secret: ${MERCADOPAGO_WEBHOOK_SECRET:}
+  base-url: ${MERCADOPAGO_BASE_URL:https://api.mercadopago.com}
+  back-url: ${MERCADOPAGO_BACK_URL:http://localhost:5173/dashboard}
+  default-plan-code: ${MERCADOPAGO_DEFAULT_PLAN_CODE:monthly-standard}
+  default-plan-name: ${MERCADOPAGO_DEFAULT_PLAN_NAME:Membresia mensual}
+  currency-id: ${MERCADOPAGO_CURRENCY_ID:ARS}
+  transaction-amount: ${MERCADOPAGO_TRANSACTION_AMOUNT:25000}
+  frequency: ${MERCADOPAGO_FREQUENCY:1}
+  frequency-type: ${MERCADOPAGO_FREQUENCY_TYPE:months}

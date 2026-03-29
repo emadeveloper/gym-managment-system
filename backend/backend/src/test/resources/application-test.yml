@@ -23,3 +23,16 @@ springdoc:
     enabled: false
   swagger-ui:
     enabled: false
+
+mercadopago:
+  enabled: false
+  access-token: test-access-token
+  webhook-secret: test-webhook-secret
+  base-url: https://api.mercadopago.com
+  back-url: http://localhost:5173/dashboard
+  default-plan-code: monthly-standard
+  default-plan-name: Membresia mensual
+  currency-id: ARS
+  transaction-amount: 25000
+  frequency: 1
+  frequency-type: months
