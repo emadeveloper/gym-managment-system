@@ -22,9 +22,33 @@ function formatName(firstName = '', lastName = '') {
   return `${firstName} ${lastName}`.trim();
 }
 
+function translateMembershipStatus(status, active) {
+  if (active) {
+    return 'Activa';
+  }
+
+  switch (status) {
+    case 'PENDING':
+      return 'Pendiente';
+    case 'PAST_DUE':
+      return 'Pago pendiente';
+    case 'CANCELED':
+      return 'Cancelada';
+    case 'EXPIRED':
+      return 'Vencida';
+    default:
+      return 'Pendiente';
+  }
+}
+
 const UserProfile = ({ user, onLogout }) => {
   const { updateCurrentUser } = useAuth();
-  const { members } = useGymData();
+  const {
+    members,
+    membershipStatus,
+    membershipCheckoutLoading,
+    startMembershipCheckout,
+  } = useGymData();
   const navigate = useNavigate();
   const toast = useToast();
   const [loadingProfile, setLoadingProfile] = useState(true);
@@ -57,9 +81,12 @@ const UserProfile = ({ user, onLogout }) => {
     () => members.find((member) => member.email?.toLowerCase() === user?.email?.toLowerCase()) || null,
     [members, user?.email],
   );
-  const membershipPlan = currentMember?.plan || 'Sin membresía activa';
-  const membershipStatus = currentMember?.status || 'Pendiente';
-  const hasMembership = Boolean(currentMember?.plan && currentMember.plan !== 'Pendiente');
+  const membershipPlan = membershipStatus?.plan || currentMember?.plan || 'Sin membresía activa';
+  const membershipStateLabel = translateMembershipStatus(
+    membershipStatus?.status,
+    membershipStatus?.active,
+  );
+  const hasOperationalMembership = membershipStatus?.active || membershipStatus?.status === 'PENDING';
 
   useEffect(() => {
     let isActive = true;
@@ -217,13 +244,25 @@ const UserProfile = ({ user, onLogout }) => {
     }
   };
 
-  const handleManageMembership = () => {
-    if (hasMembership) {
+  const handleManageMembership = async () => {
+    if (hasOperationalMembership) {
       navigate('/home?tab=overview');
       return;
     }
 
-    toast.info('Aún no tenés una membresía activa. Contactá al staff para activarla.', 'Membresía');
+    try {
+      const checkoutUrl = await startMembershipCheckout('monthly-standard');
+
+      if (!checkoutUrl) {
+        toast.error('No pudimos generar el checkout de Mercado Pago.', 'Membresía');
+        return;
+      }
+
+      window.location.assign(checkoutUrl);
+    } catch (error) {
+      const message = error.response?.data?.message || 'No se pudo iniciar la membresía.';
+      toast.error(message, 'Membresía');
+    }
   };
 
   return (
@@ -366,15 +405,16 @@ const UserProfile = ({ user, onLogout }) => {
           <Card className="rounded-[2rem] border border-gray-700 bg-surface p-5 sm:p-6">
             <p className="text-xs uppercase tracking-[0.14em] text-gray-500">Membresía</p>
             <p className="mt-2 text-xl font-heading font-bold text-foreground">{membershipPlan}</p>
-            <p className="mt-1 text-sm text-gray-400">Estado: {membershipStatus}</p>
+            <p className="mt-1 text-sm text-gray-400">Estado: {membershipStateLabel}</p>
             <p className="mt-3 text-sm text-gray-400">
               Gestioná tu plan para mantener acceso a rutinas, clases y seguimiento.
             </p>
             <Button
               className="mt-4 min-h-11 w-full text-sm uppercase font-heading"
               onClick={handleManageMembership}
+              loading={membershipCheckoutLoading}
             >
-              Gestionar Membresía
+              {hasOperationalMembership ? 'Ver estado actual' : 'Activar membresía'}
             </Button>
           </Card>
 

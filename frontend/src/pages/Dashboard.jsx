@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useGymData } from '../context/GymDataContext';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useToast } from '../hooks/useToast';
 import DashboardSidebar from '../components/layout/dashboard/DashboardSidebar';
 import DashboardHeader from '../components/layout/dashboard/DashboardHeader';
 
@@ -21,8 +22,15 @@ function TabFallback() {
 
 export function Dashboard() {
   const { user, logout } = useAuth();
-  const { getAssignedNutritionForUser } = useGymData();
+  const {
+    getAssignedNutritionForUser,
+    membershipStatus,
+    membershipCheckoutLoading,
+    refreshMembershipStatus,
+    startMembershipCheckout,
+  } = useGymData();
   const navigate = useNavigate();
+  const toast = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const contentStartRef = useRef(null);
   const validTabs = ['overview', 'routines', 'nutrition', 'classes', 'profile'];
@@ -53,6 +61,50 @@ export function Dashboard() {
     });
   }, [activeTab]);
 
+  useEffect(() => {
+    const checkoutReturnKeys = [
+      'status',
+      'collection_status',
+      'payment_id',
+      'preapproval_id',
+      'subscription_id',
+      'merchant_order_id',
+    ];
+    const hasCheckoutReturn = checkoutReturnKeys.some((key) => searchParams.has(key));
+
+    if (!hasCheckoutReturn) {
+      return;
+    }
+
+    let isActive = true;
+
+    async function reconcileCheckoutReturn() {
+      const nextStatus = await refreshMembershipStatus();
+
+      if (!isActive) {
+        return;
+      }
+
+      if (nextStatus?.active) {
+        toast.success('La membresía quedó activa y sincronizada.', 'Mercado Pago');
+      } else if (nextStatus?.status === 'PENDING') {
+        toast.info('Volviste del checkout. La activación todavía está pendiente.', 'Mercado Pago');
+      } else {
+        toast.info('Actualizamos el estado de tu membresía desde Mercado Pago.', 'Mercado Pago');
+      }
+
+      const nextParams = new URLSearchParams(searchParams);
+      checkoutReturnKeys.forEach((key) => nextParams.delete(key));
+      setSearchParams(nextParams, { replace: true });
+    }
+
+    reconcileCheckoutReturn();
+
+    return () => {
+      isActive = false;
+    };
+  }, [refreshMembershipStatus, searchParams, setSearchParams, toast]);
+
   const handleLogout = () => {
     logout();
     navigate('/');
@@ -68,6 +120,25 @@ export function Dashboard() {
 
     setSearchParams({ tab: nextTab }, { replace: true });
   };
+
+  const handleMembershipCheckout = async () => {
+    try {
+      const checkoutUrl = await startMembershipCheckout('monthly-standard');
+
+      if (!checkoutUrl) {
+        toast.error('No pudimos generar el checkout de Mercado Pago.', 'Membresía');
+        return;
+      }
+
+      window.location.assign(checkoutUrl);
+    } catch (error) {
+      const message = error.response?.data?.message || 'No se pudo iniciar la membresía.';
+      toast.error(message, 'Membresía');
+    }
+  };
+
+  const canStartMembershipCheckout =
+    !membershipStatus?.active && membershipStatus?.status !== 'PENDING';
 
   /**
    * ✅ CORRECTO: Los iconos son STRINGS (emojis)
@@ -112,7 +183,15 @@ export function Dashboard() {
   const renderContent = () => {
     switch (activeTab) {
       case 'overview':
-        return <DashboardOverview user={user} />;
+        return (
+          <DashboardOverview
+            user={user}
+            dashboardData={{ membershipStatus }}
+            onMembershipAction={canStartMembershipCheckout ? handleMembershipCheckout : undefined}
+            membershipActionLabel={canStartMembershipCheckout ? 'Activar membresía' : undefined}
+            membershipActionLoading={membershipCheckoutLoading}
+          />
+        );
       case 'routines':
         return <MyRoutines user={user} />;
       case 'classes':
@@ -122,7 +201,15 @@ export function Dashboard() {
       case 'profile':
         return <UserProfile user={user} onLogout={handleLogout} />;
       default:
-        return <DashboardOverview user={user} />;
+        return (
+          <DashboardOverview
+            user={user}
+            dashboardData={{ membershipStatus }}
+            onMembershipAction={canStartMembershipCheckout ? handleMembershipCheckout : undefined}
+            membershipActionLabel={canStartMembershipCheckout ? 'Activar membresía' : undefined}
+            membershipActionLoading={membershipCheckoutLoading}
+          />
+        );
     }
   };
 

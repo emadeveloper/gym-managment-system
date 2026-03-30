@@ -15,7 +15,7 @@ import {
 const cardShell = 'rounded-[2rem] border border-gray-700 bg-surface-light p-5 sm:p-6';
 const cardButton = 'mt-5 min-h-11 w-full text-sm uppercase font-heading';
 
-function PassportCard({ icon, title, subtitle, children, actionText, onAction }) {
+function PassportCard({ icon, title, subtitle, children, actionText, onAction, actionLoading = false }) {
   const iconElement = icon
     ? React.createElement(icon, { className: 'h-6 w-6', 'aria-hidden': 'true' })
     : null;
@@ -30,7 +30,7 @@ function PassportCard({ icon, title, subtitle, children, actionText, onAction })
       <div className="mt-5 text-center">{children}</div>
 
       {actionText ? (
-        <Button className={cardButton} onClick={onAction}>
+        <Button className={cardButton} onClick={onAction} loading={actionLoading}>
           {actionText}
         </Button>
       ) : null}
@@ -44,16 +44,23 @@ function PassportCard({ icon, title, subtitle, children, actionText, onAction })
   );
 }
 
-const DashboardOverview = ({ user, dashboardData = {} }) => {
+const DashboardOverview = ({
+  user,
+  dashboardData = {},
+  onMembershipAction,
+  membershipActionLabel,
+  membershipActionLoading = false,
+}) => {
   const navigate = useNavigate();
 
   const defaultDashboardData = {
     membershipStatus: {
-      active: true,
-      plan: 'Premium Mensual',
-      renewalDate: '15 de Marzo, 2026',
-      daysLeft: 41,
-      monthsActive: 6,
+      active: false,
+      plan: 'Sin plan asignado',
+      renewalDate: 'Pendiente',
+      daysLeft: 0,
+      monthsActive: 0,
+      status: null,
     },
     currentRoutine: {
       name: 'Fuerza Full Body',
@@ -82,6 +89,9 @@ const DashboardOverview = ({ user, dashboardData = {} }) => {
     ...defaultDashboardData.membershipStatus,
     ...(dashboardData.membershipStatus || {}),
   };
+  const membershipState = membershipStatus.status || (membershipStatus.active ? 'ACTIVE' : null);
+  const membershipActionText =
+    membershipActionLabel || (!membershipStatus.active ? 'Activar membresía' : undefined);
 
   const currentRoutine =
     dashboardData.currentRoutine === null
@@ -201,8 +211,9 @@ const DashboardOverview = ({ user, dashboardData = {} }) => {
           icon={HeartPulse}
           title="Membresía"
           subtitle={membershipStatus.plan || 'Sin plan'}
-          actionText="Gestionar membresía"
-          onAction={() => navigate('/home?tab=profile')}
+          actionText={membershipActionText}
+          actionLoading={membershipActionLoading}
+          onAction={onMembershipAction || (() => navigate('/home?tab=profile'))}
         >
           {membershipStatus.active ? (
             <div className="space-y-3">
@@ -215,6 +226,13 @@ const DashboardOverview = ({ user, dashboardData = {} }) => {
                 <p className="mt-1 text-2xl font-heading font-bold text-primary">{membershipStatus.daysLeft}</p>
               </div>
             </div>
+          ) : membershipState === 'PENDING' ? (
+            <>
+              <p className="text-lg font-semibold text-amber-300">Checkout generado</p>
+              <p className="mt-2 text-sm text-gray-300">
+                Terminá la suscripción en Mercado Pago para activar rutinas, nutrición y clases.
+              </p>
+            </>
           ) : (
             <>
               <p className="text-lg font-semibold text-yellow-400">Membresía inactiva</p>

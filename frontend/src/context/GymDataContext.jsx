@@ -3,6 +3,7 @@ import { useAuth } from './AuthContext';
 import mockNutritionData, { nutritionVariations } from '../components/layout/nutrition/mockNutritionData';
 import {
   authAPI,
+  billingSubscriptionsAPI,
   exercisesAPI,
   nutritionPlansAPI,
   nutritionTemplatesAPI,
@@ -353,6 +354,21 @@ function formatDisplayDate(dateValue) {
     : 'Pendiente';
 }
 
+function calculateDaysLeft(dateValue) {
+  if (!dateValue) {
+    return 0;
+  }
+
+  const parsedDate = new Date(dateValue);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return 0;
+  }
+
+  const millisecondsPerDay = 1000 * 60 * 60 * 24;
+  const difference = parsedDate.getTime() - Date.now();
+  return Math.max(0, Math.ceil(difference / millisecondsPerDay));
+}
+
 function splitTextValue(value, separator = ',') {
   if (!value) {
     return [];
@@ -563,6 +579,42 @@ function buildMembersFromMetadata(memberMeta) {
   );
 }
 
+function buildFallbackMembershipStatus(currentUser, memberMeta = {}) {
+  const meta = currentUser?.email ? memberMeta[currentUser.email.toLowerCase()] || {} : {};
+  const active = meta.status === 'Activo';
+
+  return {
+    subscriptionId: null,
+    plan: meta.plan || 'Sin plan asignado',
+    active,
+    status: active ? 'ACTIVE' : null,
+    renewalDate: 'Pendiente',
+    daysLeft: 0,
+    monthsActive: 0,
+    paymentMethod: meta.paymentMethod || '',
+  };
+}
+
+function mapMembershipStatusRecord(apiStatus, currentUser, memberMeta = {}) {
+  if (!apiStatus) {
+    return buildFallbackMembershipStatus(currentUser, memberMeta);
+  }
+
+  const fallback = buildFallbackMembershipStatus(currentUser, memberMeta);
+  const normalizedRenewalDate = formatDisplayDate(apiStatus.renewalDate);
+
+  return {
+    subscriptionId: apiStatus.subscriptionId || null,
+    plan: apiStatus.plan || fallback.plan,
+    active: Boolean(apiStatus.active),
+    status: apiStatus.status || fallback.status,
+    renewalDate: normalizedRenewalDate,
+    daysLeft: calculateDaysLeft(apiStatus.renewalDate),
+    monthsActive: Number(apiStatus.monthsActive) || 0,
+    paymentMethod: apiStatus.paymentMethod || fallback.paymentMethod,
+  };
+}
+
 export function GymDataProvider({ children }) {
   const { user } = useAuth();
   const [memberMeta, setMemberMeta] = useState(() => ({
@@ -576,6 +628,9 @@ export function GymDataProvider({ children }) {
   const [nutritionPlans, setNutritionPlans] = useState([]);
   const [nutritionTemplates, setNutritionTemplates] = useState([]);
   const [classes, setClasses] = useState(() => readStorage(CLASSES_STORAGE_KEY, DEFAULT_CLASSES));
+  const [membershipStatus, setMembershipStatus] = useState(null);
+  const [membershipLoading, setMembershipLoading] = useState(false);
+  const [membershipCheckoutLoading, setMembershipCheckoutLoading] = useState(false);
 
   useEffect(() => {
     writeStorage(MEMBER_META_STORAGE_KEY, memberMeta);
@@ -672,6 +727,45 @@ export function GymDataProvider({ children }) {
       isActive = false;
     };
   }, [user]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    async function syncMembershipStatus() {
+      if (!user?.email) {
+        if (isActive) {
+          setMembershipStatus(null);
+          setMembershipLoading(false);
+        }
+        return;
+      }
+
+      setMembershipLoading(true);
+
+      try {
+        const response = await billingSubscriptionsAPI.getMine();
+        if (!isActive) {
+          return;
+        }
+
+        setMembershipStatus(mapMembershipStatusRecord(response.data, user, memberMeta));
+      } catch {
+        if (isActive) {
+          setMembershipStatus(buildFallbackMembershipStatus(user, memberMeta));
+        }
+      } finally {
+        if (isActive) {
+          setMembershipLoading(false);
+        }
+      }
+    }
+
+    syncMembershipStatus();
+
+    return () => {
+      isActive = false;
+    };
+  }, [user, memberMeta]);
 
   useEffect(() => {
     let isActive = true;
@@ -1019,6 +1113,51 @@ export function GymDataProvider({ children }) {
     };
   };
 
+  const startMembershipCheckout = async (planCode) => {
+    setMembershipCheckoutLoading(true);
+
+    try {
+      const response = await billingSubscriptionsAPI.startCheckout(
+        planCode ? { planCode } : {},
+      );
+
+      setMembershipStatus((currentStatus) => {
+        const fallbackStatus = buildFallbackMembershipStatus(user, memberMeta);
+        return {
+          ...(currentStatus || fallbackStatus),
+          status: response.data?.status || 'PENDING',
+          active: false,
+        };
+      });
+
+      return response.data?.checkoutUrl || '';
+    } finally {
+      setMembershipCheckoutLoading(false);
+    }
+  };
+
+  const refreshMembershipStatus = async () => {
+    if (!user?.email) {
+      setMembershipStatus(null);
+      return null;
+    }
+
+    setMembershipLoading(true);
+
+    try {
+      const response = await billingSubscriptionsAPI.getMine();
+      const nextStatus = mapMembershipStatusRecord(response.data, user, memberMeta);
+      setMembershipStatus(nextStatus);
+      return nextStatus;
+    } catch {
+      const fallbackStatus = buildFallbackMembershipStatus(user, memberMeta);
+      setMembershipStatus(fallbackStatus);
+      return fallbackStatus;
+    } finally {
+      setMembershipLoading(false);
+    }
+  };
+
   const value = {
     members,
     routines,
@@ -1027,6 +1166,9 @@ export function GymDataProvider({ children }) {
     nutritionPlans,
     nutritionTemplates,
     classes,
+    membershipStatus,
+    membershipLoading,
+    membershipCheckoutLoading,
     addMember,
     addRoutine,
     createRoutineTemplate,
@@ -1041,6 +1183,8 @@ export function GymDataProvider({ children }) {
     assignNutritionTemplate,
     addClass,
     enrollInClass,
+    refreshMembershipStatus,
+    startMembershipCheckout,
     getAssignedRoutinesForUser,
     getAssignedNutritionForUser,
   };

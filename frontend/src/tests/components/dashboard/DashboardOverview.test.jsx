@@ -1,66 +1,68 @@
 import React from 'react';
-import { describe, expect, it } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import DashboardOverview from '../../../components/layout/dashboard/DashboardOverview';
 
+function renderOverview(props = {}) {
+  return render(
+    <MemoryRouter>
+      <DashboardOverview {...props} />
+    </MemoryRouter>,
+  );
+}
+
 describe('DashboardOverview', () => {
-  it('renders welcome with backend user name', () => {
-    render(<DashboardOverview user={{ name: 'Lucia Perez' }} />);
-
-    expect(screen.getByRole('heading', { name: /Bienvenido Lucia Perez/i })).toBeInTheDocument();
-  });
-
-  it('renders fallback welcome name when user is missing', () => {
-    render(<DashboardOverview />);
-
-    expect(screen.getByRole('heading', { name: /Bienvenido Emanuel Martinez/i })).toBeInTheDocument();
-  });
-
-  it('renders today workout message from assigned routine data', () => {
-    render(<DashboardOverview user={{ name: 'Lucia Perez' }} />);
-
-    expect(screen.getAllByText('Hoy toca Pecho y tríceps.').length).toBeGreaterThan(0);
-  });
-
-  it('renders alternative message when there is no assigned routine', () => {
-    render(
-      <DashboardOverview
-        user={{ name: 'Lucia Perez' }}
-        dashboardData={{
-          currentRoutine: null,
-        }}
-      />,
-    );
+  it('renders welcome with authenticated user name', () => {
+    renderOverview({ user: { name: 'Lucia Perez' } });
 
     expect(
-      screen.getByText('Hoy no tenés una rutina asignada. Hablá con tu entrenador para activarla.'),
+      screen.getByRole('heading', { name: /La Resistencia te saluda, Lucia Perez/i }),
     ).toBeInTheDocument();
   });
 
-  it('renders top cards from dashboard data overrides', () => {
-    render(
-      <DashboardOverview
-        user={{ name: 'Lucia Perez' }}
-        dashboardData={{
-          currentRoutine: {
-            name: 'Hipertrofia Torso/Pierna',
-            daysPerWeek: 5,
-            focus: 'Hipertrofia',
-            todayWorkout: 'Piernas',
-          },
-          nutrition: {
-            status: 'Plan alto en proteína',
-            calories: '2400 kcal/día',
-            protein: '170g proteína',
-          },
-          goals: ['Aumentar masa muscular en 8 semanas'],
-        }}
-      />,
-    );
+  it('renders fallback athlete name when user is missing', () => {
+    renderOverview();
 
-    expect(screen.getAllByText('Hipertrofia Torso/Pierna').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Plan alto en proteína').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Aumentar masa muscular en 8 semanas').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Hoy toca Piernas.').length).toBeGreaterThan(0);
+    expect(
+      screen.getByRole('heading', { name: /La Resistencia te saluda, Atleta/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('renders fallback motivational phrase when there is no assigned routine', () => {
+    renderOverview({
+      user: { name: 'Lucia Perez' },
+      dashboardData: {
+        currentRoutine: null,
+      },
+    });
+
+    expect(
+      screen.getByText(
+        'Cada progreso empieza con una decisión firme: volver a entrenar.',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('uses checkout action copy when membership is inactive', () => {
+    const onMembershipAction = vi.fn();
+
+    renderOverview({
+      user: { name: 'Lucia Perez' },
+      dashboardData: {
+        membershipStatus: {
+          active: false,
+          plan: 'Sin plan asignado',
+          status: 'EXPIRED',
+        },
+      },
+      onMembershipAction,
+      membershipActionLabel: 'Activar membresía',
+    });
+
+    const actionButton = screen.getByRole('button', { name: 'Activar membresía' });
+    fireEvent.click(actionButton);
+
+    expect(onMembershipAction).toHaveBeenCalledTimes(1);
   });
 });

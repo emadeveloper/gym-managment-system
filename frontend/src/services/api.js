@@ -108,4 +108,9 @@ export const nutritionTemplatesAPI = {
     assign: (id, assignmentData) => api.post(`/nutrition-templates/${id}/assign`, assignmentData),
 };
 
+export const billingSubscriptionsAPI = {
+    getMine: () => api.get("/billing/subscriptions/me"),
+    startCheckout: (payload = {}) => api.post("/billing/subscriptions/checkout", payload),
+};
+
 export default api;
